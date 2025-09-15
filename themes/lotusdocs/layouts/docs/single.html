@@ -46,6 +46,19 @@
         {{ partial (printf "%s/%s" ($.Scratch.Get "pathName") "gitinfo") . }}
     {{ end -}}
 
+    {{/* 文章底部版权信息 - 结束 */}}
+
+    {{/* 文章评论区 */}}
+    {{ if .Site.Params.comments.enabled | default false -}}
+        {{ if or (.Site.Params.plausible.dataDomain) (.Site.Config.Services.GoogleAnalytics.ID) }}
+            {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "comments.html") . -}}
+        {{ else }}
+            {{ errorf "Either Google Analytics or Plausible Analytics must be configured before enabling the Comments Widget." }}
+        {{ end }}
+    {{ end -}}
+
+    {{/* 私密文章访问控制 - 开始 */}}
+
     <!-- 私密文章访问控制 -->
     {{ if .Params.private }}
     
