@@ -1,0 +1,87 @@
+<div class="d-flex justify-content-between align-items-center gap-3 pb-2 mt-1 mt-sm-0 w-95">
+
+  <!-- 面包屑导航 -->
+  <nav aria-label="breadcrumb" class="m-0">
+    <ul id="breadcrumbs" class="breadcrumb bg-transparent mb-0 mb-sm-0" itemscope itemtype="https://schema.org/BreadcrumbList">
+      {{- $data := newScratch }}
+      {{ $docRoot := .FirstSection.Title }}
+      {{- range $index, $value := (after 1 .Ancestors.Reverse) }}
+        {{ if eq $docRoot .Title }}
+          <li class="breadcrumb-item text-capitalize active" aria-current="page" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            {{- $data.Set "counter" $index }}
+            {{- $data.Add "counter" 1 }}
+            {{- $url := or .Params.url .RelPermalink -}}
+            <a itemprop="item" href="{{ $url }}">
+              <i class="material-icons size-20 align-text-bottom" itemprop="name">Home</i>
+            </a>
+            <meta itemprop="position" content='{{ $data.Get "counter"}}' />
+          </li>
+        {{ else }}
+          <li class="breadcrumb-item text-capitalize" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            {{- $data.Add "counter" 1 }}
+            {{- $url := or .Params.url .RelPermalink -}}
+            <a itemprop="item" href="{{ $url }}">
+              <span itemprop="name">{{ .Title }}</span>
+            </a>
+            <meta itemprop="position" content='{{ $data.Get "counter"}}' />
+          </li>
+        {{ end }}
+      {{- end }}
+      {{ if eq .Title $docRoot }}
+        <li class="breadcrumb-item text-capitalize active" aria-current="page" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          {{- $data.Add "counter" 1 }}
+          <i class="material-icons size-20 align-text-bottom" itemprop="name">Home</i>
+          <meta itemprop="position" content='{{ $data.Get "counter"}}' />
+        </li>
+      {{ else }}
+        <li class="breadcrumb-item text-capitalize active" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          {{- $data.Add "counter" 1 }}
+          <span itemprop="name">{{ .Title }}</span>
+          <meta itemprop="position" content='{{ $data.Get "counter"}}' />
+        </li>
+      {{ end }}
+    </ul>
+  </nav>
+
+  <!-- 文章信息 -->
+  {{ if .IsPage }}
+  <div class="post-meta d-flex flex-wrap align-items-center gap-3" style="font-size: 0.9rem; color: #666;">
+    <a href="{{ .Params.author.link }}">👤 {{ .Params.author.name }}</a>
+    <a href="/archives">📅 {{ .Date.Format "2006-01-02" }}</a>
+    <span>📂 
+      {{ range $index, $cat := .Params.tags }}
+        {{ if $index }}/{{ end }}{{ $cat }}
+      {{ end }}
+    </span>
+    <span>📖 {{ len (.Content | plainify) }} </span>
+    <span>⏱ {{ .ReadingTime }}m</span>
+    <span>👁 <span id="busuanzi_page_pv"></span></span>
+    <span>⏲ <span id="busuanzi_page_uv"></span></span>
+  </div>
+  {{ end }}
+
+</div>
+
+<!-- 自定义样式：添加 w-95 并适配小屏幕 -->
+<style>
+.w-95 {
+  width: 95% !important;
+  margin: 0 auto; /* 水平居中，左右留 2.5% 空白 */
+}
+
+/* 小屏幕适配：避免子元素溢出 */
+@media (max-width: 768px) {
+  .d-flex.w-95 {
+    flex-direction: column; /* 垂直排列子元素 */
+    align-items: flex-start !important; /* 子元素左对齐（可选，根据视觉需求调整） */
+  }
+  .post-meta {
+    width: 100%;
+    justify-content: flex-start !important; /* 文章信息左对齐 */
+  }
+}
+</style>
+
+
+<!-- 不蒜子统计 -->
+<script defer src="https://busuanzi.9420.ltd/js"></script>

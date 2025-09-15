@@ -1,0 +1,47 @@
+<!-- 主导航菜单（支持下拉子菜单） -->
+{{ if .Site.Menus.primary }}
+    <ul class="navbar-nav flex-row gap-1">
+        {{/* 使用Hugo内置的菜单树结构 */}}
+        {{ range .Site.Menus.primary }}
+            {{ if not .Parent }}
+                {{ $hasChildren := .HasChildren }}
+                {{ $children := .Children }}
+                
+                {{ $currentURL := $.RelPermalink }}
+                {{ with .Page }}{{ $currentURL = .RelPermalink }}{{ end }}
+                
+                {{ if $hasChildren }}
+                    {{/* 有子菜单的项目 - 使用下拉菜单 */}}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle px-3 py-2 rounded" 
+                           href="#" 
+                           role="button" 
+                           data-bs-toggle="dropdown" 
+                           aria-expanded="false">
+                            {{ .Name }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            {{/* 只渲染子菜单项 */}}
+                            {{ range $children }}
+                                <li>
+                                    <a class="dropdown-item {{ if eq $currentURL (relLangURL .URL) }}active{{ end }}" 
+                                       href="{{ .URL | relLangURL }}">
+                                        {{ .Name }}
+                                    </a>
+                                </li>
+                            {{ end }}
+                        </ul>
+                    </li>
+                {{ else }}
+                    {{/* 没有子菜单的普通项目 */}}
+                    <li class="nav-item">
+                        <a class="nav-link px-3 py-2 rounded {{ if eq $currentURL (relLangURL .URL) }}active bg-primary/10 text-primary{{ end }}"
+                            href="{{ .URL | relLangURL }}">
+                            {{ .Name }}
+                        </a>
+                    </li>
+                {{ end }}
+            {{ end }}
+        {{ end }}
+    </ul>
+{{ end }}

@@ -1,0 +1,48 @@
+{{ $dest := .Destination }}
+{{ $text := .PlainText }}
+{{ $url := urls.Parse $dest }}
+
+{{ $image := newScratch }}
+{{ with $url.Scheme }}
+  <!-- 对于远程图片，直接使用URL而不尝试获取资源 -->
+  {{ $image.Set "resource" false }}
+  {{ $image.Set "isRemote" true }}
+{{ else }}
+  {{  $image.Set "resource" (resources.Get $dest) }}
+  {{ $image.Set "isRemote" false }}
+{{ end }}
+
+{{ if .Title }}
+  <figure>
+    {{ if ($image.Get "isRemote") }}
+      <!-- 远程图片直接使用原始URL -->
+      <img src="{{ $dest | safeURL }}" alt="{{ $text }}" loading="lazy">
+    {{ else }}
+      {{ with ($image.Get "resource") }}
+        {{ if eq .MediaType.SubType "svg" }}
+          {{ .Content | safeHTML }}
+        {{ else }}
+          <img src="{{ .RelPermalink | safeURL }}" alt="{{ $text }}" width="{{ .Width }}" height="{{ .Height }}" loading="lazy">
+        {{ end }}
+      {{ else }}
+        <img src="{{ $dest | safeURL }}" alt="{{ $text }}" loading="lazy">
+      {{ end }}
+    {{ end }}
+    <figcaption>{{ .Title | markdownify }}</figcaption>
+  </figure>
+{{ else }}
+  {{ if ($image.Get "isRemote") }}
+    <!-- 远程图片直接使用原始URL -->
+    <img src="{{ $dest | safeURL }}" alt="{{ $text }}" loading="lazy">
+  {{ else }}
+    {{ with ($image.Get "resource") }}
+      {{ if eq .MediaType.SubType "svg" }}
+        {{ .Content | safeHTML }}
+      {{ else }}
+        <img src="{{ .RelPermalink | safeURL }}" alt="{{ $text }}" width="{{ .Width }}" height="{{ .Height }}" loading="lazy">
+      {{ end }}
+    {{ else }}
+      <img src="{{ $dest | safeURL }}" alt="{{ $text }}" loading="lazy">
+    {{ end }}
+  {{ end }}
+{{ end }}

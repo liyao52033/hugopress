@@ -1,0 +1,15 @@
+Thumbs.db
+dist
+.codebuddy
+.tmp
+.env
+.env.*
+.sass-cache
+npm-debug.log
+node_modules
+builds
+package-lock.json
+yarn.lock
+.hugo_build.lock
+public
+resources

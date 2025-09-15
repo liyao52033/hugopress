@@ -1,0 +1,94 @@
+{{ define "main" }}
+    <!-- override Prism's default copy messages to 'empty'. Required by CSS styling.
+         see: https://prismjs.com/plugins/copy-to-clipboard/#styling -->
+    <div data-prismjs-copy="" data-prismjs-copy-success="" data-prismjs-copy-error="">
+        {{ .Content }}
+    </div>
+
+    {{ if and .GitInfo .Site.Params.docs.repoURL -}}
+        {{ partial (printf "%s/%s" ($.Scratch.Get "pathName") "gitinfo") . }}
+    {{ end -}}
+
+    {{ if .Page.Store.Get "hasMermaid" }}
+    {{ $mermaid := resources.Get (printf "%s/%s" ($.Scratch.Get "pathName") "js/mermaid.min.js") }}
+    {{ if hugo.IsProduction }}
+        {{ $mermaid = $mermaid | fingerprint "sha384" }}
+    {{ end }}
+    <script src="{{ $mermaid.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $mermaid.Data.Integrity }}"{{ end }}></script>
+    <script>
+        const config = {
+            startOnLoad:true,
+            logLevel: "error",
+            align: "center",
+            theme:"null"
+        };
+        mermaid.initialize(config);
+    </script>
+    {{ end }}
+
+    {{ if .Site.Params.feedback.enabled | default false -}}
+        {{ if or (.Site.Params.plausible.dataDomain) (.Site.Config.Services.GoogleAnalytics.ID) }}
+            {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "footer/feedback.html") . -}}
+        {{ else }}
+            {{ errorf "Either Google Analytics or Plausible Analytics must be configured before enabling the Feedback Widget." }}
+        {{ end }}
+    {{ end -}}
+
+    {{/* 文章底部声明模板 - 调整缝隙与图标 */}}
+    <div class="custom-block tip article-bottom-tip d-flex flex-column" style="margin-top: 5rem; padding-top: 0.5rem;">
+    <!-- 左侧图标 + 声明标题行 -->
+    <div class="d-flex align-items-center mb-2">
+        <p class="custom-block-title mb-0">声明</p>
+    </div>
+    <p class="mb-2"> 作者： <a href="https://xiaoying.org.cn" rel="noopener noreferrer" target="_blank">liyao</a></p>
+    <p class="mb-2"> 版权：本博客所有文章除特别声明外，均采用<a href="http://www.suncai.net/PubLicense/CCBY40.html" target="_blank">CCBY-NC-SA4.O</a>许可协议。转载请注明! </p>
+    <p class="link-row" style="margin-bottom: 0px;"> 链接： <a href="{{ .Permalink }}" class="page-url" rel="noopener noreferrer" target="_blank">{{ .Permalink }}</a></p>
+    </div>
+
+    <!-- 私密文章访问控制 -->
+    {{ if .Params.private }}
+    
+    <script>
+     // 页面加载后，立即验证 Token
+      async function verifyToken() {
+        // 1. 从 localStorage 获取 Token
+        const token = localStorage.getItem('token');
+
+        if(!token){
+            localStorage.setItem('redirectUrl', window.location.href);
+            window.location.href = '/login'; 
+        }
+
+        try {
+          // 2. 调用后端验证接口，传递 Token
+          const response = await fetch('/coze/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token }) // 把 Token 发给后端校验
+          });
+          const result = await response.json();
+
+          // 3. 根据后端结果处理
+          if (!result.success) {
+            // Token 无效/过期：清除无效 Token，显示登录提示
+            localStorage.removeItem('token'); // 删掉无效的 Token
+            localStorage.setItem('redirectUrl', window.location.href);
+            window.location.href = '/login'; 
+            
+          }
+        } catch (err) {
+            localStorage.removeItem('token'); // 删掉无效的 Token
+            localStorage.setItem('redirectUrl', window.location.href);
+            window.location.href = '/login'; 
+        }
+      }
+
+      // 页面加载时触发验证
+      verifyToken();
+    </script>
+
+   
+   {{ end }}
+
+
+{{ end }}

@@ -1,0 +1,247 @@
+{{ $dayjs := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/dayjs.min.js") }}
+{{ $relativeTime := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/relativeTime.min.js") }}
+{{ $app := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/app.js") -}}
+
+{{ $slice := slice $dayjs $relativeTime $app -}}
+
+{{ if and (.Site.Params.docsearch.appID) (.Site.Params.docsearch.apiKey) -}}
+    {{ $docsearch := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/docsearch.min.js") }}
+    {{ $slice = $slice | append $docsearch -}}
+{{ end }}
+
+{{ if site.Params.docs.toc | default true }}
+    {{ if eq .Site.Params.docs.scrollSpy true -}}
+        {{ $simplescrollspy := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/simple-scrollspy.min.js") }}
+        {{ $slice = $slice | append $simplescrollspy -}}
+    {{ end -}}
+
+    {{ if eq .Site.Params.docs.scrollSpy true -}}
+        {{ $scrollspyScript := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/scrollspy-script.js") }}
+        {{ $scrollspyScript := $scrollspyScript | js.Build -}}
+        {{ $slice = $slice | append $scrollspyScript -}}
+    {{ end -}}
+{{ end -}}
+
+{{ if site.Params.docs.tocMobile | default true }}
+    {{ $tocmobilescrollspy := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/toc-mobile-scrollspy.js") }}
+    {{ $slice = $slice | append $tocmobilescrollspy -}}
+{{ end -}}
+
+{{ if eq .Site.Params.docs.prism true -}}
+    {{ $prism := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/prism.js") }}
+    {{- $opts := dict
+        "params" (dict "langPath" (urls.JoinPath .Site.BaseURL "docs/js/components/"))
+    -}}
+    {{ $prism := $prism | js.Build $opts -}}
+    {{ $slice = $slice | append $prism -}}
+{{ end -}}
+
+<!-- Bootstrap JS -->
+{{ $js := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/bootstrap.js") }}
+{{ $params := dict }}
+{{ $sourceMap := cond hugo.IsProduction "" "inline" }}
+{{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params }}
+{{ $js = $js | js.Build $opts }}
+{{ if hugo.IsProduction }}
+    {{ $js = $js | fingerprint "sha384" }}
+{{ end }}
+    <script src="{{ $js.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $js.Data.Integrity }}"{{ end -}} defer></script>
+
+{{ $js := $slice | resources.Concat (printf "/%s/%s" ($.Scratch.Get "pathName") "js/bundle.js") -}}
+
+{{- if not hugo.IsServer }}
+    {{- $js := $js | minify | fingerprint "sha384" }}
+    <script type="text/javascript" src="{{ $js.Permalink }}" integrity="{{ $js.Data.Integrity }}" crossorigin="anonymous" defer></script>
+{{- else }}
+    <script type="text/javascript" src="{{ $js.Permalink }}" defer></script>
+{{- end }}
+<script>
+  (function () {
+    try {
+      var path = window.location && window.location.pathname ? window.location.pathname : "/";
+      function norm(u) {
+        if (!u) return "/";
+        var s = u.trim();
+        if (!s.startsWith("/")) s = "/" + s;
+        if (s.length > 1 && s.endsWith("/")) s = s.slice(0, -1);
+        return s;
+      }
+      var cur = norm(path);
+      var links = document.querySelectorAll('a.sidebar-nested-link[data-url], a.sidebar-root-link[data-url]');
+      var matched = null;
+      links.forEach(function (a) {
+        var t = norm(a.getAttribute('data-url') || "");
+        if (t === cur) matched = a;
+      });
+      if (matched) {
+        // 清理旧的 current，避免同级多选
+        document.querySelectorAll('.sidebar-menu li.current').forEach(function (el) { el.classList.remove('current'); });
+
+        var li = matched.closest('li');
+        if (li) li.classList.add('current');
+
+        // 仅在面包屑进入的分区页（多为 Section 列表页，URL 多以 / 结尾）里，限制“当前分支”仅高亮匹配项
+        try {
+          // 基于 location.pathname 判断是否为目录页（_index.md 对应的路径通常以 / 结尾）
+          var curPath = window.location && window.location.pathname ? window.location.pathname : '';
+          var href = matched.getAttribute('data-url') || matched.getAttribute('href') || '';
+
+          // 统一规范化比较，避免前缀/尾斜杠/大小写/编码差异
+          function norm(u){
+            try{
+              // 仅取路径部分
+              var a = document.createElement('a');
+              a.href = u;
+              var p = (a.pathname || u || '').toString();
+              // 解码、去查询和锚点（a.pathname 已无查询锚点）
+              p = decodeURI(p);
+              // 统一分隔、多斜杠
+              p = p.replace(/\/{2,}/g,'/');
+              // 去掉 index.html 等
+              p = p.replace(/\/index\.html?$/i,'/');
+              // 统一末尾斜杠：目录页需以 / 结尾
+              if (!/\/$/.test(p)) p = p + '/';
+              return p;
+            }catch(e){ return (u||'').toString(); }
+          }
+
+          var nHref = href ? norm(href) : '';
+          var nPath = curPath ? norm(curPath) : '';
+
+          // 目录页模式：规范化后相等 或 pathname 以链接为前缀，且链接以 / 结尾（视为 _index.md）
+          if (nHref && nPath && /\/$/.test(nHref) && (nHref === nPath || nPath.startsWith(nHref))) {
+            // 目录页：只高亮父元素
+            // 1) 全局清理所有 current（覆盖 SSR 预置）
+            var sidebar = document.querySelector('.sidebar-menu');
+            if (sidebar) {
+              sidebar.querySelectorAll('li.current').forEach(function (el) { el.classList.remove('current'); });
+            }
+            // 2) 仅父元素 li 高亮
+            if (li) li.classList.add('current');
+          }
+        } catch (e) { /* noop */ }
+
+        // 展开祖先（仅展开，不给祖先加 current）
+        var el = li ? li.parentElement : null;
+        while (el) {
+          if (el.classList && el.classList.contains('sidebar-submenu')) {
+            el.classList.add('d-block');
+            var dd = el.closest('.sidebar-dropdown');
+            if (dd) dd.classList.add('active');
+            el = dd ? dd.parentElement : el.parentElement;
+          } else {
+            el = el.parentElement;
+          }
+        }
+      }
+    } catch (e) {
+      if (window.console && console.debug) console.debug('sidebar pathname highlight:', e);
+    }
+  })();
+</script>
+<style>
+/* 可折叠代码块样式：默认折叠到 400px，高度超出时显示底部渐变与按钮 */
+.cb-collapsible {
+  position: relative;
+  max-height: 400px;
+  overflow: hidden;
+  border-radius: inherit;
+  padding-bottom: 2.5rem; /* 为底部按钮预留空间，防止遮挡代码 */
+}
+.cb-collapsible::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0; /* 遮罩贴紧最底部 */
+  height: 3rem;
+  pointer-events: none;
+  z-index: 0; /* 低于按钮，避免遮住按钮 */
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.9));
+}
+html.dark .cb-collapsible::after {
+  background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.8));
+}
+.cb-collapsible.is-expanded {
+  max-height: none;
+  overflow: visible;
+}
+.cb-collapsible.is-expanded::after {
+  display: none;
+}
+/* 按钮样式 */
+.cb-toggle-btn {
+  position: sticky; /* 始终贴在容器可视区域底部 */
+  bottom: 0;
+  display: block;
+  margin: 0.5rem auto 0; /* 底部居中 */
+  z-index: 2; /* 高于遮罩 */
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border, rgba(0,0,0,0.1));
+  background: var(--surface, #fff);
+  color: inherit;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  cursor: pointer;
+}
+html.dark .cb-toggle-btn {
+  background: var(--surface, #121212);
+  border-color: rgba(255,255,255,0.16);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+}
+</style>
+<script>
+(function () {
+  const LIMIT = 400;
+  const WRAP_CLASS = 'cb-collapsible';
+  const EXPANDED = 'is-expanded';
+  const selectors = ['.highlight', '.chroma'];
+
+  function findBlocks() {
+    const set = new Set();
+    selectors.forEach(s => document.querySelectorAll(s).forEach(el => set.add(el)));
+    document.querySelectorAll('pre > code').forEach(code => {
+      const pre = code.parentElement;
+      if (!pre.closest(selectors.join(','))) set.add(pre);
+    });
+    return Array.from(set);
+  }
+
+  function wrapIfNeeded(block) {
+    if (block.closest('.' + WRAP_CLASS)) return;
+    const need = (block.scrollHeight || block.offsetHeight || 0) > LIMIT;
+    if (!need) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = WRAP_CLASS;
+    const parent = block.parentNode;
+    parent.insertBefore(wrapper, block);
+    wrapper.appendChild(block);
+
+    const btn = document.createElement('button');
+    btn.className = 'cb-toggle-btn';
+    btn.type = 'button';
+    btn.setAttribute('aria-expanded', 'false');
+    btn.textContent = '展开';
+    wrapper.appendChild(btn);
+
+    btn.addEventListener('click', function () {
+      const expanded = wrapper.classList.toggle(EXPANDED);
+      btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      btn.textContent = expanded ? '收起' : '展开';
+    });
+  }
+
+  function init() {
+    findBlocks().forEach(wrapIfNeeded);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>

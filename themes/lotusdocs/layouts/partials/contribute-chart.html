@@ -1,0 +1,189 @@
+<!-- 引入 ECharts-->
+{{$js:= resources.Get "js/echarts.min.js" }}
+<script src="{{ $js.RelPermalink }}"></script>
+
+<!-- 样式 -->
+<style>
+.contribution-container {
+    background: white;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+#contribute-chart {
+    width: 100%;
+    height: 180px;
+}
+
+/* 图例样式 */
+.contribution-legend {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #666;
+}
+
+.legend-colors {
+    display: flex;
+    gap: 2px;
+    margin: 0 8px;
+}
+
+.legend-color {
+    width: 8px;
+    height: 8px;
+    border-radius: 1px;
+}
+</style>
+
+<!-- 热力图容器 -->
+<div class="container">
+    <div class="contribution-container">
+        <div id="contribute-chart"></div>
+        
+        <div class="contribution-legend">
+            <span>少</span>
+            <div class="legend-colors">
+                <div class="legend-color" style="background-color: #e9ecef;"></div>
+                <div class="legend-color" style="background-color: #b7ebd0;"></div>
+                <div class="legend-color" style="background-color: #81c784;"></div>
+                <div class="legend-color" style="background-color: #519e5a;"></div>
+                <div class="legend-color" style="background-color: #2e7d32;"></div>
+            </div>
+            <span>多</span>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化图表
+    const chartDom = document.getElementById('contribute-chart');
+    const myChart = echarts.init(chartDom);
+    
+    // 从Hugo获取文档数据
+    const contributeData = [
+        {{ range $index, $page := where .Site.RegularPages "Type" "docs" }}
+            ["{{ $page.Date.Format "2006-01-02" }}", 1]{{ if ne $index (sub (len (where .Site.RegularPages "Type" "docs")) 1) }},{{ end }}
+        {{ end }}
+    ];
+
+    // 日期格式化
+    const formatDate = (date) => {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    };
+
+    // 获取当前日期和一年前的日期
+    const today = new Date();
+    const oneYearAgo = new Date(today);
+    oneYearAgo.setFullYear(today.getFullYear() - 1);
+    
+    // 生成当前日期往前一年的所有日期（按周日对齐）
+    function generateDateRange() {
+        // 调整开始日期为一年前当月的第一个周日
+        const startDate = new Date(oneYearAgo);
+        startDate.setDate(startDate.getDate() - startDate.getDay());
+        
+        // 生成范围内所有日期
+        const dates = [];
+        let currentDate = new Date(startDate);
+        while (currentDate <= today) {
+            const year = currentDate.getFullYear();
+            const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+            const day = String(currentDate.getDate()).padStart(2, '0');
+            dates.push(`${year}-${month}-${day}`);
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        return dates;
+    }
+    
+    // 生成日期范围
+    const allDates = generateDateRange();
+    const beforeOnYear = formatDate(new Date(new Date().getTime() - 365 * 24 * 60 * 60 * 1000), "yyyy-MM-dd");
+  
+    // 统计每日贡献数量
+    const contributionMap = new Map();
+    allDates.forEach(date => contributionMap.set(date, 0));
+    contributeData.forEach(([date, count]) => {
+        if (contributionMap.has(date)) { // 只统计范围内的日期
+            contributionMap.set(date, (contributionMap.get(date) || 0) + count);
+        }
+    });
+    
+    // 转换为图表数据
+    const chartData = Array.from(contributionMap, ([date, count]) => [date, count]);
+    
+    
+    
+    // 配置项
+    const option = {
+        tooltip: {
+            formatter: (params) => {
+                const [date, count] = params.value;
+                const dateObj = new Date(date);
+                const dateStr = dateObj.toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'long'
+                });
+                return `${dateStr}<br/>${count} ${count === 1 ? '篇文章' : '篇文章'}`;
+            },
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            borderColor: '#ddd',
+            borderWidth: 1,
+            borderRadius: 4,
+            padding: 8
+        },
+        visualMap: {
+            show: false,
+            min: 0,
+            max: 5,
+            inRange: {
+            color: ["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127", "#196127"],
+            },
+        },
+        calendar: {
+            left: "center",
+            itemStyle: {
+                color: "#ebedf0",
+                borderWidth: 5,
+                borderColor: "#fff",
+                shadowBlur: 0,
+            },
+            cellSize: [20, 20],
+            range: [beforeOnYear, today],
+            splitLine: true,
+            dayLabel: {
+                firstDay: 7,
+                nameMap: "ZH",
+                color: "#3c3c43",
+            },
+            monthLabel: {
+                color: "#3c3c43"
+            },
+            yearLabel: {
+                show: true,
+                position: "right",
+            },
+            silent: {
+                show: false,
+            },
+        },
+        series: [{
+            type: 'heatmap',
+            coordinateSystem: 'calendar',
+            data: chartData
+        }]
+    };
+
+    myChart.setOption(option);
+    
+    // 响应式调整
+    window.addEventListener('resize', () => {
+        myChart.resize();
+    });
+});
+</script>

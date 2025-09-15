@@ -1,0 +1,19 @@
+{
+  "name": "hugo-teek",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "server": "hugo server --disableFastRender",
+    "build": "hugo",
+    "build:all": "hugo -D -F",
+    "clean": "hugo --cleanDestinationDir",
+    "proxy": "node proxy.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "http-proxy": "^1.18.1"
+  }
+}

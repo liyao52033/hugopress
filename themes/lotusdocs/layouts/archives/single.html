@@ -1,0 +1,157 @@
+{{ define "main" }}
+<div class="container py-4">
+  
+  {{ partial "contribute-chart.html" . }} <!-- 引入热力图组件 -->
+
+  <!-- 归档列表区域 -->
+  <div class="archive-list">
+    
+    {{/* 获取所有文章，过滤掉无效日期的文章 */}}
+    {{ $allPages := where .Site.Pages "Kind" "page" }}
+    {{ $posts := slice }}
+    {{ range $allPages }}
+      {{ if not (eq (.Date.Format "2006") "0001") }}
+        {{ $posts = $posts | append . }}
+      {{ end }}
+    {{ end }}
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ .Title }}</h1> 
+        <span>总共 {{len $posts}} 篇文章</span>
+    </div>
+    
+    {{/* 使用更简单的分组方法 */}}
+    {{ $postsByYear := $posts.GroupByDate "2006" }}
+
+    {{/* 按年份循环 */}}
+    {{ range $postsByYear }}
+      {{ $year := .Key }}
+      {{ $yearPosts := .Pages }}
+      {{ $postsByMonth := $yearPosts.GroupByDate "01" }}
+
+      <div class="year-card card mb-6 shadow-sm">
+        <div class="card-header bg-primary text-white">
+          {{ $year }} 年
+        </div>
+        <div class="card-body p-4">
+          {{/* 按月份循环 */}}
+          {{ range $postsByMonth }}
+            {{ $month := .Key }}
+            {{ $monthPosts := .Pages }}
+            {{ $monthName := (index $monthPosts 0).Date.Format "01月" }}
+
+            <div class="month-card mb-4">
+              <h3 class="mb-3 text-lg font-semibold text-gray-700">{{ $monthName }}</h3>
+              <ul class="article-list list-unstyled">
+                {{ range $monthPosts }}
+                  <li class="article-item mb-2">
+                    <a href="{{ .RelPermalink }}" class="d-block">
+                      <div class="article-card card p-3 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                        <div class="card-body p-0">
+                          <span class="text-gray-800">{{ .Title }}</span>
+                          <span class="text-gray-500 small float-end">{{ .Date.Format "02日" }}</span>
+                        </div>
+                      </div>
+                    </a>
+                  </li>
+                {{ end }}
+              </ul>
+            </div>
+          {{ end }}
+        </div>
+      </div>
+    {{ end }}
+
+    {{/* 处理没有文章的情况 */}}
+    {{ if eq (len $posts) 0 }}
+      <div class="no-articles text-center py-10 text-gray-500">
+        <p>暂无文章</p>
+      </div>
+    {{ end }}
+  </div>
+</div>
+
+<style>
+ .text-white {
+    --bs-text-opacity: 1;
+    color: rgb(35 132 143) !important;
+  }
+  
+  /* ====== 基础归档样式 ====== */
+  .archive-list {
+    max-width: 80%;
+    margin: 0 auto;
+  }
+
+  /* 年份卡片 */
+  .year-card {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+    margin-bottom: 1.5rem;
+  }
+
+  .year-card .card-header {
+    font-size: 1.5rem;
+    font-weight: bold;
+    background-color: #0d6efd; /* Bootstrap primary */
+    color: #fff;
+    transition: background-color 0.3s ease;
+  }
+
+  /* 月份标题 */
+  .month-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #374151;
+    border-left: 4px solid #0d6efd;
+    padding-left: 0.5rem;
+  }
+
+  /* 文章卡片 */
+  .article-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background-color: #fff;
+  }
+
+  /* 文章卡片正文 */
+  .article-item .card-body {
+    padding: 0.5rem 1rem;
+  }
+
+  .article-item a {
+    text-decoration: none;
+  }
+  .article-item a:hover {
+    text-decoration: underline;
+  }
+
+  /* ====== 桌面端悬浮效果 ====== */
+  @media (min-width: 768px) {
+    .article-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .year-card:hover {
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .year-card:hover .card-header {
+      background-color: #3399ff; /* 浅蓝色 */
+    }
+  }
+
+  /* ====== 移动端效果（不放大，仅阴影） ====== */
+  @media (max-width: 767px) {
+    .article-card {
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+    .year-card {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+  }
+</style>
+{{ end }}

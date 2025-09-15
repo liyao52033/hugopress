@@ -1,0 +1,41 @@
+<div class="mt-3">
+  {{ $sectionTitle := .sectionTitle }}
+  {{ $site := .Site }}
+  {{ if not $sectionTitle }}
+    <div class="text-danger">未传入sectionTitle参数</div>
+    {{ return }}
+  {{ end }}
+
+  {{ $hero := index $site.Data.landing $sectionTitle }}
+  {{ if not $hero }}
+    <div class="text-danger">未找到 data/landing 中 {{ $sectionTitle }} 的配置</div>
+    {{ return }}
+  {{ end }}
+
+  {{ $ctaButtons := .hero.buttons | default slice }}
+  {{ range $index, $btn := $ctaButtons }}
+    {{ $baseClasses := "btn btn-lg mt-2" }}
+    {{ $variant := .btnClass | default "primary" }}
+    {{ $variantClass := printf "btn-%s" $variant }}
+    {{ $spacingClass := "me-2" }}
+    {{ if eq $index (sub (len $ctaButtons) 1) }}
+      {{ $spacingClass = "" }}
+    {{ end }}
+
+    <a 
+      href="{{ if strings.HasPrefix .url "http" }}{{ .url }}{{ else }}{{ relLangURL .url }}{{ end }}" 
+      class="{{ $baseClasses }} {{ $variantClass }} {{ $spacingClass }}"
+      {{ if strings.HasPrefix .url "http" }}
+        target="_blank" 
+        rel="noopener noreferrer"
+      {{ end }}
+    >
+      {{ with .icon }}
+        <span class="material-icons align-middle">{{ . }}</span>
+      {{ end }}
+      {{ with .btnText }}
+        {{ . }}
+      {{ end }}
+    </a>
+  {{ end }}
+</div>

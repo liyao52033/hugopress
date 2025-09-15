@@ -1,0 +1,17 @@
+{{ $htmlTable := .Inner | .Page.RenderString }}
+{{ $class := .Get 0 }}
+{{ $old := "<table>" }}
+{{ $new := printf "<table class=\"table %s\">" $class }}
+{{ $htmlTable := replace $htmlTable $old $new }}
+{{ $htmlTable := replaceRE "align=\"([a-z]+)\"" "style=\"text-align: $1\"" $htmlTable}}
+
+{{ $htmlTable | safeHTML }}
+
+
+{{/*  常见样式类
+table-striped 斑马纹表格（隔行不同背景色） 数据较多的表格，提升可读性
+table-hover 鼠标悬浮高亮（行背景色变化） 交互性需求强的表格
+table-bordered 带边框表格（单元格、表格均有边框） 需要清晰分隔的表格
+table-sm 紧凑表格（减小单元格内边距，节省空间） 表格内容简单、需节省版面
+table-dark 深色主题表格（背景深色，文字浅色） 暗色模式页面或强调表格  
+*/}}
