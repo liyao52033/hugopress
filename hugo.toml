@@ -8,6 +8,14 @@ enableEmoji = true
 enableGitInfo = true 
 ignoreLogs = ['warning-goldmark-raw-html']
 
+# Hugo 会根据以下顺序查找 lastmod 的值：
+# 1、Front Matter 中的 lastmod 字段：如果存在，优先使用。
+# 2、文件的最后修改时间：如果没有在 Front Matter 中指定，且启用了 enableGitInfo，则使用文件的最后修改时间。
+# 3、Git 仓库中的作者日期：如果启用了 enableGitInfo，则使用 Git 仓库中该文件的最后提交的作者日期。
+[frontmatter]
+  lastmod = ["lastmod", ":fileModTime", ":git"]
+
+
 [module]
     # uncomment line below for temporary local development of module,
     # when using a 'theme' as a git submodule or git cloned files

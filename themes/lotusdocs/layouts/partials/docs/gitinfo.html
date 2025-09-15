@@ -40,10 +40,10 @@
     <div id="last-modified" class="mt-1">
         <p class="mb-0 fw-semibold">
             最后更新于 <span {{ if .Site.Params.docs.lastModRelative | default false -}}id="relativetime" {{ end }}
-                data-authdate="{{ dateFormat `2006-01-02T15:04:05Z0700` .GitInfo.AuthorDate }}" {{ if
-                .Site.Params.docs.lastModRelative | default false -}} title="{{ dateFormat `2006-01-02 15:04` .GitInfo.AuthorDate }}"
+                data-authdate="{{ dateFormat `2006-01-02T15:04:05Z0700` .Lastmod }}" {{ if
+                .Site.Params.docs.lastModRelative | default false -}} title="{{ dateFormat `2006-01-02 15:04` .Lastmod }}"
                 {{ end }}>
-                {{ dateFormat "2006-01-02 15:04" .GitInfo.AuthorDate }}
+                {{ dateFormat "2006-01-02 15:04" .Lastmod }}
             </span>
             <span class="material-icons size-20 align-text-bottom opacity-75">history</span>
         </p>
