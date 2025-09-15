@@ -2,9 +2,21 @@ baseURL = '/'
 languageCode = 'zh-CN'
 title = 'Lotus Docs'
 publishDir = "dist"
+contentDir = "content"
 enableEmoji = true
-enableGitInfo = true
+# git ls-files展示的不是原始文件路径而是一堆数字的话执行git config core.quotepath false
+enableGitInfo = true 
 ignoreLogs = ['warning-goldmark-raw-html']
+
+[outputs]
+home = ["HTML", "RSS", "JSON"]
+
+[frontmatter]
+date = ["date", "publishDate", "lastmod"]
+
+[mediaTypes]
+[outputFormats]
+
 
 [module]
     # uncomment line below for temporary local development of module,

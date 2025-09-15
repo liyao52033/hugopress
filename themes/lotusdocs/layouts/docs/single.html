@@ -5,7 +5,6 @@
         {{ .Content }}
     </div>
 
-
     {{ if .Page.Store.Get "hasMermaid" }}
     {{ $mermaid := resources.Get (printf "%s/%s" ($.Scratch.Get "pathName") "js/mermaid.min.js") }}
     {{ if hugo.IsProduction }}
@@ -44,10 +43,9 @@
 
     
     {{ if and .GitInfo .Site.Params.docs.repoURL -}}
-        {{ partial "docs/gitinfo.html" . }}
+        {{ partial (printf "%s/%s" ($.Scratch.Get "pathName") "gitinfo") . }}
     {{ end -}}
 
-    
     <!-- 私密文章访问控制 -->
     {{ if .Params.private }}
     
