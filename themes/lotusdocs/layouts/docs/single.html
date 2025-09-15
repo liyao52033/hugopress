@@ -5,9 +5,6 @@
         {{ .Content }}
     </div>
 
-    {{ if and .GitInfo .Site.Params.docs.repoURL -}}
-        {{ partial (printf "%s/%s" ($.Scratch.Get "pathName") "gitinfo") . }}
-    {{ end -}}
 
     {{ if .Page.Store.Get "hasMermaid" }}
     {{ $mermaid := resources.Get (printf "%s/%s" ($.Scratch.Get "pathName") "js/mermaid.min.js") }}
@@ -35,7 +32,7 @@
     {{ end -}}
 
     {{/* 文章底部声明模板 - 调整缝隙与图标 */}}
-    <div class="custom-block tip article-bottom-tip d-flex flex-column" style="margin-top: 5rem; padding-top: 0.5rem;">
+    <div class="custom-block tip article-bottom-tip d-flex flex-column" style="margin-top: 4rem; padding-top: 0.5rem;">
     <!-- 左侧图标 + 声明标题行 -->
     <div class="d-flex align-items-center mb-2">
         <p class="custom-block-title mb-0">声明</p>
@@ -45,6 +42,12 @@
     <p class="link-row" style="margin-bottom: 0px;"> 链接： <a href="{{ .Permalink }}" class="page-url" rel="noopener noreferrer" target="_blank">{{ .Permalink }}</a></p>
     </div>
 
+    
+    {{ if and .GitInfo .Site.Params.docs.repoURL -}}
+        {{ partial "docs/gitinfo.html" . }}
+    {{ end -}}
+
+    
     <!-- 私密文章访问控制 -->
     {{ if .Params.private }}
     

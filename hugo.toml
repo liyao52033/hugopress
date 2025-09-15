@@ -1,7 +1,9 @@
-baseURL = 'https://example.org/'
+baseURL = '/'
 languageCode = 'zh-CN'
 title = 'Lotus Docs'
 publishDir = "dist"
+enableEmoji = true
+enableGitInfo = true
 ignoreLogs = ['warning-goldmark-raw-html']
 
 [module]
@@ -36,9 +38,16 @@ ignoreLogs = ['warning-goldmark-raw-html']
     darkMode = true                                
     prism = true              
     prismTheme = "lotusdocs"
+    pathName        = "docs"                            # path name for documentation site | default "docs"
+
+    # themeColor      = "cyan"                            # (optional) - Set theme accent colour. Options include: blue (default), green, red, yellow, emerald, cardinal, magenta, cyan
   
-   # gitinfo
-    lastMod = true                                # enable 'Last modified' date on pages - default false
+    # gitinfo
+    repoURL         = "https://github.com/liyao52033/hugopress"  # Git repository URL for your site [support for GitHub, GitLab, and BitBucket]
+    repoBranch      = "main"
+    editPage        = true                                # enable 'Edit this page' feature - default false
+    lastMod         = true                                # enable 'Last modified' date on pages - default false
+    lastModRelative = true                                # format 'Last modified' time as relative - default true
 
     sidebarIcons = true                                # enable sidebar icons? default false
 
@@ -61,8 +70,8 @@ ignoreLogs = ['warning-goldmark-raw-html']
     version = true # includes git commit info
 
 [params.social]
-    github = "liyao52033"        
-    rss = true                    # show rss icon with link                   
+    github = "liyao52033/hugopress"        
+    rss = true                    # show rss icon with link         
 
 [menu]
     [[menu.primary]]
