@@ -8,16 +8,6 @@ enableEmoji = true
 enableGitInfo = true 
 ignoreLogs = ['warning-goldmark-raw-html']
 
-[outputs]
-home = ["HTML", "RSS", "JSON"]
-
-[frontmatter]
-date = ["date", "publishDate", "lastmod"]
-
-[mediaTypes]
-[outputFormats]
-
-
 [module]
     # uncomment line below for temporary local development of module,
     # when using a 'theme' as a git submodule or git cloned files
@@ -57,9 +47,9 @@ date = ["date", "publishDate", "lastmod"]
     # gitinfo
     repoURL         = "https://github.com/liyao52033/hugopress"  # Git repository URL for your site [support for GitHub, GitLab, and BitBucket]
     repoBranch      = "main"
-    editPage        = true                                # enable 'Edit this page' feature - default false
+   # editPage        = true                                # enable 'Edit this page' feature - default false
     lastMod         = true                                # enable 'Last modified' date on pages - default false
-    lastModRelative = true                                # format 'Last modified' time as relative - default true
+    # lastModRelative = true                                # format 'Last modified' time as relative - default false
 
     sidebarIcons = true                                # enable sidebar icons? default false
 
