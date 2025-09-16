@@ -1,4 +1,4 @@
-baseURL = '/'
+baseURL = 'https://vp.xiaoying.org.cn/'
 languageCode = 'zh-CN'
 title = 'Lotus Docs'
 publishDir = "dist"
@@ -36,52 +36,85 @@ ignoreLogs = ['warning-goldmark-raw-html']
     [markup.goldmark.renderer]
       unsafe = true
 
-[params.docsearch] 
-      appID = "ATLKN4M9QW"                       
-      apiKey = "ce779f01445c267329bb716cff2c9c01" 
-      indexName = "blog"                   
 
-[params.flexsearch]
-    enabled = false
-
-[params.docs]
-    darkMode = true                                
-    prism = true              
-    prismTheme = "lotusdocs"
-    pathName        = "docs"                            # path name for documentation site | default "docs"
-
-    # themeColor      = "cyan"                            # (optional) - Set theme accent colour. Options include: blue (default), green, red, yellow, emerald, cardinal, magenta, cyan
-  
-    # gitinfo
-    repoURL         = "https://github.com/liyao52033/hugopress"  # Git repository URL for your site [support for GitHub, GitLab, and BitBucket]
-    repoBranch      = "main"
-   # editPage        = true                                # enable 'Edit this page' feature - default false
-    lastMod         = true                                # enable 'Last modified' date on pages - default false
-    # lastModRelative = true                                # format 'Last modified' time as relative - default false
-
-    sidebarIcons = true                                # enable sidebar icons? default false
-
-    # front matter
-    descriptions = true                                # enable front matter descriptions under content title?
-    titleIcon = true                                # enable front matter icon title prefix? default is false
-
-    # content navigation
-    navDesc = true                                # include front matter descriptions in Prev/Next navigation cards
-    navDescTrunc = 30                                  # Number of characters by which to truncate the Prev/Next descriptions
-
-    listDescTrunc = 100                                 # Number of characters by which to truncate the list card description
-
-    # Link behaviour
-    intLinkTooltip  = true                                # Enable a tooltip for internal links that displays info about the destination? default false         
+[params]
     
+    # 字体配置 - 选择一种配置启用，其他保持注释状态
 
-[params.footer]
-    copyright = "© :YEAR: Lotus Labs. Built with [**Lotus Docs**](https://github.com/colinwilson/lotusdocs)"
-    version = true # includes git commit info
+    # 选项1：完整中文优化字体配置
+    # secondary_font = "'Noto Sans SC', 'Source Han Sans SC', 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif"
+    # sans_serif_font = "'Noto Sans SC', 'Source Han Sans SC', 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif"
+    # mono_font = "'JetBrains Mono', 'Fira Code', 'Source Code Pro', 'Consolas', 'Monaco', 'Courier New', monospace"
 
-[params.social]
-    github = "liyao52033/hugopress"        
-    rss = true                    # show rss icon with link         
+    # 选项2：经典衬线字体（优雅正式，与无衬线字体差异明显）
+    # secondary_font = "'Times New Roman', 'SimSun', serif"
+    # sans_serif_font = "'Times New Roman', 'SimSun', serif"
+    # mono_font = "'Courier New', monospace"
+
+    # 选项3：粗体字体（醒目突出）
+    # secondary_font = "'Arial Black', 'Microsoft YaHei', sans-serif"
+    # sans_serif_font = "'Verdana', 'Microsoft YaHei', sans-serif"
+    # mono_font = "'Consolas', monospace"
+
+    # 选项4：细体现代字体
+    # secondary_font = "'Segoe UI Light', 'Microsoft YaHei Light', sans-serif"
+    # sans_serif_font = "'Segoe UI', 'Microsoft YaHei', sans-serif"
+    # mono_font = "'Cascadia Code', 'Consolas', monospace"
+
+    # 选项5：斜体字
+    sans_serif_font = "'Comic Sans MS', 'Microsoft YaHei', sans-serif"    
+    secondary_font  = "'Comic Sans MS', 'Microsoft YaHei', sans-serif"   
+    mono_font       = "'Courier New', 'Consolas', monospace" 
+
+
+    # algolia搜索
+    [params.docsearch] 
+        appID = "ATLKN4M9QW"                       
+        apiKey = "ce779f01445c267329bb716cff2c9c01" 
+        indexName = "blog"                   
+
+    # 浏览器模糊搜索
+    [params.flexsearch]
+        enabled = false
+
+    [params.docs]
+        darkMode = true                                
+        prism = true              
+        prismTheme = "lotusdocs"
+        pathName        = "docs"                            # path name for documentation site | default "docs"
+
+        # themeColor      = "cyan"                            # (optional) - Set theme accent colour. Options include: blue (default), green, red, yellow, emerald, cardinal, magenta, cyan
+    
+        # gitinfo
+        repoURL         = "https://github.com/liyao52033/hugopress"  # Git repository URL for your site [support for GitHub, GitLab, and BitBucket]
+        repoBranch      = "main"
+        # editPage        = true                                # enable 'Edit this page' feature - default false
+        lastMod         = true                                # enable 'Last modified' date on pages - default false
+        # lastModRelative = true                                # format 'Last modified' time as relative - default false
+
+        sidebarIcons = true                                # enable sidebar icons? default false
+
+        # front matter
+        descriptions = true                                # enable front matter descriptions under content title?
+        titleIcon = true                                # enable front matter icon title prefix? default is false
+
+        # content navigation
+        navDesc = true                                # include front matter descriptions in Prev/Next navigation cards
+        navDescTrunc = 30                                  # Number of characters by which to truncate the Prev/Next descriptions
+
+        listDescTrunc = 100                                 # Number of characters by which to truncate the list card description
+
+        # Link behaviour
+        intLinkTooltip  = true                                # Enable a tooltip for internal links that displays info about the destination? default false         
+        
+
+    [params.footer]
+        copyright = "© :YEAR: Lotus Labs. Built with [**Lotus Docs**](https://github.com/colinwilson/lotusdocs)"
+        version = true # includes git commit info
+
+    [params.social]
+        github = "liyao52033/hugopress"        
+        rss = true                    # show rss icon with link         
 
 [menu]
     [[menu.primary]]
@@ -110,13 +143,13 @@ ignoreLogs = ['warning-goldmark-raw-html']
 
     [[menu.primary]]
     name  = "关于"
-    url = "/about.html"
+    url = "/about/"
     identifier = "about"
     weight = 60
-        # 子菜单项
+    # 子菜单项
     [[menu.primary]]
     name  = "联系我们"
-    url = "/about.html"
+    url = "/about/"
     identifier = "contact"
     parent = "about"
     weight = 10

@@ -1,0 +1,98 @@
+{{ define "main" }}
+
+<div class="about-hero">
+  <div class="about-info">
+    <div class="about-title">
+      <span>{{ .Site.Data.about.hero.title }}</span>
+      <span class="about-name">{{ .Site.Data.about.hero.name }}</span>
+    </div>
+    <div class="about-desc">{{ .Site.Data.about.hero.desc }}</div>
+    <div class="about-btns">
+      {{ range .Site.Data.about.hero.buttons }}
+        <a href="{{ .link }}" class="btn about-btn btn-{{ .type }}" 
+          {{ if ne .type "primary" }}target="_blank" rel="noopener noreferrer"{{ end }}
+          >
+          {{ .text }}
+        </a>
+      {{ end }}
+    </div>
+  </div>
+  <div class="about-avatar-wrap">
+    <img src="{{ .Site.Data.about.hero.avatar }}" alt="avatar" class="about-avatar">
+  </div>
+</div>
+
+<div class="skills-section">
+  <h2 class="skills-title">我的技能</h2>
+  <div class="skills-content">
+    <div class="skills-left">
+      <div class="d-flex justify-content-between">
+        <div>
+          <div class="skills-subtitle">专业技能</div>
+          {{ range .Site.Data.about.skills }}
+          <div class="skill-bar-item">
+            <div class="skill-bar-label">
+              <span>{{ .name }}</span>
+              <span>{{ default "0" .percent }}%</span>
+            </div>
+
+            <!-- 技能进度条 -->
+            <div class="skill-bar-bg">
+              <div class="skill-bar-fill" style="--skill-width: {{ default " 0" .percent }}%; --skill-color: {{
+                default "#007bff" .color }}; width: var(--skill-width); background: var(--skill-color);">
+              </div>
+            </div>
+
+            <!-- 技能标签 -->
+            <div class="skill-bar-tags">
+              {{ range .tags }}
+              <span class="skill-tag" style="--tag-bg: {{ default " #f0f0f0" .bg }}; --tag-color: {{ default "#333" .color
+                }}; background: var(--tag-bg); color: var(--tag-color);">
+                {{ .name }}
+              </span>
+              {{ end }}
+            </div>
+          </div>
+          {{ end }}
+        </div>
+
+        <div class="techstack">
+          <div class="skills-subtitle">技术栈</div>
+          {{ range $row := .Site.Data.about.techstack.rows }}
+          <div class="tech-row d-flex justify-content-center">
+            {{ range $item := $row }}
+            <div class="tech-item {{ if $item.small }}small{{ end }}">
+              <img class="d-block tech-stack-svg" src="/icons/{{ $item.icon }}.svg" alt="{{ $item.name }}" />
+            </div>
+            {{ end }}
+          </div>
+          {{ end }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="oss-section">
+  <h2 class="oss-title">开源项目</h2>
+  <div class="oss-list">
+    {{ range .Site.Data.about.projects }}
+    <div class="oss-card">
+      <div class="oss-img-wrap">
+        <img src="{{ .projectsimg }}" class="oss-img" />
+      </div>
+      <div class="oss-content">
+        <div class="oss-name">{{ .name }}</div>
+        <div class="oss-desc">{{ .desc }}</div>
+        <div class="oss-data">
+          ⭐ {{ .Star }} | 🍴 {{ .Fork }} | 👁️ {{ .View }}
+        </div>
+        <a class="oss-btn" href="{{ .github }}" target="_blank">查看项目</a>
+      </div>
+    </div>
+    {{ end }}
+  </div>
+</div>
+
+{{ end }}

@@ -10,47 +10,6 @@
 {{ end }}
 <html lang="{{ site.LanguageCode }}">
     {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "head.html") . -}}
-    <head>
-        <style>
-           /* 声明容器边框色、背景色、左侧 */
-            .custom-block.tip {
-                border-left: 5px solid #009400;
-                background-color: #e6f6e6;
-            }
-
-            /* 声明容器 SVG 图 */
-            .custom-block.tip [class*="custom-block-title"]::before {
-                content: "";
-                background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23009400' d='M7.941 18c-.297-1.273-1.637-2.314-2.187-3a8 8 0 1 1 12.49.002c-.55.685-1.888 1.726-2.185 2.998H7.94zM16 20v1a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-1h8zm-3-9.995V6l-4.5 6.005H11v4l4.5-6H13z'/%3E%3C/svg%3E");
-                width: 20px;
-                height: 20px;
-                display: inline-block;
-                vertical-align: middle;
-                position: relative;
-                margin-right: 4px;
-                left: -5px;
-                top: -2px;
-            }
-
-            .article-bottom-tip {
-                margin-top: 2rem;
-                margin-bottom: 1rem;
-                padding: 1rem 1.25rem;
-                border-radius: 8px;
-                font-size: 0.85rem;
-                line-height: 1.6;
-            }
-
-            .article-bottom-tip a {
-                color: var(--vp-c-brand-1);
-                text-decoration: none;
-            }
-
-            .article-bottom-tip a:hover {
-                text-decoration: underline;
-            }
-        </style>
-    </head>
     <body>
         <div class="content">
             <div class="page-wrapper toggled">

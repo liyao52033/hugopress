@@ -1,6 +1,6 @@
 <!-- 在 single.html 顶部添加样式块继承 -->
 {{ define "css" }}
-{{ partial "scss/style.scss" . }} <!-- 导航相关CSS -->
+
 {{ partial "scss/custom/structure/_topbar.scss" . }}
 {{ end }}
 
@@ -9,7 +9,7 @@
 <!-- 1. 引入 Top Header（顶部导航栏：logo、搜索、深色模式） -->
 {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "top-header.html") . .RelPermalink -}}
 
-<!-- 2. 引入 Navbar（主导航菜单：首页、文档、关于等） -->
+<!-- 2. 引入 Navbar -->
 {{ partial "header.html" . }} 
 
 <!-- 3. 以下是原有的文章内容渲染逻辑（无需修改） -->

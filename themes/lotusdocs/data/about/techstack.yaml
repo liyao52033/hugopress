@@ -1,0 +1,44 @@
+rows:
+  - # 第一行
+    - { name: "Java", icon: "JAVA" }
+    - { name: "IDEA", icon: "IDEA" }
+    - { name: "Webstorm", icon: "Webstorm" }
+    - { name: "DataGrip", icon: "DataGrip" }
+    - { name: "Spring", icon: "Spring" }
+    - { name: "SpringBoot", icon: "SpringBootDark" }
+
+  - # 第二行
+    - { name: "MySQL", icon: "MysqlDark" }
+    - { name: "Redis", icon: "RedisDark" }
+    - { name: "RabbitMQ", icon: "RabbitMQDark" }
+    - { name: "HTML5", icon: "Html" }
+    - { name: "CSS3", icon: "Css" }
+    - { name: "JavaScript", icon: "javascript" }
+    - { name: "TypeScript", icon: "Typescript" }
+    - { name: "VSCode", icon: "VSCodeDark" }
+
+  - # 第三行
+    - { name: "Vue", icon: "VuejsDark" }
+    - { name: "Vite", icon: "ViteDark" }
+    - { name: "Pinia", icon: "PiniaDark" }
+    - { name: "Linux", icon: "LinuxDark" }
+    - { name: "Nginx", icon: "Nginx" }
+    - { name: "Node.js", icon: "NodejsDark" }
+    - { name: "React", icon: "ReactDark" }
+    - { name: "TailwindCSS", icon: "TailwindCSSDark" }
+
+  - # 第四行
+    - { name: "Npm", icon: "NpmDark" }
+    - { name: "Git", icon: "Git" }
+    - { name: "Github", icon: "GithubDark" }
+    - { name: "Postman", icon: "Postman" }
+    - { name: "Docker", icon: "Docker" }
+    - { name: "Maven", icon: "MavenDark" }
+
+  - # 第五行
+    - { name: "Android", icon: "Android", small: true }
+    - { name: "Pnpm", icon: "PnpmDark", small: true }
+    - { name: "Electron", icon: "Electron", small: true }
+    - { name: "Sass", icon: "Sass", small: true }
+    - { name: "Less", icon: "LessDark", small: true }
+    - { name: "Gitlab", icon: "GitlabDark", small: true }
