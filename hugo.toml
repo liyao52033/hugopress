@@ -8,6 +8,10 @@ enableEmoji = true
 enableGitInfo = true 
 ignoreLogs = ['warning-goldmark-raw-html']
 
+[taxonomies]
+  category = "categories"  # 确保这一行存在
+  tag = "tags"
+
 # Hugo 会根据以下顺序查找 lastmod 的值：
 # 1、Front Matter 中的 lastmod 字段：如果存在，优先使用。
 # 2、文件的最后修改时间：如果没有在 Front Matter 中指定，且启用了 enableGitInfo，则使用文件的最后修改时间。
@@ -80,7 +84,7 @@ ignoreLogs = ['warning-goldmark-raw-html']
     [params.docs]
         darkMode = true                                
         prism = true              
-        prismTheme = "lotusdocs"
+        prismTheme = "lucario"     # (optional) - Set theme for PrismJS. Options include: lotusdocs (default), solarized-light, twilight, lucario
         pathName        = "docs"                            # path name for documentation site | default "docs"
 
         # themeColor      = "cyan"                            # (optional) - Set theme accent colour. Options include: blue (default), green, red, yellow, emerald, cardinal, magenta, cyan
@@ -91,6 +95,11 @@ ignoreLogs = ['warning-goldmark-raw-html']
         # editPage        = true                                # enable 'Edit this page' feature - default false
         lastMod         = true                                # enable 'Last modified' date on pages - default false
         # lastModRelative = true                                # format 'Last modified' time as relative - default false
+
+         # ToC
+        toc             = true                                # enable table of contents? default is true
+        tocMobile       = true                                # enable table of contents in mobile view? default is true
+        scrollSpy       = true                                # enable scrollspy on ToC? default is true
 
         sidebarIcons = true                                # enable sidebar icons? default false
 
@@ -114,7 +123,9 @@ ignoreLogs = ['warning-goldmark-raw-html']
 
     [params.social]
         github = "liyao52033/hugopress"        
-        rss = true                    # show rss icon with link         
+        rss = true                    # show rss icon with link     
+    
+   
 
 [menu]
     [[menu.primary]]

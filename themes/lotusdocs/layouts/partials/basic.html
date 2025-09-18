@@ -1,0 +1,19 @@
+   {{/*全局通用js,css文件*/}}
+   
+   {{/*直接将js文件放在根目录static/js目录下，然后引用*/}}
+   <script defer src='{{ "/js/responsive-navbar.js" | relURL }}'></script>
+
+   
+
+   {{/*
+   {{- $options := dict "enableSourceMap" true }}
+   {{- if hugo.IsProduction}}
+      {{- $options = dict "enableSourceMap" false "outputStyle" "compressed" }}
+   {{- end }}
+   {{- $style := resources.Get "basic/style.scss" }}
+   {{- $style = $style | resources.ExecuteAsTemplate "basic/style.scss" . | css.Sass $options }}
+   {{- if hugo.IsProduction }}
+      {{- $style = $style | minify | fingerprint "sha384" }}
+   {{- end -}}
+   <link rel="stylesheet" href="{{ $style.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $style.Data.Integrity }}"{{ end -}}
+ */}}

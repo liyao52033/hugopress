@@ -46,8 +46,10 @@
         </div>
 
         <div class="d-flex align-items-center">
-            <!-- 使用独立的导航菜单组件 -->
+             {{/* 使用独立的导航菜单组件 */}}
             {{ partial "navigation-menu.html" . }}
+            
+            {{/* 社交链接 */}}
             <ul class="list-unstyled mb-0">
                 {{ with $.Scratch.Get "social_list" }}
                 {{ range . }}

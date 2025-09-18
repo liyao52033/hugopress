@@ -81,6 +81,7 @@
     height: calc(100vh - 11.1rem);
     overflow-y: auto;
     order: 2;
+    border-left: 2px solid #009400;
 
     scrollbar-width: thin;
     scrollbar-color: var(--simplebar-color) rgba(var(--bs-light-rgb), var(--bs-bg-opacity));
@@ -159,6 +160,7 @@
 #toc a.active {
     color: var(--white);
     background-color: var(--primary);
-    // font-weight: 600;
+    font-weight: 600;
     opacity: 0.9;
 }
+

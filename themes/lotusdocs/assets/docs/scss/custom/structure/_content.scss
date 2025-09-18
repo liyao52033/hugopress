@@ -84,6 +84,10 @@
 .docs-content .content-title {
     font-weight: 700;
     align-self: center;
+    background: -webkit-linear-gradient(10deg, #bd34fe 5%, #e43498 15%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 i {

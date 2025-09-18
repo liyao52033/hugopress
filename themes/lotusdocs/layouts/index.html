@@ -21,4 +21,86 @@
         {{ partial $path $.Page }}
     {{ end }}
     {{/* printf "%s" (sort ($map.Get "wgtTpl") ".weight" ) */}}
+
+   {{/* 分类和标签展示组件 - 结合Bootstrap样式 */}}
+<div class="container my-5">
+
+    <div class="row g-4">
+    {{/* 分类卡片 */}}
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+          <h5 class="mb-0 fw-semibold text-dark">文章分类</h5>
+          <div>
+            <a href="{{ "/categories/" | relLangURL }}" class="text-muted hover:text-primary transition">
+              <i class="bi bi-arrow-right-circle"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <ul class="list-unstyled mb-0">
+            {{ range $name, $taxonomy := .Site.Taxonomies.categories }}
+              {{ $count := len $taxonomy.Pages }}
+              <li class="px-4 py-3 border-bottom border-light">
+                <a href="{{ "/categories/" | relLangURL }}{{ $name | urlize }}" 
+                   class="d-flex justify-content-between align-items-center text-decoration-none text-dark hover:text-primary transition">
+                  <span>{{ $name }}</span>
+                  <span class="badge bg-primary-subtle text-primary">{{ $count }}</span>
+                </a>
+              </li>
+            {{ end }}
+          </ul>
+          <div class="px-4 py-3 text-center">
+            <a href="{{ "/categories/" | relLangURL }}" class="text-muted small hover:text-primary transition">
+              查看全部分类 <i class="bi bi-chevron-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+     {{/* 标签卡片 */}}
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+        <div class="card-header bg-white py-3">
+          <h5 class="mb-0 fw-semibold text-dark">热门标签</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="d-flex flex-wrap gap-2">
+            {{/* 正确获取标签及其数量 */}}
+            {{ range $index, $tag := .Site.Taxonomies.tags.Alphabetical }}
+              {{ $tagName := $tag.Name }}
+              {{ $tagCount := $tag.Count }}
+              
+              {{/* 生成随机背景色但保持一致性 */}}
+              {{ $hash := sha1 $tagName }}
+              {{ $num := int (index $hash 0) }}
+              {{ $bgClass := index (slice "bg-primary-subtle" "bg-secondary-subtle" "bg-success-subtle" "bg-danger-subtle" "bg-warning-subtle" "bg-info-subtle") (mod $num 6) }}
+              
+              {{/* 根据数量调整大小 */}}
+              {{ $size := cond (ge $tagCount 10) "fs-5" (cond (ge $tagCount 5) "fs-6" "fs-7") }}
+              
+              <a href="{{ $tag.Page.Permalink }}" 
+                 class="{{ $bgClass }} {{ $size }} px-3 py-1 rounded-pill text-decoration-none text-dark hover:opacity-90 transition">
+                {{ $tagName }} <span class="text-muted">({{ $tagCount }})</span>
+              </a>
+            {{ end }}
+          </div>
+          <div class="mt-4 text-center">
+            <a href="{{ "/tags/" | relLangURL }}" class="text-muted small hover:text-primary transition">
+              查看全部标签 <i class="bi bi-chevron-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+</div>
+
+
+
+
 {{ end }}

@@ -1,0 +1,14 @@
+
+{{define "main"}}
+<div class="container py-4">
+  <h1 class="mb-4">{{ .Title }}</h1>
+  <ul class="list-group">
+    {{ range .Pages }}
+      <li class="list-group-item">
+        <a href="{{ .Permalink }}">{{ .Title }}</a>
+        <small class="text-muted">发表于 {{ .Date.Format "2006-01-02" }}</small>
+      </li>
+    {{ end }}
+  </ul>
+</div>
+{{end}}

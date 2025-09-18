@@ -10,7 +10,7 @@
     {{ $allPages := where .Site.Pages "Kind" "page" }}
     {{ $posts := slice }}
     {{ range $allPages }}
-      {{ if not (eq (.Date.Format "2006") "0001") }}
+      {{ if and (not (eq (.Date.Format "2006") "0001")) (eq .Type "docs") }}
         {{ $posts = $posts | append . }}
       {{ end }}
     {{ end }}

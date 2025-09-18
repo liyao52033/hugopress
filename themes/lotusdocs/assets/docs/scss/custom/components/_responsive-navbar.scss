@@ -1,0 +1,294 @@
+//
+// Responsive Navbar Styles
+// _responsive-navbar.scss
+//
+
+// Top Header Navbar - 同时适用于首页和文档页
+.top-header, #topnav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    background-color: var(--top-header-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--sidebar-border-color);
+    transition: all 0.3s ease;
+
+    .header-bar, .container {
+        padding: 0.75rem 1rem;
+        min-height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        max-width: none;
+        width: 100%;
+    }
+
+    // Left section with logo, sidebar toggle, search, and navigation
+    .navbar-left-section {
+        display: flex;
+        align-items: center;
+        flex: 0 1 auto;
+        min-width: 0;
+
+        #close-sidebar {
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        #flexsearch-button {
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        // Desktop navigation - 紧跟在搜索按钮后面，但允许换行
+        .navbar-center-nav {
+            display: none;
+            
+            @media (min-width: 1200px) {
+                .navbar-nav {
+                    gap: 0.5rem;
+                }
+            }
+        }
+    }
+
+    // Right section - 始终靠右
+    .navbar-right-items {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        margin-left: auto;
+        flex-shrink: 0;
+        
+        @media (min-width: 1200px) {
+            gap: 0.5rem;
+        }
+    }
+
+    // Custom Navbar Toggler
+    .navbar-toggler {
+        border: none;
+        padding: 0.25rem 0.5rem;
+        background: transparent;
+        position: relative;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:focus {
+            box-shadow: none;
+        }
+
+        .navbar-toggler-icon {
+            background: none;
+            width: 24px;
+            height: 18px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .hamburger-line {
+            width: 100%;
+            height: 2px;
+            background-color: var(--body-color);
+            transition: all 0.3s ease;
+            transform-origin: center;
+        }
+
+        // Hamburger to X animation
+        &[aria-expanded="true"] {
+            .hamburger-line {
+                &:nth-child(1) {
+                    transform: translateY(8px) rotate(45deg);
+                }
+                &:nth-child(2) {
+                    opacity: 0;
+                }
+                &:nth-child(3) {
+                    transform: translateY(-8px) rotate(-45deg);
+                }
+            }
+        }
+    }
+
+    // Navigation items styling
+    .navbar-nav {
+        .nav-link {
+            position: relative;
+            font-weight: 600;
+            color: var(--body-color);
+            transition: color 0.3s ease;
+            border-radius: 0.375rem;
+            padding: 0.5rem 1rem;
+            white-space: nowrap;
+            
+            &:hover, &.active {
+                color: var(--primary);
+                background-color: rgba(var(--primary-rgb), 0.1);
+            }
+        }
+
+        .dropdown-menu {
+            border: 1px solid var(--sidebar-border-color);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            background-color: var(--card-bg);
+            min-width: 160px;
+            &.show { 
+                position: absolute;
+                top: -26px;
+                left: 0;
+                margin-top: 0;
+            }
+
+        }
+
+        .dropdown-item {
+            color: var(--body-color);
+            
+            &:hover, &.active {
+                color: var(--primary);
+                background-color: rgba(var(--primary-rgb), 0.1);
+            }
+        }
+    }
+}
+
+// Mobile specific styles
+@media (max-width: 992px) {
+    .top-header {
+        // Hide desktop navigation on mobile
+        .navbar-center-nav {
+            display: none !important;
+        }
+        
+        .navbar-collapse {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: var(--card-bg);
+            border: 1px solid var(--sidebar-border-color);
+            border-top: none;
+            border-radius: 0 0 0.5rem 0.5rem;
+            margin: 0;
+            padding: 1rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            width: 100%;
+            z-index: 1029;
+        }
+
+        .mobile-nav-menu {
+            .navbar-nav {
+                flex-direction: column;
+                width: 100%;
+                margin-bottom: 1rem;
+                
+                .nav-link {
+                    padding: 0.75rem 1rem;
+                    width: 100%;
+                    text-align: left;
+                    border-radius: 0.375rem;
+                    margin-bottom: 0.25rem;
+                    display: block;
+                }
+
+                .dropdown {
+                    width: 100%;
+                    
+                    .dropdown-menu {
+                        position: static;
+                        float: none;
+                        width: 100%;
+                        border: 1px solid var(--sidebar-border-color);
+                        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Dark mode adjustments
+[data-dark-mode] {
+    .top-header {
+        .hamburger-line {
+            background-color: var(--text-default);
+        }
+    }
+}
+
+// Page content spacing
+// 文档页面需要顶部间距
+body.docs-layout,
+.docs-layout {
+    .page-content,
+    .content-wrapper,
+    main {
+        padding-top: 80px;
+    }
+}
+
+// Scrolled state styling
+.top-header.scrolled {
+    background-color: var(--card-bg);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    
+    [data-dark-mode] & {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+}
+
+// Animation for navbar collapse
+.navbar-collapse {
+    &.collapsing {
+        transition: height 0.35s ease;
+    }
+}
+
+// Ensure social links display properly
+.navbar-right-items {
+    .list-unstyled {
+        display: flex;
+        flex-direction: row;
+        gap: 0.25rem;
+        margin: 0;
+    }
+}
+
+// Fix sidebar positioning for docs pages
+body.docs-layout {
+    .sidebar {
+        top: 80px;
+        height: calc(100vh - 80px);
+    }
+}
+
+// Ensure proper content area sizing for docs pages
+.docs-layout {
+    .page-content {
+        padding-top: 80px;
+        min-height: calc(100vh - 80px);
+    }
+    
+    .container-fluid {
+        padding-top: 1rem;
+    }
+    
+    .layout-spacing {
+        padding-top: 0;
+    }
+    
+    .docs-content {
+        padding: 1rem;
+        background: var(--bs-body-bg);
+    }
+    
+}
+

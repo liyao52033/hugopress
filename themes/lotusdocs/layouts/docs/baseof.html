@@ -71,11 +71,15 @@
                                     </div>
                                 </div>
                             </div>
-                            {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "footer.html") . -}}
+                            {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName" ) "footer.html") . -}}
+                          
 
                     </main>
             </div>
         </div>
+
+        {{/* common CSS and JS */}}
+        {{- partialCached "basic.html" . -}}
 
         {{ if site.Params.docs.backToTop | default true }}
         <!-- Back to top -->

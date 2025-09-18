@@ -22,13 +22,6 @@
     </script>
     {{ end }}
 
-    {{ if .Site.Params.feedback.enabled | default false -}}
-        {{ if or (.Site.Params.plausible.dataDomain) (.Site.Config.Services.GoogleAnalytics.ID) }}
-            {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "footer/feedback.html") . -}}
-        {{ else }}
-            {{ errorf "Either Google Analytics or Plausible Analytics must be configured before enabling the Feedback Widget." }}
-        {{ end }}
-    {{ end -}}
 
     {{/* 文章底部声明模板 - 调整缝隙与图标 */}}
     <div class="custom-block tip article-bottom-tip d-flex flex-column" style="margin-top: 4rem; padding-top: 0.5rem;">
@@ -46,14 +39,15 @@
         {{ partial (printf "%s/%s" ($.Scratch.Get "pathName") "gitinfo") . }}
     {{ end -}}
 
+    
     {{/* 文章底部版权信息 - 结束 */}}
 
     {{/* 文章评论区 */}}
-    {{ if .Site.Params.comments.enabled | default false -}}
+   {{ if .Site.Params.feedback.enabled | default false -}}
         {{ if or (.Site.Params.plausible.dataDomain) (.Site.Config.Services.GoogleAnalytics.ID) }}
-            {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "comments.html") . -}}
+            {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "footer/feedback.html") . -}}
         {{ else }}
-            {{ errorf "Either Google Analytics or Plausible Analytics must be configured before enabling the Comments Widget." }}
+            {{ errorf "Either Google Analytics or Plausible Analytics must be configured before enabling the Feedback Widget." }}
         {{ end }}
     {{ end -}}
 
@@ -61,7 +55,6 @@
 
     <!-- 私密文章访问控制 -->
     {{ if .Params.private }}
-    
     <script>
      // 页面加载后，立即验证 Token
       async function verifyToken() {
