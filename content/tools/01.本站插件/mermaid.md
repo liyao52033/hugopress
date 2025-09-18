@@ -8,6 +8,9 @@ url: "/pages/mermaid/"
 date: "2023-09-08T05:12:51+01:00"
 lastmod: "2023-09-08T05:12:51+01:00"
 toc: true
+categories:
+  - 工具类
+  - 本站插件
 ---
 
 ## Flowchart

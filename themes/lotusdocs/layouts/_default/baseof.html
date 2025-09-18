@@ -30,11 +30,11 @@ If so, collect and consolidate the items config from each enabled instance
 <html lang="{{ site.LanguageCode }}" dir="ltr">
 {{- partial "head.html" . -}}
 
-<body>
+<body class="d-flex flex-column min-vh-100">
     <div>
         {{- partial "header.html" . -}}
     </div>
-    <div class="mb-4" id="content">
+    <div class="mb-4 flex-grow-1" id="content" style="padding-top: calc(70px);">
         {{- block "main" . }}{{- end }}
     </div>
     {{- partial "footer.html" . -}}

@@ -7,26 +7,32 @@
     {{ $filename := .filename }}
     {{ $pathDesktop := printf "%s/%s" $path $filename.desktop }}
     {{ $pathMobile := printf "%s/%s" $path $filename.mobile }}
-        <style>
-            .hero {
-                {{ with $filename.desktop }}
-                    {{ with resources.Get $pathDesktop }}
-                        @media (min-width: 768px) {
-                            background-image: url("{{ .RelPermalink }}");
-                        }
-                    {{ end }}
-                {{ end }}
-                {{ with $filename.mobile }}
-                    {{ with resources.Get $pathMobile }}
-                        background-image: url("{{ .RelPermalink }}");
-                    {{ end }}
-                {{ end }}
-            }
-        </style>
+
+    {{/*
+
+         // <style>
+        //     .hero {
+        //         {{ with $filename.desktop }}
+        //             {{ with resources.Get $pathDesktop }}
+        //                 @media (min-width: 768px) {
+        //                     background-image: url("{{ .RelPermalink }}");
+        //                 }
+        //             {{ end }}
+        //         {{ end }}
+        //         {{ with $filename.mobile }}
+        //             {{ with resources.Get $pathMobile }}
+        //                 background-image: url("{{ .RelPermalink }}");
+        //             {{ end }}
+        //         {{ end }}
+        //     }
+        // </style>
+        
+    */}}
+       
 {{ end }}
 <section id="{{ $sectionTitle }}" class="d-table w-100 overflow-hidden hero">
     <div class="container">
-        <div class="row mt-5 align-items-center">
+        <div class="row mt-2 align-items-center">
 
             <div class="col-lg-6 col-md-6">
                 <div class="title-heading">

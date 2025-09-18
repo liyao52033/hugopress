@@ -10,7 +10,7 @@
     left: 0;
     right: 0;
     z-index: 1030;
-    background-color: var(--top-header-bg);
+    background-color: transparent;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--sidebar-border-color);
@@ -237,7 +237,7 @@ body.docs-layout,
 
 // Scrolled state styling
 .top-header.scrolled {
-    background-color: var(--card-bg);
+    background-color: transparent;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     
     [data-dark-mode] & {

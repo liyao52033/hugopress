@@ -9,7 +9,7 @@ enableGitInfo = true
 ignoreLogs = ['warning-goldmark-raw-html']
 
 [taxonomies]
-  category = "categories"  # 确保这一行存在
+  category = "categories"  
   tag = "tags"
 
 # Hugo 会根据以下顺序查找 lastmod 的值：
