@@ -1,0 +1,194 @@
+/* 语言标签容器：绝对定位到左上角 */
+.cb-language-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex; /* 让圆点和文字横向排列 */
+  align-items: center; /* 垂直居中 */
+  padding: 0.25em 0.5em;
+  font-size: 18px;
+  font-weight: 700;
+  color: #00BCD4;
+  background: transparent; /* 浅色背景，可根据主题调整 */
+  border-bottom-right-radius: 4px; /* 右下角圆角 */
+  z-index: 1; /* 确保在代码块上层 */
+}
+
+/* 彩色圆点通用样式 */
+.cb-dot {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%; /* 圆形 */
+  margin-right: 5px; /* 圆点之间的间距 */
+}
+
+/* 各圆点颜色（模拟 macOS 窗口圆点） */
+.cb-dot.red {
+  background-color: #ff5f56;
+}
+.cb-dot.yellow {
+  background-color: #ffbd2e;
+}
+.cb-dot.green {
+  background-color: #27c93f;
+}
+
+/* 语言文字样式（如 JS） */
+.cb-lang-text {
+  margin-left: 5px; /* 与圆点的间距 */
+  font-weight: bold; /* 可选：加粗文字 */
+}
+
+/* 可折叠代码块样式：默认正常显示 */
+.cb-collapsible {
+  position: relative;
+  margin: 1em 0;
+  border-radius: inherit;
+}
+
+/* 超过400px的代码块：默认收起状态 */
+.cb-collapsible.collapsible {
+  max-height: 400px;
+  overflow: hidden;
+  margin: 1em 0 2rem 0;
+}
+
+/* 收起状态的遮罩 */
+.cb-collapsible.collapsible::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3rem;
+  pointer-events: none;
+  z-index: 10;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.9));
+}
+
+/* 展开状态：移除高度限制和遮罩 */
+.cb-collapsible.collapsible.is-expanded {
+  max-height: none;
+  margin: 0;
+}
+
+.cb-collapsible.collapsible.is-expanded::after {
+  display: none;
+}
+
+.code-toolbar {
+  margin: 0 !important; 
+}
+
+/* 按钮样式 */
+.cb-toggle-btn {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: block;
+  z-index: 20;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border, rgba(0,0,0,0.1));
+  background: var(--surface, #fff);
+  color: inherit;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  cursor: pointer;
+}
+
+.cb-collapsible.collapsible.is-expanded .cb-toggle-btn {
+  position: sticky;
+  bottom: 23px;
+  left: auto;
+  transform: none;
+  margin: 0.5rem auto 0;
+}
+
+/* 暗色主题样式 */
+html.dark .cb-collapsible.collapsible::after {
+  background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.8));
+}
+
+html.dark .cb-toggle-btn {
+  background: var(--surface, #121212);
+  border-color: rgba(255,255,255,0.16);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+}
+
+.docs-content .main-content pre code {
+    font-size: 0.8rem;
+    display: block;
+    margin-top: 1rem;
+    border: none;
+    overflow-x: auto;
+    line-height: 1.5;
+    padding: 0 2.5rem 1.25rem 1rem;
+    tab-size: 4;
+    scrollbar-width: thin;
+}
+
+
+/* 保证代码块自动换行 */
+.prism-codeblock {
+  position: relative;
+  margin: 1em 0;
+}
+
+.prism-codeblock pre {
+  position: relative;
+  padding-left: 3em !important;
+  margin: 0;
+  overflow: visible;
+}
+
+.prism-codeblock code[class*="language-"], 
+.prism-codeblock pre[class*="language-"] {
+  white-space: pre-wrap !important;   
+  word-wrap: break-word;   
+  overflow-wrap: break-word;
+  line-height: 1.5;
+}
+
+/* 行号容器 */
+.wrap-line-numbers-rows {
+  position: absolute;
+  pointer-events: none;
+  top: 1rem;
+  left: 0;
+  min-width: 3em;
+  font-size: 100%;
+  line-height: inherit;
+  counter-reset: linenumber;
+  padding-top: inherit;
+  padding-bottom: inherit;
+  border-right: 1px solid #e2e2e33a;
+}
+
+.wrap-line-numbers-rows > span {
+  pointer-events: none;
+  display: block;
+  counter-increment: linenumber;
+  text-align: center;
+  color: #999;
+  min-height: 1.5em;
+}
+
+.wrap-line-numbers-rows > span:before {
+  width: fit-content;
+  content: counter(linenumber);
+}
+
+/* 为支持自定义起始行号 */
+.wrap-line-numbers-rows[data-start]:not([data-start="1"]) {
+  counter-reset: linenumber calc(attr(data-start, number, 1) - 1);
+}
+
+/* 高亮行样式 */
+.line-highlight {
+  background: rgba(255, 255, 0, 0.1);
+  position: relative;
+}

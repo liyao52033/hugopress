@@ -1,37 +1,246 @@
-{{/*
-  通用文章列表 Partial（不分页）
-  参数：
-    .Pages       → 要显示的文章集合
-    .Title       → 列表标题
-*/}}
-
 <div class="container py-5">
-  {{ if .Pages }}
-    <div class="row g-4">
-      {{ range .Pages }}
-        <div class="col-md-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title">
-                <a href="{{ .Permalink }}" class="text-decoration-none">{{ .Title }}</a>
-              </h5>
-              <p class="card-text text-muted">
-                {{ if .Description }}
-                  {{ .Description }}
-                {{ else }}
-                  暂无摘要
-                {{ end }}
-              </p>
+  <div class="row g-4">
+    <!-- 文章列表 -->
+    <div class="col-md-9">
+      <h3 class="mb-4">{{ .Title }}</h3>
+      {{ if .Pages }}
+        <div class="row g-4">
+          {{ range .Pages }}
+            <div class="col-md-6">
+              <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title">
+                    <a href="{{ .Permalink }}" class="text-decoration-none">{{ .Title }}</a>
+                  </h5>
+
+                  <!-- 显示文章所属分类 -->
+                  {{/*
+
+                      {{ if .Params.categories }}
+                      <div class="mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 1024 1024"><path fill="currentColor" d="M878.08 448H241.92l-96 384h636.16zM832 384v-64H485.76L357.504 192H128v448l57.92-231.744A32 32 0 0 1 216.96 384zm-24.96 512H96a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h287.872l128.384 128H864a32 32 0 0 1 32 32v96h23.04a32 32 0 0 1 31.04 39.744l-112 448A32 32 0 0 1 807.04 896"></path></svg>
+                        {{ range .Params.categories }}
+                          <a href="{{ "/categories/" | relLangURL }}{{ . | urlize }}" class="badge bg-secondary text-decoration-none me-1">
+                            {{ . }}
+                          </a>
+                        {{ end }}
+                      </div>
+                      {{ end }}
+
+                    */}}
+                
+
+                  <p class="card-text text-muted">
+                    {{ if .Description }}
+                      {{ .Description | truncate 100 }}
+                    {{ else }}
+                      暂无摘要
+                    {{ end }}
+                  </p>
+                </div>
+
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center">
+                    <small class="text-muted">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 1024 1024"><path fill="currentColor" d="M128 384v512h768V192H768v32a32 32 0 1 1-64 0v-32H320v32a32 32 0 0 1-64 0v-32H128v128h768v64zm192-256h384V96a32 32 0 1 1 64 0v32h160a32 32 0 0 1 32 32v768a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h160V96a32 32 0 0 1 64 0zm-32 384h64a32 32 0 0 1 0 64h-64a32 32 0 0 1 0-64m0 192h64a32 32 0 1 1 0 64h-64a32 32 0 1 1 0-64m192-192h64a32 32 0 0 1 0 64h-64a32 32 0 0 1 0-64m0 192h64a32 32 0 1 1 0 64h-64a32 32 0 1 1 0-64m192-192h64a32 32 0 1 1 0 64h-64a32 32 0 1 1 0-64m0 192h64a32 32 0 1 1 0 64h-64a32 32 0 1 1 0-64"></path></svg>
+                      {{ .Date.Format "2006-01-02" }}
+                    </small>
+                    <small class="text-muted">
+                      {{ if .Params.tags }}
+                        <div class="ms-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 1024 1024"><path fill="currentColor" d="M256 128v698.88l196.032-156.864a96 96 0 0 1 119.936 0L768 826.816V128zm-32-64h576a32 32 0 0 1 32 32v797.44a32 32 0 0 1-51.968 24.96L531.968 720a32 32 0 0 0-39.936 0L243.968 918.4A32 32 0 0 1 192 893.44V96a32 32 0 0 1 32-32"></path></svg>
+                          {{ range .Params.tags }}
+                            <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}" class="badge bg-info text-decoration-none me-1">
+                              {{ . }}
+                            </a>
+                          {{ end }}
+                        </div>
+                      {{ end }}
+                    </small>
+                    <small class="text-muted">
+                     {{ if .Params.categories }}
+                      <div class="ms-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 1024 1024"><path fill="currentColor" d="M878.08 448H241.92l-96 384h636.16zM832 384v-64H485.76L357.504 192H128v448l57.92-231.744A32 32 0 0 1 216.96 384zm-24.96 512H96a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h287.872l128.384 128H864a32 32 0 0 1 32 32v96h23.04a32 32 0 0 1 31.04 39.744l-112 448A32 32 0 0 1 807.04 896"></path></svg>
+                          {{ range .Params.categories }}
+                            <a href="{{ "/categories/" | relLangURL }}{{ . | urlize }}" class="badge bg-secondary text-decoration-none me-1">
+                              {{ . }}
+                            </a>
+                          {{ end }}
+                        </div>
+                      {{ end }}
+                    </small>
+                  </div>
+                  <div>
+                    {{ $wordCount := len (.Content | plainify) }}
+                    {{ $readingSpeed := .Site.Params.reading_speed | default 300 }}  <!-- 明确设置速度，如300字/分钟 -->
+                    {{ $readingTime := math.Ceil (div (float $wordCount) $readingSpeed) }}
+                    {{/* <small class="text-muted">{{ $wordCount }}字</small> */}}
+                    {{/* <small class="text-muted">⏱️{{ $readingTime }}分钟阅读</small> */}}
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="card-footer d-flex justify-content-between align-items-center">
-              <small class="text-muted">发表于 {{ .Date.Format "2006-01-02" }}</small>
-              <small class="text-muted">⏱️ {{ .ReadingTime }} 分钟阅读</small>
-            </div>
-          </div>
+          {{ end }}
         </div>
+      {{ else }}
+        <div class="alert alert-warning">暂无文章。</div>
       {{ end }}
     </div>
-  {{ else }}
-    <div class="alert alert-warning">暂无文章。</div>
-  {{ end }}
+
+    <!-- 右侧边栏 -->
+    <div class="col-md-3">
+      <!-- 文章分类 -->
+      <div class="card mb-4">
+        <div class="card-header">文章分类</div>
+        <div class="card-body">
+          <ul class="list-group">
+            {{ if .Site.Taxonomies.categories }}
+              {{ $categories := .Site.Taxonomies.categories }}
+              {{ $limit := 5 }}
+
+              {{ $i := 0 }} <!-- 定义一个计数器变量 -->
+              {{ range $key, $category := $categories }}
+                {{ if lt $i $limit }}
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a href="{{ "/categories/" | relLangURL }}{{ $key | urlize }}" class="text-decoration-none">
+                      {{ $key }}
+                    </a>
+                    <span class="badge bg-secondary">{{ len $category }}</span>
+                  </li>
+                  {{ $i = add $i 1 }} <!-- 每次循环计数器加1 -->
+                {{ end }}
+              {{ end }}
+
+              {{ if gt (len $categories) $limit }}
+                <li class="list-group-item text-center">
+                  <a href="{{ "/categories/" | relLangURL }}" class="text-decoration-none">更多分类({{ sub (len $categories) $limit }}) →</a>
+                </li>
+              {{ end }}
+
+            {{ else }}
+              <li class="list-group-item">暂无分类</li>
+            {{ end }}
+          </ul>
+        </div>
+      </div>
+
+      <!-- 热门标签 -->
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">热门标签</div>
+        <div class="card-body">
+          {{ if .Site.Taxonomies.tags }}
+            {{ $limit := 5 }}
+            {{ $i := 0 }}
+            {{ $totalTags := len .Site.Taxonomies.tags }}
+            
+            {{ range $key, $value := .Site.Taxonomies.tags }}
+              {{ if lt $i $limit }}
+                <a href="{{ "/tags/" | relLangURL }}{{ $key | urlize }}" class="badge bg-info text-decoration-none me-2 mb-2">
+                  {{ $key }} ({{ len $value }})
+                </a>
+                {{ $i = add $i 1 }}
+              {{ end }}
+            {{ end }}
+            
+            <!-- 如果标签总数超过限制，显示更多标签链接 -->
+            {{ if gt $totalTags $limit }}
+              <a href="{{ "/tags/" | relLangURL }}" class="badge bg-secondary text-decoration-none me-2 mb-2">
+                更多标签({{ sub $totalTags $limit }}) → 
+              </a>
+            {{ end }}
+          {{ else }}
+            <p>暂无标签</p>
+          {{ end }}
+        </div>
+      </div>
+
+      <!-- 站点信息 -->
+      <div class="card">
+        <div class="card-header bg-primary text-white">站点信息</div>
+        <div class="card-body">
+          <ul class="list-group">
+
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              文章数目
+              <span class="badge bg-success">
+                {{ len (where .Site.RegularPages "Type" "docs") }}篇
+              </span>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              最后活动时间
+              <span class="badge bg-success">
+                {{ with first 1 (sort .Site.RegularPages "Lastmod" "desc") }}
+                  {{ $lastmod := (index . 0).Lastmod }}
+                  {{ $seconds := sub now.Unix $lastmod.Unix }}
+                  {{ $minutes := div $seconds 60 }}
+                  {{ $hours := div $minutes 60 }}
+                  {{ $days := div $hours 24 }}
+                  {{ $months := div $days 30 }}  {{/* 简化计算，以30天为一个月 */}}
+                  {{ $years := div $months 12 }}  {{/* 简化计算，以12个月为一年 */}}
+                  
+                  {{ if ge $years 1 }}
+                    {{ $years }}年前
+                  {{ else if ge $months 1 }}
+                    {{ $months }}个月前
+                  {{ else if ge $days 1 }}
+                    {{ $days }}天前
+                  {{ else if ge $hours 1 }}
+                    {{ $hours }}小时前
+                  {{ else if ge $minutes 1 }}
+                    {{ $minutes }}分钟前
+                  {{ else }}
+                    刚刚
+                  {{ end }}
+                {{ else }}
+                  -
+                {{ end }}
+              </span>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              已运行时间
+              <span class="badge bg-success">
+                {{ $start := .Site.Params.docs.startTime | time }}
+                {{ $days := div (sub now.Unix $start.Unix) 86400 }}
+                
+                {{ if ge $days 0 }}
+                  {{ $days }} 天
+                {{ else }}
+                  尚未开始
+                {{ end }}
+              </span>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              本站总字数
+              <span class="badge bg-success">
+              {{ $totalChars := 0 }}
+              {{ range where .Site.RegularPages "Type" "docs" }}
+                {{ $totalChars = add $totalChars (len (.Content | plainify)) }}
+                {{/* $totalChars = add $totalChars .FuzzyWordCount */}}
+              {{ end }}
+
+              {{ div (float $totalChars) 10000 | printf "%.1f" }}w 字
+              </span>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              本站总访问量
+              <span class="badge bg-success">
+                <span id="busuanzi_site_pv"></span>次
+              </span>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              本站总访客数
+              <span class="badge bg-success">
+                <span id="busuanzi_site_uv"></span>人
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

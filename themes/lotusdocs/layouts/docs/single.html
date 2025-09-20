@@ -39,10 +39,9 @@
         {{ partial (printf "%s/%s" ($.Scratch.Get "pathName") "gitinfo") . }}
     {{ end -}}
 
-    
     {{/* 文章底部版权信息 - 结束 */}}
 
-    {{/* 文章评论区 */}}
+   {{/* 文章评论区 */}}
    {{ if .Site.Params.feedback.enabled | default false -}}
         {{ if or (.Site.Params.plausible.dataDomain) (.Site.Config.Services.GoogleAnalytics.ID) }}
             {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "footer/feedback.html") . -}}
@@ -51,9 +50,7 @@
         {{ end }}
     {{ end -}}
 
-    {{/* 私密文章访问控制 - 开始 */}}
-
-    <!-- 私密文章访问控制 -->
+    {{/* 私密文章访问控制 */}}
     {{ if .Params.private }}
     <script>
      // 页面加载后，立即验证 Token

@@ -1,5 +1,5 @@
 baseURL = 'https://vp.xiaoying.org.cn/'
-languageCode = 'zh-CN'
+languageCode = "zh-CN"
 title = 'Lotus Docs'
 publishDir = "dist"
 contentDir = "content"
@@ -70,6 +70,7 @@ ignoreLogs = ['warning-goldmark-raw-html']
     secondary_font  = "'Comic Sans MS', 'Microsoft YaHei', sans-serif"   
     mono_font       = "'Courier New', 'Consolas', monospace" 
 
+    reading_speed = 300                             # 这里设置你想要的每分钟字数，比如300字/分钟
 
     # algolia搜索
     [params.docsearch] 
@@ -83,7 +84,8 @@ ignoreLogs = ['warning-goldmark-raw-html']
 
     [params.docs]
         darkMode = true                                
-        prism = true              
+        prism = true          
+        startTime = "2025-03-18"    # 博客创建时间
         prismTheme = "lucario"     # (optional) - Set theme for PrismJS. Options include: lotusdocs (default), solarized-light, twilight, lucario
         pathName        = "docs"                            # path name for documentation site | default "docs"
 

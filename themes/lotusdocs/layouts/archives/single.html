@@ -30,7 +30,7 @@
       {{ $postsByMonth := $yearPosts.GroupByDate "01" }}
 
       <div class="year-card card mb-6 shadow-sm">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header text-white">
           {{ $year }} 年
         </div>
         <div class="card-body p-4">
@@ -94,7 +94,7 @@
   .year-card .card-header {
     font-size: 1.5rem;
     font-weight: bold;
-    background-color: #0d6efd; /* Bootstrap primary */
+  //  background-color: #0d6efd; /* Bootstrap primary */
     color: #fff;
     transition: background-color 0.3s ease;
   }
@@ -133,6 +133,8 @@
     .article-card:hover {
       transform: translateY(-6px) scale(1.02);
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      background-color: #0d6efd;
+      color: #fff;
     }
 
     .year-card:hover {
@@ -140,7 +142,7 @@
     }
 
     .year-card:hover .card-header {
-      background-color: #3399ff; /* 浅蓝色 */
+     // background-color: #3399ff; /* 浅蓝色 */
     }
   }
 

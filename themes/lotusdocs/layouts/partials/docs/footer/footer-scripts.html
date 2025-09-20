@@ -139,65 +139,51 @@
     }
   })();
 </script>
-<style>
-/* 可折叠代码块样式：默认折叠到 400px，高度超出时显示底部渐变与按钮 */
-.cb-collapsible {
-  position: relative;
-  max-height: 400px;
-  overflow: hidden;
-  border-radius: inherit;
-  padding-bottom: 2.5rem; /* 为底部按钮预留空间，防止遮挡代码 */
-}
-.cb-collapsible::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0; /* 遮罩贴紧最底部 */
-  height: 3rem;
-  pointer-events: none;
-  z-index: 0; /* 低于按钮，避免遮住按钮 */
-  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.9));
-}
-html.dark .cb-collapsible::after {
-  background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.8));
-}
-.cb-collapsible.is-expanded {
-  max-height: none;
-  overflow: visible;
-}
-.cb-collapsible.is-expanded::after {
-  display: none;
-}
-/* 按钮样式 */
-.cb-toggle-btn {
-  position: sticky; /* 始终贴在容器可视区域底部 */
-  bottom: 0;
-  display: block;
-  margin: 0.5rem auto 0; /* 底部居中 */
-  z-index: 2; /* 高于遮罩 */
-  font-size: 0.85rem;
-  line-height: 1;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--border, rgba(0,0,0,0.1));
-  background: var(--surface, #fff);
-  color: inherit;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  cursor: pointer;
-}
-html.dark .cb-toggle-btn {
-  background: var(--surface, #121212);
-  border-color: rgba(255,255,255,0.16);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
-}
-</style>
+
+
 <script>
 (function () {
   const LIMIT = 400;
   const WRAP_CLASS = 'cb-collapsible';
   const EXPANDED = 'is-expanded';
   const selectors = ['.highlight', '.chroma'];
+
+  // 从class中提取编程语言
+  function getLanguage(block) {
+    // 检查常见的代码块标记模式
+    const classList = Array.from(block.classList);
+    
+    // 查找类似language-xxx或lang-xxx的class
+    const langClass = classList.find(cls => 
+      cls.startsWith('language-')
+    );
+    
+    if (langClass) {
+      return langClass.replace(/^(language-|lang-)/, '');
+    }
+    
+    // 检查code标签内的语言信息
+    const codeElement = block.querySelector('code');
+    if (codeElement) {
+      const codeClasses = Array.from(codeElement.classList);
+      const codeLangClass = codeClasses.find(cls => 
+        cls.startsWith('language-')
+      );
+      if (codeLangClass) {
+        return codeLangClass.replace(/^(language-|lang-)/, '');
+      }
+    }
+    
+    // 检查chroma代码块的语言
+    if (block.classList.contains('chroma')) {
+      const langElement = block.querySelector('.lntd:first-child .ln');
+      if (langElement && langElement.textContent.trim()) {
+        return langElement.textContent.trim();
+      }
+    }
+    
+    return 'html'; // 默认值
+  }
 
   function findBlocks() {
     const set = new Set();
@@ -212,26 +198,42 @@ html.dark .cb-toggle-btn {
   function wrapIfNeeded(block) {
     if (block.closest('.' + WRAP_CLASS)) return;
     const need = (block.scrollHeight || block.offsetHeight || 0) > LIMIT;
-    if (!need) return;
 
+    // 创建包装器 - 超过400px的默认收起
     const wrapper = document.createElement('div');
-    wrapper.className = WRAP_CLASS;
+    wrapper.className = WRAP_CLASS + (need ? ' collapsible' : '');
+
     const parent = block.parentNode;
     parent.insertBefore(wrapper, block);
     wrapper.appendChild(block);
+    
+    // 添加语言标签
+    const langLabel = document.createElement('div');
+    const language = getLanguage(block).toUpperCase();
+    langLabel.className = 'cb-language-label';
+    langLabel.innerHTML  = `
+          <span class="cb-dot red"></span>
+          <span class="cb-dot yellow"></span>
+          <span class="cb-dot green"></span>
+          <span class="cb-lang-text">${language}</span>
+          `;
+    wrapper.appendChild(langLabel);
 
-    const btn = document.createElement('button');
-    btn.className = 'cb-toggle-btn';
-    btn.type = 'button';
-    btn.setAttribute('aria-expanded', 'false');
-    btn.textContent = '展开';
-    wrapper.appendChild(btn);
+    // 超过400px的代码块添加按钮，默认收起状态
+    if (need) {
+      const btn = document.createElement('button');
+      btn.className = 'cb-toggle-btn';
+      btn.type = 'button';
+      btn.setAttribute('aria-expanded', 'false');
+      btn.textContent = '展开';
+      wrapper.appendChild(btn);
 
-    btn.addEventListener('click', function () {
-      const expanded = wrapper.classList.toggle(EXPANDED);
-      btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-      btn.textContent = expanded ? '收起' : '展开';
-    });
+      btn.addEventListener('click', function () {
+        const expanded = wrapper.classList.toggle(EXPANDED);
+        btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        btn.textContent = expanded ? '收起' : '展开';
+      });
+    }
   }
 
   function init() {
@@ -244,4 +246,6 @@ html.dark .cb-toggle-btn {
     init();
   }
 })();
+
 </script>
+    
