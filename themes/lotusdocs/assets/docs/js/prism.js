@@ -3649,6 +3649,93 @@ Prism.languages.js = Prism.languages.javascript;
 		return settings;
 	}
 
+	// 注册折叠按钮
+	Prism.plugins.toolbar.registerButton('collapse-code', function (env) {
+		var element = env.element;
+		var pre = element.parentNode;
+		
+		// 安全检查
+		if (!pre || !/pre/i.test(pre.nodeName)) {
+			return null;
+		}
+		
+		var codeBlock = pre.parentNode;
+		if (!codeBlock) {
+			return null;
+		}
+
+        const LIMIT = 400;
+		const need = pre.scrollHeight > LIMIT
+
+		// 创建折叠按钮
+		var collapseBtn = document.createElement('button');
+
+		//创建遮罩按钮
+		var btn = document.createElement('button');
+		
+		// 检查代码块高度，只有超过400px的才显示折叠按钮
+		// 使用setTimeout确保DOM已经渲染完成
+		setTimeout(function() {
+
+			if (need) {
+
+				// 折叠图标
+				collapseBtn.className = 'collapse-code-button';
+				collapseBtn.setAttribute('type', 'button');
+				collapseBtn.setAttribute('data-collapse-state', 'collapsed');
+				collapseBtn.setAttribute('aria-label', 'toggle code collapse');
+				
+				var btnSpan = document.createElement('span');
+				collapseBtn.appendChild(btnSpan);
+
+				//遮罩按钮
+				btn.className = 'cb-toggle-btn';
+				btn.type = 'button';
+				btn.setAttribute('aria-expanded', 'false');
+				btn.textContent = '展开';
+				codeBlock.appendChild(btn);
+
+				btn.addEventListener('click', function () {
+					codeBlock.classList.remove('code-collapsed');
+					collapseBtn.setAttribute('data-collapse-state', 'expanded');
+
+					btn.style.display = 'none';
+
+					// 获取当前aria-expanded状态
+    			//	const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+					// 切换状态
+					// const newState = !isExpanded;
+					// btn.setAttribute('aria-expanded', newState);
+
+					// btn.textContent = newState ? '收起' : '展开';
+				});
+
+
+				// 初始化为折叠状态
+				codeBlock.classList.add('code-collapsed');
+			} 
+			
+		}, 100);
+		
+		collapseBtn.addEventListener('click', function () {
+			var isCollapsed = collapseBtn.getAttribute('data-collapse-state') === 'collapsed';
+			
+			if (isCollapsed) {
+				// 展开
+				btn.style.display = 'none';
+				codeBlock.classList.remove('code-collapsed');
+				collapseBtn.setAttribute('data-collapse-state', 'expanded');
+			} else {
+				// 折叠
+				btn.style.display = 'block';
+				codeBlock.classList.add('code-collapsed');
+				collapseBtn.setAttribute('data-collapse-state', 'collapsed');
+			}
+		});
+
+		return collapseBtn;
+	});
+
 	Prism.plugins.toolbar.registerButton('copy-to-clipboard', function (env) {
 		var element = env.element;
 

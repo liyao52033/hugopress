@@ -41,50 +41,50 @@
 }
 
 /* 可折叠代码块样式：默认正常显示 */
-.cb-collapsible {
-  position: relative;
-  margin: 1em 0;
-  border-radius: inherit;
-}
+// .cb-collapsible {
+//   position: relative;
+//   margin: 1em 0;
+//   border-radius: inherit;
+// }
 
 /* 超过400px的代码块：默认收起状态 */
-.cb-collapsible.collapsible {
-  max-height: 400px;
-  overflow: hidden;
-  margin: 1em 0 2rem 0;
-}
+// .cb-collapsible.collapsible {
+//  max-height: 400px;
+//  overflow: hidden;
+//   margin: 1em 0 2rem 0;
+// }
 
 /* 收起状态的遮罩 */
-.cb-collapsible.collapsible::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 3rem;
-  pointer-events: none;
-  z-index: 10;
-  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.9));
-}
+// .cb-collapsible.collapsible::after {
+//   content: "";
+//   position: absolute;
+//   left: 0;
+//   right: 0;
+//   bottom: 0;
+//   height: 3rem;
+//   pointer-events: none;
+//   z-index: 10;
+//   background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.9));
+// }
 
 /* 展开状态：移除高度限制和遮罩 */
-.cb-collapsible.collapsible.is-expanded {
-  max-height: none;
-  margin: 0;
-}
+// .cb-collapsible.collapsible.is-expanded {
+//   max-height: none;
+//   margin: 0;
+// }
 
-.cb-collapsible.collapsible.is-expanded::after {
-  display: none;
-}
+// .cb-collapsible.collapsible.is-expanded::after {
+//   display: none;
+// }
 
-.code-toolbar {
-  margin: 0 !important; 
-}
+// .code-toolbar {
+//   margin: 0 !important; 
+// }
 
 /* 按钮样式 */
 .cb-toggle-btn {
   position: absolute;
-  bottom: 0.5rem;
+  bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
   display: block;
@@ -98,15 +98,18 @@
   color: inherit;
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   cursor: pointer;
+
+  &[aria-expanded="true"] {
+    position: sticky;
+    bottom: 23px;
+    left: auto;
+    transform: none;
+    margin: 0.5rem auto 0;
+  }
+
 }
 
-.cb-collapsible.collapsible.is-expanded .cb-toggle-btn {
-  position: sticky;
-  bottom: 23px;
-  left: auto;
-  transform: none;
-  margin: 0.5rem auto 0;
-}
+ 
 
 /* 暗色主题样式 */
 html.dark .cb-collapsible.collapsible::after {

@@ -197,12 +197,9 @@
 
   function wrapIfNeeded(block) {
     if (block.closest('.' + WRAP_CLASS)) return;
-    const need = (block.scrollHeight || block.offsetHeight || 0) > LIMIT;
 
-    // 创建包装器 - 超过400px的默认收起
+    // 创建包装器
     const wrapper = document.createElement('div');
-    wrapper.className = WRAP_CLASS + (need ? ' collapsible' : '');
-
     const parent = block.parentNode;
     parent.insertBefore(wrapper, block);
     wrapper.appendChild(block);
@@ -218,22 +215,6 @@
           <span class="cb-lang-text">${language}</span>
           `;
     wrapper.appendChild(langLabel);
-
-    // 超过400px的代码块添加按钮，默认收起状态
-    if (need) {
-      const btn = document.createElement('button');
-      btn.className = 'cb-toggle-btn';
-      btn.type = 'button';
-      btn.setAttribute('aria-expanded', 'false');
-      btn.textContent = '展开';
-      wrapper.appendChild(btn);
-
-      btn.addEventListener('click', function () {
-        const expanded = wrapper.classList.toggle(EXPANDED);
-        btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-        btn.textContent = expanded ? '收起' : '展开';
-      });
-    }
   }
 
   function init() {

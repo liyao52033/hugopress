@@ -70,7 +70,7 @@ pre[data-line] {
      left: 0;
      right: 0;
      padding: inherit 0;
-     margin-top: 0em; /* Same as .prism’s padding-top */
+     margin-top: 0em; /* Same as .prism's padding-top */
 
      background: hsla(24, 20%, 50%,.08);
      background: linear-gradient(to right, hsla(24, 20%, 50%,.1) 70%, hsla(24, 20%, 50%, 0));
@@ -160,7 +160,7 @@ pre[data-line] {
      left: 0em;
      width: 3em; /* works for line-numbers below 1000 lines */
      letter-spacing: -1px;
-    //  border-right: 1px solid #999;
+     border-right: 1px solid #999;
      border-right: none;
 
      -webkit-user-select: none;
@@ -286,14 +286,70 @@ pre[data-line] {
     width: 24px;
  }
 
+ // 折叠按钮样式
+ [data-collapse-state="collapsed"] span:empty::before {
+     content: "";
+     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='48' width='48' viewBox='0 0 48 48'%3E%3Cpath d='M24 30.75 12 18.75l2.15-2.15L24 26.5l9.85-9.9L36 18.75Z'/%3E%3C/svg%3E");
+     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='48' width='48' viewBox='0 0 48 48'%3E%3Cpath d='M24 30.75 12 18.75l2.15-2.15L24 26.5l9.85-9.9L36 18.75Z'/%3E%3C/svg%3E");
+     -webkit-mask-size: contain;
+     background-color: aliceblue;
+     mask-size: contain;
+     display: block;
+     height: 24px;
+     width: 24px;
+ }
+
+ [data-collapse-state="expanded"] span:empty::before {
+     content: "";
+     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='48' width='48' viewBox='0 0 48 48'%3E%3Cpath d='M14.15 30.75 12 28.6l12-12 12 12-2.15 2.15L24 20.85Z'/%3E%3C/svg%3E");
+     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='48' width='48' viewBox='0 0 48 48'%3E%3Cpath d='M14.15 30.75 12 28.6l12-12 12 12-2.15 2.15L24 20.85Z'/%3E%3C/svg%3E");
+     -webkit-mask-size: contain;
+     background-color: aliceblue;
+     mask-size: contain;
+     display: block;
+     height: 24px;
+     width: 24px;
+ }
+
+ // 折叠按钮基础样式
+ .collapse-code-button {
+     box-shadow: none;
+     background: var(--prism-code-bg);
+     opacity: 0.9;
+ }
+
+ // 代码块折叠状态
+ .code-toolbar.code-collapsed {
+     max-height: 400px;
+     overflow: hidden;
+     position: relative;
+ }
+
+ .code-toolbar.code-collapsed::after {
+     content: "";
+     position: absolute;
+     left: 0;
+     right: 0;
+     bottom: 0;
+     height: 4rem;
+     pointer-events: none;
+     background: linear-gradient(to bottom, rgba(222, 226, 230, 0.8), #dee2e6b8 30%);
+     z-index: 5;
+ }
+
+ // 暗色主题下的渐变
+ html.dark .code-toolbar.code-collapsed::after {
+     background: linear-gradient(to bottom, transparent, var(--prism-code-bg));
+ }
+
  div.code-toolbar > .toolbar > .toolbar-item > a,
  div.code-toolbar > .toolbar > .toolbar-item > button,
  div.code-toolbar > .toolbar > .toolbar-item > span {
      color: #bbb;
      font-size: .8em;
      padding: 4px;
-     background: rgba(224, 224, 224, 0.2);
-     box-shadow: 0 2px 0 0 rgba(0,0,0,0.2);
+   //  background: rgba(224, 224, 224, 0.2);
+   //  box-shadow: 0 2px 0 0 rgba(0,0,0,0.2);
      border-radius: 4px;
  }
 
@@ -475,4 +531,3 @@ pre[data-line] {
  .token.treeview-part .entry-name.ext-pptx:before {
      content: "\ea0b";
  }
-
