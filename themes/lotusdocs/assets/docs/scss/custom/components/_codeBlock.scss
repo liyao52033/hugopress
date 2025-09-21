@@ -146,6 +146,7 @@ html.dark .cb-toggle-btn {
   padding-left: 3em !important;
   margin: 0;
   overflow: visible;
+  line-height: 1.5;
 }
 
 .prism-codeblock code[class*="language-"], 
@@ -159,24 +160,28 @@ html.dark .cb-toggle-btn {
 /* 行号容器 */
 .wrap-line-numbers-rows {
   position: absolute;
-  pointer-events: none;
   top: 1rem;
   left: 0;
+ // bottom: 0;
   min-width: 3em;
   font-size: 100%;
-  line-height: inherit;
+  line-height: 1.5;
   counter-reset: linenumber;
   padding-top: inherit;
   padding-bottom: inherit;
-  border-right: 1px solid #e2e2e33a;
+  border-right: 1px solid #e2e2e30f;
+  // border-right: 1px solid #0d6efd17;
+  display: flex;
+  flex-direction: column;
 }
 
 .wrap-line-numbers-rows > span {
-  pointer-events: none;
+ // pointer-events: none;
   display: block;
   counter-increment: linenumber;
   text-align: center;
   color: #999;
+  line-height: 1.5;
   min-height: 1.5em;
 }
 

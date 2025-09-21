@@ -1,0 +1,50 @@
+{{ $columns := .Get "columns" | default "2" }}
+{{ $colWidth := div 12 (int $columns) }}
+
+<div class="row g-4 mb-3 mt-1">
+  {{ .Inner }}
+</div>
+
+<style>
+
+  .navcard-container .card {
+    background-color: #f6f6f7;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .navcard-container:hover .card {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+  }
+
+  .navcard-container .card-text {
+    color: #67676c;
+    font-size: 12px;
+    overflow: hidden;
+    white-space: normal;
+    text-overflow: ellipsis;
+  }
+
+  .navcard-container .title {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .navcard-container .badge {
+    margin: 5px 5px 0 0;
+    border-radius: 14px;
+    font-size: 12px;
+  }
+
+  .navcard-container .card-img-top {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0 10px;
+  }
+
+</style>
+
+{{/* 定义列宽变量供子短代码使用 */}}
+{{ $.Scratch.Set "colWidth" $colWidth }}
+    

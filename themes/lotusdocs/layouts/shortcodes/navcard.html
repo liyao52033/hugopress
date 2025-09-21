@@ -1,0 +1,29 @@
+{{ $name := .Get "name" | default "未命名" }}
+{{ $desc := .Get "desc" | default "" }}
+{{ $img := .Get "img" | default "" }}
+{{ $link := .Get "link" | default "#" }}
+{{ $badge := .Get "badge" | default "" }}
+{{ $badgeType := .Get "badgeType" | default "info" }}
+
+{{/* 从父容器获取列宽设置 */}}
+{{ $colWidth := .Parent.Scratch.Get "colWidth" | default 6 }}
+
+<a href="{{ $link }}" class="col-md-{{ $colWidth }} navcard-container d-block text-decoration-none">
+  <div class="card h-100 d-flex flex-column transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+    <div class="relative">
+      <div class="d-flex align-items-center">
+        {{ if $img }}
+          <img src="{{ $img }}" class="card-img-top mt-2" alt="{{ $name }}" />
+        {{ end }}
+        <span class="title mt-2">{{ $name }}</span>
+      </div>
+        {{ if $badge }}
+          <span class="badge bg-{{ $badgeType }} position-absolute top-0 end-0">{{ $badge }}</span>
+        {{ end }}
+    </div>
+    <div class="card-body">
+      <p class="card-text mt-1 ms-1">{{ $desc }}</p>
+    </div>
+  </div>
+</a>
+    

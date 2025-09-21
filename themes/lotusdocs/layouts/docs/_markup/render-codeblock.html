@@ -78,110 +78,163 @@
 
 <script>
 
-document.addEventListener('DOMContentLoaded', function() {
-  // 等待 Prism.js 完成语法高亮
-  setTimeout(function() {
-    addLineNumbers();
-  }, 100);
-  
-  // 监听 Prism.js 的高亮完成事件
-  document.addEventListener('prismHighlighted', addLineNumbers);
-});
+ document.addEventListener('DOMContentLoaded', function() {
+            // 使用多重检测确保完全加载
+            setTimeout(function() {
+                addLineNumbers();
+            }, 100);
+            
+            // 监听 Prism.js 的高亮完成事件
+            document.addEventListener('prismHighlighted', function() {
+                setTimeout(addLineNumbers, 50);
+            });
+            
+            // 监听窗口大小变化，重新计算行号
+            window.addEventListener('resize', function() {
+                clearTimeout(window.resizeTimer);
+                window.resizeTimer = setTimeout(function() {
+                    removeLineNumbers();
+                    addLineNumbers();
+                }, 250);
+            });
+        });
 
-function addLineNumbers() {
-  document.querySelectorAll('.prism-codeblock pre').forEach(function(pre) {
-    // 检查是否已经添加了行号
-    if (pre.querySelector('.wrap-line-numbers-rows')) {
-      return;
-    }
-    
-    const code = pre.querySelector('code');
-    if (!code) return;
-
-    const collapsibleEl = document.querySelector('.cb-collapsible');
-    
-    // 获取起始行号
-    const startAttr = pre.closest('.prism-codeblock').getAttribute('data-start');
-    const startLine = startAttr ? parseInt(startAttr, 10) : 1;
-    
-    // 获取代码文本内容并处理首尾空白行
-    let codeText = code.textContent || code.innerText;
-    // 移除开头和结尾的换行符，但保留中间的换行符
-    codeText = codeText.replace(/^\n+/, '').replace(/\n+$/, '');
-    
-    // 计算实际代码行数
-    const codeLines = codeText.split('\n');
-    let totalLines = codeLines.length;
-    
-    // 如果使用自动换行，需要考虑长行的换行
-    if (getComputedStyle(code).whiteSpace.includes('wrap')) {
-      const tempDiv = document.createElement('div');
-      tempDiv.style.cssText = getComputedStyle(code).cssText;
-      tempDiv.style.position = 'absolute';
-      tempDiv.style.visibility = 'hidden';
-      tempDiv.style.height = 'auto';
-      tempDiv.style.width = code.offsetWidth + 'px';
-      document.body.appendChild(tempDiv);
-      
-      totalLines = 0;
-      codeLines.forEach(line => {
-        tempDiv.textContent = line || ' '; // 空行也要计算
-        const lineHeight = parseFloat(getComputedStyle(tempDiv).lineHeight);
-        const actualHeight = tempDiv.offsetHeight;
-        const wrappedLines = Math.max(1, Math.round(actualHeight / lineHeight));
-        totalLines += wrappedLines;
-      });
-      
-      document.body.removeChild(tempDiv);
-    }
-    
-    // 创建行号容器
-    const lineNumbersWrapper = document.createElement('span');
-    lineNumbersWrapper.className = 'wrap-line-numbers-rows';
-    
-    if (startLine !== 1) {
-      lineNumbersWrapper.setAttribute('data-start', startLine.toString());
-      lineNumbersWrapper.style.counterReset = `linenumber ${startLine - 1}`;
-    }
-    
-    // 生成行号
-    for (let i = 0; i < totalLines; i++) {
-      const lineNumber = document.createElement('span');
-      lineNumbersWrapper.appendChild(lineNumber);
-    }
-    
-    pre.appendChild(lineNumbersWrapper);
-    
-    // 处理高亮行
-    handleHighlightedLines(pre);
-  });
-}
-
-function handleHighlightedLines(pre) {
-  const highlightData = pre.getAttribute('data-line');
-  if (!highlightData) return;
-  
-  const lineNumbersRows = pre.querySelector('.wrap-line-numbers-rows');
-  if (!lineNumbersRows) return;
-  
-  const ranges = highlightData.split(',');
-  ranges.forEach(range => {
-    if (range.includes('-')) {
-      const [start, end] = range.split('-').map(n => parseInt(n, 10));
-      for (let i = start; i <= end; i++) {
-        const lineSpan = lineNumbersRows.children[i - 1];
-        if (lineSpan) {
-          lineSpan.classList.add('line-highlight');
+        function removeLineNumbers() {
+            document.querySelectorAll('.wrap-line-numbers-rows').forEach(function(el) {
+                el.remove();
+            });
         }
-      }
-    } else {
-      const lineNum = parseInt(range, 10);
-      const lineSpan = lineNumbersRows.children[lineNum - 1];
-      if (lineSpan) {
-        lineSpan.classList.add('line-highlight');
-      }
-    }
-  });
-}
-    
-</script>
+
+        function addLineNumbers() {
+            document.querySelectorAll('.prism-codeblock pre').forEach(function(pre) {
+                // 检查是否已经添加了行号
+                if (pre.querySelector('.wrap-line-numbers-rows')) {
+                    return;
+                }
+                
+                const code = pre.querySelector('code');
+                if (!code) return;
+
+                // 获取起始行号
+                const startAttr = pre.closest('.prism-codeblock').getAttribute('data-start');
+                const startLine = startAttr ? parseInt(startAttr, 10) : 1;
+                
+                // 等待一帧确保渲染完成
+                requestAnimationFrame(function() {
+                    const totalLines = calculateActualLines(code);
+                    
+                    // 创建行号容器
+                    const lineNumbersWrapper = document.createElement('span');
+                    lineNumbersWrapper.className = 'wrap-line-numbers-rows';
+                    
+                    if (startLine !== 1) {
+                        lineNumbersWrapper.setAttribute('data-start', startLine.toString());
+                        lineNumbersWrapper.style.counterReset = `linenumber ${startLine - 1}`;
+                    }
+                    
+                    // 生成行号
+                    for (let i = 0; i < totalLines; i++) {
+                        const lineNumber = document.createElement('span');
+                        lineNumbersWrapper.appendChild(lineNumber);
+                    }
+                    
+                    pre.appendChild(lineNumbersWrapper);
+                    
+                    // 处理高亮行
+                    handleHighlightedLines(pre);
+                });
+            });
+        }
+
+        function calculateActualLines(codeElement) {
+            // 方法1: 基于内容高度计算
+            const codeHeight = codeElement.offsetHeight;
+            const computedStyle = getComputedStyle(codeElement);
+            const lineHeight = parseFloat(computedStyle.lineHeight);
+            const paddingTop = parseFloat(computedStyle.paddingTop) || 0;
+            const paddingBottom = parseFloat(computedStyle.paddingBottom) || 0;
+            
+            const contentHeight = codeHeight - paddingTop - paddingBottom;
+            const calculatedLines = Math.round(contentHeight / lineHeight);
+            
+            // 方法2: 基于文本内容计算
+            let codeText = codeElement.textContent || codeElement.innerText;
+            codeText = codeText.replace(/^\n+/, '').replace(/\n+$/, '');
+            const textLines = codeText ? codeText.split('\n').length : 1;
+            
+            // 方法3: 如果启用了自动换行，需要考虑换行
+            let wrappedLines = textLines;
+            if (getComputedStyle(codeElement).whiteSpace.includes('wrap')) {
+                wrappedLines = calculateWrappedLines(codeElement, codeText);
+            }
+            
+            // 取三种方法中最合理的结果
+         //   console.log('Height-based lines:', calculatedLines);
+         //   console.log('Text-based lines:', textLines);
+         //   console.log('Wrapped lines:', wrappedLines);
+            
+            // 优先使用高度计算的结果，但要确保不小于文本行数
+            return Math.max(calculatedLines, textLines);
+        }
+
+        function calculateWrappedLines(codeElement, codeText) {
+            if (!codeText) return 1;
+            
+            const lines = codeText.split('\n');
+            const computedStyle = getComputedStyle(codeElement);
+            const codeWidth = codeElement.offsetWidth - 
+                (parseFloat(computedStyle.paddingLeft) || 0) - 
+                (parseFloat(computedStyle.paddingRight) || 0);
+            
+            // 创建测量元素
+            const measurer = document.createElement('div');
+            measurer.style.cssText = computedStyle.cssText;
+            measurer.style.position = 'absolute';
+            measurer.style.visibility = 'hidden';
+            measurer.style.height = 'auto';
+            measurer.style.width = codeWidth + 'px';
+            measurer.style.whiteSpace = 'pre-wrap';
+            measurer.style.wordBreak = 'break-word';
+            document.body.appendChild(measurer);
+            
+            let totalLines = 0;
+            const lineHeight = parseFloat(computedStyle.lineHeight);
+            
+            lines.forEach(line => {
+                measurer.textContent = line || ' '; // 空行也要计算
+                const actualHeight = measurer.offsetHeight;
+                const wrappedCount = Math.max(1, Math.round(actualHeight / lineHeight));
+                totalLines += wrappedCount;
+            });
+            
+            document.body.removeChild(measurer);
+            return totalLines;
+        }
+
+        function handleHighlightedLines(pre) {
+            const highlightData = pre.getAttribute('data-line');
+            if (!highlightData) return;
+            
+            const lineNumbersRows = pre.querySelector('.wrap-line-numbers-rows');
+            if (!lineNumbersRows) return;
+            
+            const ranges = highlightData.split(',');
+            ranges.forEach(range => {
+                if (range.includes('-')) {
+                    const [start, end] = range.split('-').map(n => parseInt(n, 10));
+                    for (let i = start; i <= end; i++) {
+                        const lineSpan = lineNumbersRows.children[i - 1];
+                        if (lineSpan) {
+                            lineSpan.classList.add('line-highlight');
+                        }
+                    }
+                } else {
+                    const lineNum = parseInt(range, 10);
+                    const lineSpan = lineNumbersRows.children[lineNum - 1];
+                    if (lineSpan) {
+                        lineSpan.classList.add('line-highlight');
+                    }
+                }
+            });
+        }
+    </script>
