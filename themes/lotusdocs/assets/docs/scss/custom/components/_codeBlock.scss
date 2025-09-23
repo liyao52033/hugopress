@@ -40,47 +40,6 @@
   font-weight: bold; /* 可选：加粗文字 */
 }
 
-/* 可折叠代码块样式：默认正常显示 */
-// .cb-collapsible {
-//   position: relative;
-//   margin: 1em 0;
-//   border-radius: inherit;
-// }
-
-/* 超过400px的代码块：默认收起状态 */
-// .cb-collapsible.collapsible {
-//  max-height: 400px;
-//  overflow: hidden;
-//   margin: 1em 0 2rem 0;
-// }
-
-/* 收起状态的遮罩 */
-// .cb-collapsible.collapsible::after {
-//   content: "";
-//   position: absolute;
-//   left: 0;
-//   right: 0;
-//   bottom: 0;
-//   height: 3rem;
-//   pointer-events: none;
-//   z-index: 10;
-//   background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.9));
-// }
-
-/* 展开状态：移除高度限制和遮罩 */
-// .cb-collapsible.collapsible.is-expanded {
-//   max-height: none;
-//   margin: 0;
-// }
-
-// .cb-collapsible.collapsible.is-expanded::after {
-//   display: none;
-// }
-
-// .code-toolbar {
-//   margin: 0 !important; 
-// }
-
 /* 按钮样式 */
 .cb-toggle-btn {
   position: absolute;
@@ -108,8 +67,6 @@
   }
 
 }
-
- 
 
 /* 暗色主题样式 */
 html.dark .cb-collapsible.collapsible::after {
@@ -162,7 +119,6 @@ html.dark .cb-toggle-btn {
   position: absolute;
   top: 1rem;
   left: 0;
- // bottom: 0;
   min-width: 3em;
   font-size: 100%;
   line-height: 1.5;
@@ -170,15 +126,15 @@ html.dark .cb-toggle-btn {
   padding-top: inherit;
   padding-bottom: inherit;
   border-right: 1px solid #e2e2e30f;
-  // border-right: 1px solid #0d6efd17;
+  user-select: none;
   display: flex;
   flex-direction: column;
 }
 
 .wrap-line-numbers-rows > span {
- // pointer-events: none;
   display: block;
   counter-increment: linenumber;
+  cursor: pointer;
   text-align: center;
   color: #999;
   line-height: 1.5;
@@ -190,13 +146,26 @@ html.dark .cb-toggle-btn {
   content: counter(linenumber);
 }
 
+.wrap-line-numbers-rows > span:hover {
+  background-color: rgba(255, 229, 100, 0.2);
+}
+
 /* 为支持自定义起始行号 */
 .wrap-line-numbers-rows[data-start]:not([data-start="1"]) {
   counter-reset: linenumber calc(attr(data-start, number, 1) - 1);
 }
 
-/* 高亮行样式 */
-.line-highlight {
-  background: rgba(255, 255, 0, 0.1);
-  position: relative;
+/* 高亮行 */
+.line-highlight-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background-color: rgba(255, 229, 100, 0.2);
+  border-left: 3px solid #f0c000;
+  pointer-events: none;
+}
+
+.line-highlight-overlay::before {
+  color: #d48806;  /* 高亮行号颜色 */
+  font-weight: bold;
 }
