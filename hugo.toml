@@ -40,7 +40,6 @@ ignoreLogs = ['warning-goldmark-raw-html']
     [markup.goldmark.renderer]
       unsafe = true
 
-
 [params]
     
     # 字体配置 - 选择一种配置启用，其他保持注释状态
@@ -81,10 +80,24 @@ ignoreLogs = ['warning-goldmark-raw-html']
     # 浏览器模糊搜索
     [params.flexsearch]
         enabled = false
-
+    
     [params.docs]
-        darkMode = true                                
-        prism = true          
+        darkMode = true    
+
+        # 代码块相关
+        prism = true   
+         # 是否显示行号
+        linenos = true
+        # 是否启用点击行号高亮
+        clickhighlight = true
+        # 以下两个属性只能在Markdown代码块使用，linenos,clickhighlight也可以在Markdown使用
+        # 高亮起始行号，默认从代码块第一行开始计算
+        # linenostart = 1  
+        # 高亮行,连续数字可以合并，例如[3,"5-7"]，
+        # hl_lines = []    
+        # 使用示例``js {hl_lines=[3,"5-7"], linenostart = 2, linenos=false, clickhighlight=false}
+       
+                                 
         startTime = "2025-03-18"    # 博客创建时间
         prismTheme = "lucario"     # (optional) - Set theme for PrismJS. Options include: lotusdocs (default), solarized-light, twilight, lucario
         pathName        = "docs"                            # path name for documentation site | default "docs"
@@ -127,8 +140,6 @@ ignoreLogs = ['warning-goldmark-raw-html']
         github = "liyao52033/hugopress"        
         rss = true                    # show rss icon with link     
     
-   
-
 [menu]
     [[menu.primary]]
         name  = "指南"

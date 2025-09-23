@@ -2,29 +2,29 @@
   {{- $attributes := .Attributes }}
   {{- $ordinal := .Ordinal }}
 
-  <!-- 创建代码块的SHA1哈希 -->
+  <!-- 创建代码块的 SHA1 哈希 -->
   {{ $innerRemoveLB := replaceRE "\r\n?|\n" "" .Inner | string }}
   {{ $innerHash := substr (sha1 (printf "%s%s" $innerRemoveLB $ordinal)) 0 7 }}
 
   {{- $classes := slice (printf "language-%s" .Type) .Attributes.class }}
 
-  <!-- 选项列表 -->
-  {{- $options := .Options }}
-  {{- $classes = $classes | append "wrap-line-numbers" }}
-  {{- $start := cond (isset $options "linenostart") $options.linenostart 1 -}}
+  {{/* 优先级: Markdown > hugo.toml */}}
+  {{ $prismConfig := site.Params.docs }}
+  {{ $options := .Options }}
+  {{- if isset .Attributes "clickhighlight" -}}
+    {{- $options = merge $options (dict "clickhighlight" (index .Attributes "clickhighlight")) -}}
+  {{- end -}}
 
-  {{ $optionslist := newScratch }}
-  {{ range $k, $v := $options }}
-    {{ $optionslist.Add "options" (printf " %s" $k) }}
-  {{ end }}
-  {{ $optionsclasslist := $optionslist.Get "options" }}
+  {{ $linenos := cond (isset $options "linenos") $options.linenos $prismConfig.linenos }}
+  {{ $start := cond (isset $options "linenostart") $options.linenostart 1 }}
+  {{ $clickhighlight := cond (isset $options "clickhighlight") $options.clickhighlight $prismConfig.clickhighlight }}
 
   <!-- 行号高亮 -->
-  {{- if isset .Options "hl_lines" }}
-    {{ $lines := .Options.hl_lines }}
-    {{ $offset := cond (isset .Options "linenostart") .Options.linenostart 1 }}
+  {{- if isset $options "hl_lines" }}
+    {{- $hl_lines := $options.hl_lines }}
+    {{ $offset := $start }}
     {{ $data := newScratch }}
-    {{ range $value := $lines }}
+    {{ range $value := $hl_lines }}
       {{ $value = uniq $value }}
       {{ if lt (len $value) 2 }}
         {{ $value = slice (add $offset (index $value 0)) }}
@@ -33,33 +33,26 @@
       {{ end }}
       {{ $data.Add "lines" $value }}
     {{ end }}
-    {{ $lines = delimit ($data.Get "lines") "," }}
+    {{ $lines := delimit ($data.Get "lines") "," }}
     {{- $attributes = merge $attributes (dict "data-wrapline" $lines) }}
-    {{- if and (isset .Options "linenos") (ne .Options.linenos false) }}
-      {{- $attributes = merge $attributes (dict "data-line-offset" (string $offset)) }}
-    {{ else }}
-      {{- $attributes = merge $attributes (dict "data-line-offset" (string (sub $offset 1))) }}
-    {{ end }}
+    {{- $attributes = merge $attributes (dict "data-line-offset" (string (sub $offset 1))) }}
   {{ end }}
 
-   <!-- 启用行号 -->
-  {{/*- if and (isset .Options "linenos") (ne .Options.linenos false) }}
-    {{- $classes = $classes | append "wrap-line-numbers-rows" }}
-  {{ end */}}
+  <!-- 行号显示开关 -->
+  {{- $attributes = merge $attributes (dict "data-linenos" (string $linenos)) }}
 
   <!-- 行号起始值 -->
-  {{- if isset .Options "linenostart" }}
-    {{- $attributes = merge $attributes (dict "data-start" (string .Options.linenostart)) }}
+  {{- if $start }}
+    {{- $attributes = merge $attributes (dict "data-start" (string $start)) }}
   {{ end }}
 
-  <!-- 可链接行号 -->
-  {{- if and (isset .Options "anchorlinenos") (ne .Options.anchorlinenos false) }}
-    {{- $classes = $classes | append "wrap-linkable-line-numbers" }}
-  {{ end }}
+  <!-- 点击高亮开关 -->
+  {{- $attributes = merge $attributes (dict "data-click-highlight" (string $clickhighlight)) }}
 
+  {{- $classes = $classes | append "wrap-line-numbers" }}
   {{- $attributes = merge $attributes (dict "class" (delimit $classes " ")) -}}
 
-  <div class="prism-codeblock {{ $optionsclasslist }}">
+  <div class="prism-codeblock">
     <pre id="{{ $innerHash }}"
       {{ range $k, $v := $attributes }}
         {{ printf " %s=%q" $k $v | safeHTMLAttr }}
@@ -76,20 +69,18 @@
 {{ end }}
 
 
-
 <script>
+
 
 document.addEventListener('DOMContentLoaded', function() {
     // 使用多重检测确保完全加载
-    setTimeout(function() {
-        addLineNumbers();
-    }, 100);
-    
+    setTimeout(addLineNumbers, 100);
+
     // 监听 Prism.js 的高亮完成事件
     document.addEventListener('prismHighlighted', function() {
         setTimeout(addLineNumbers, 50);
     });
-    
+
     // 监听窗口大小变化，重新计算行号
     window.addEventListener('resize', function() {
         clearTimeout(window.resizeTimer);
@@ -112,44 +103,56 @@ function addLineNumbers() {
         if (pre.querySelector('.wrap-line-numbers-rows')) {
             return;
         }
-        
+
         const code = pre.querySelector('code');
         if (!code) return;
 
-        // 获取起始行号
-        const startAttr = pre.closest('.prism-codeblock').getAttribute('data-start');
+        // 获取配置
+        const block = pre.closest('.prism-codeblock');
+        const startAttr = pre.getAttribute('data-start');
         const startLine = startAttr ? parseInt(startAttr, 10) : 1;
-        
-        // 等待一帧确保渲染完成
-        requestAnimationFrame(function() {
-            const totalLines = calculateActualLines(code);
-            
-            // 创建行号容器
-            const lineNumbersWrapper = document.createElement('span');
-            lineNumbersWrapper.className = 'wrap-line-numbers-rows';
-            
-            if (startLine !== 1) {
-                lineNumbersWrapper.setAttribute('data-start', startLine.toString());
-                lineNumbersWrapper.style.counterReset = `linenumber ${startLine - 1}`;
-            }
-            
-            // 生成行号
-            for (let i = 0; i < totalLines; i++) {
-                const lineNumber = document.createElement('span');
-                lineNumbersWrapper.appendChild(lineNumber);
+        const enableLinenos = pre.getAttribute('data-linenos') === 'false';
+        const enableClickHighlight = pre.getAttribute('data-click-highlight') === 'true';
 
-                 // 绑定点击事件，记住当前行号
-                lineNumber.addEventListener('click', function(e) {
-                  e.stopPropagation();
-                  const line = startLine + i;
-                  pre.setAttribute("data-wrapline", line);
-                  handleHighlightedLines(pre);
-                });
-            }
-            pre.appendChild(lineNumbersWrapper);
-            // 处理高亮行
+        if (enableLinenos) {
+            // 如果不启用行号，只处理默认高亮
             handleHighlightedLines(pre);
-        });
+            return;
+        } else {
+            // 等待一帧确保渲染完成
+            requestAnimationFrame(function() {
+                const totalLines = calculateActualLines(code);
+
+                // 创建行号容器
+                const lineNumbersWrapper = document.createElement('span');
+                lineNumbersWrapper.className = 'wrap-line-numbers-rows';
+
+                if (startLine !== 1) {
+                    lineNumbersWrapper.setAttribute('data-start', startLine.toString());
+                    lineNumbersWrapper.style.counterReset = `linenumber ${startLine - 1}`;
+                }
+
+                // 生成行号
+                for (let i = 0; i < totalLines; i++) {
+                    const lineNumber = document.createElement('span');
+                    lineNumbersWrapper.appendChild(lineNumber);
+
+                    // 点击高亮开关
+                    if (enableClickHighlight) {
+                        lineNumber.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const line = startLine + i;
+                            pre.setAttribute("data-wrapline", line);
+                            handleHighlightedLines(pre);
+                        });
+                    }
+                }
+
+                pre.appendChild(lineNumbersWrapper);
+                // 处理高亮行
+                handleHighlightedLines(pre);
+            });
+          }
     });
 }
 
@@ -160,40 +163,34 @@ function calculateActualLines(codeElement) {
     const lineHeight = parseFloat(computedStyle.lineHeight);
     const paddingTop = parseFloat(computedStyle.paddingTop) || 0;
     const paddingBottom = parseFloat(computedStyle.paddingBottom) || 0;
-    
+
     const contentHeight = codeHeight - paddingTop - paddingBottom;
     const calculatedLines = Math.round(contentHeight / lineHeight);
-    
+
     // 方法2: 基于文本内容计算
     let codeText = codeElement.textContent || codeElement.innerText;
     codeText = codeText.replace(/^\n+/, '').replace(/\n+$/, '');
     const textLines = codeText ? codeText.split('\n').length : 1;
-    
-    // 方法3: 如果启用了自动换行，需要考虑换行
+
+    // 方法3: 自动换行计算
     let wrappedLines = textLines;
-    if (getComputedStyle(codeElement).whiteSpace.includes('wrap')) {
+    if (computedStyle.whiteSpace.includes('wrap')) {
         wrappedLines = calculateWrappedLines(codeElement, codeText);
     }
-    
-    // 取三种方法中最合理的结果
-  //   console.log('Height-based lines:', calculatedLines);
-  //   console.log('Text-based lines:', textLines);
-  //   console.log('Wrapped lines:', wrappedLines);
-    
-    // 优先使用高度计算的结果，但要确保不小于文本行数
-    return Math.max(calculatedLines, textLines);
+
+    // 优先使用高度计算结果，但不少于文本行数
+    return Math.max(calculatedLines, textLines, wrappedLines);
 }
 
 function calculateWrappedLines(codeElement, codeText) {
     if (!codeText) return 1;
-    
+
     const lines = codeText.split('\n');
     const computedStyle = getComputedStyle(codeElement);
-    const codeWidth = codeElement.offsetWidth - 
-        (parseFloat(computedStyle.paddingLeft) || 0) - 
+    const codeWidth = codeElement.offsetWidth -
+        (parseFloat(computedStyle.paddingLeft) || 0) -
         (parseFloat(computedStyle.paddingRight) || 0);
-    
-    // 创建测量元素
+
     const measurer = document.createElement('div');
     measurer.style.cssText = computedStyle.cssText;
     measurer.style.position = 'absolute';
@@ -203,17 +200,17 @@ function calculateWrappedLines(codeElement, codeText) {
     measurer.style.whiteSpace = 'pre-wrap';
     measurer.style.wordBreak = 'break-word';
     document.body.appendChild(measurer);
-    
+
     let totalLines = 0;
     const lineHeight = parseFloat(computedStyle.lineHeight);
-    
+
     lines.forEach(line => {
-        measurer.textContent = line || ' '; // 空行也要计算
+        measurer.textContent = line || ' ';
         const actualHeight = measurer.offsetHeight;
         const wrappedCount = Math.max(1, Math.round(actualHeight / lineHeight));
         totalLines += wrappedCount;
     });
-    
+
     document.body.removeChild(measurer);
     return totalLines;
 }
@@ -243,21 +240,17 @@ function handleHighlightedLines(pre) {
             const overlay = document.createElement('div');
             overlay.className = 'line-highlight-overlay';
 
-            // 计算 top 和 height
             let topOffset = 0;
             for (let j = 0; j < i; j++) {
                 topOffset += calculateWrappedLines(code, codeLines[j]) * lineHeight;
             }
-            overlay.style.top = topOffset -  4 + 'px';
+            overlay.style.top = topOffset - 4 + 'px';
             overlay.style.height = calculateWrappedLines(code, codeLines[i - 1]) * lineHeight + 'px';
 
             pre.appendChild(overlay);
-
         }
     });
 }
 
+
 </script>
-
-
-

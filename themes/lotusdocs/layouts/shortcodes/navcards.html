@@ -1,7 +1,7 @@
 {{ $columns := .Get "columns" | default "2" }}
 {{ $colWidth := div 12 (int $columns) }}
 
-<div class="row g-4 mb-3 mt-1">
+<div class="row g-4 mb-3 mt-1 me-1 d-flex justify-content-center">
   {{ .Inner }}
 </div>
 
