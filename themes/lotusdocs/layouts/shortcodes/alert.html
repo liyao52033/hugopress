@@ -28,7 +28,7 @@
 {{/* 获取 alert 类型 */}}
 {{ $type := .Get "type" }}
 {{ if not $type }}
-{{ $type = "secondary" }}
+{{ $type = "info" }}
 {{ end }}
 
 {{/* 设置图标背景颜色 */}}
@@ -46,7 +46,7 @@
     {{ else }}
     <span
       class="material-icons d-flex align-items-center justify-content-center rounded-circle {{ index $icon_class $type }}"
-      style="width:2rem; height:2rem; font-size:1.25rem; flex-shrink:0; background-color: var(--bgcolor);">
+      style="width:2rem; height:2rem; font-size:1.25rem; flex-shrink:0; background-color: var(--bgcolor );">
       {{ index $icon_array $type }}
     </span>
     {{- end }}
@@ -56,10 +56,10 @@
 
   <!-- 描述内容在下一行 -->
   {{ with .Get "text" }}
-  <div>{{ . | $.Page.RenderString }}</div>
+    <div>{{ . | $.Page.RenderString }}</div>
   {{ else }}
   {{ with .InnerDeindent }}
-  <div>{{ . }}</div>
+   <div>{{ . | $.Page.RenderString }}</div>
   {{ else }}
   {{ errorf "No valid text variable or Inner content given" }}
   {{- end }}

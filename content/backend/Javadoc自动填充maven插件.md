@@ -28,11 +28,12 @@ icon: menu
 
 ## 使用方法
 
-::: tip
+{{< alert type="info" >}}
 
 依赖可能非最新版本，请前往[maven](https://central.sonatype.com/artifact/io.github.liyao52033/autofill-javadoc-maven-plugin)获取最新版本
 
-:::
+{{</alert >}}
+
 ### 单独使用
 
 ```xml

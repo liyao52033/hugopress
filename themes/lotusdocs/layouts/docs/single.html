@@ -1,9 +1,11 @@
 {{ define "main" }}
+
     <!-- override Prism's default copy messages to 'empty'. Required by CSS styling.
          see: https://prismjs.com/plugins/copy-to-clipboard/#styling -->
     <div data-prismjs-copy="" data-prismjs-copy-success="" data-prismjs-copy-error="">
-        {{ .Content }}
+          {{ .Content | safeHTML }}
     </div>
+    
 
     {{ if .Page.Store.Get "hasMermaid" }}
     {{ $mermaid := resources.Get (printf "%s/%s" ($.Scratch.Get "pathName") "js/mermaid.min.js") }}
@@ -93,6 +95,5 @@
 
    
    {{ end }}
-
 
 {{ end }}

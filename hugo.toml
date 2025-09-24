@@ -39,6 +39,13 @@ ignoreLogs = ['warning-goldmark-raw-html']
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
+    [markup.goldmark.parser]
+      [markup.goldmark.parser.attribute]
+        block = true
+    [markup.goldmark.extensions]
+      attr = true    # 启用属性扩展
+  [markup.admonition]
+    enabled = true  
 
 [params]
     

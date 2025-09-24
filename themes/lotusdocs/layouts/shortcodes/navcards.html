@@ -1,7 +1,7 @@
 {{ $columns := .Get "columns" | default "2" }}
 {{ $colWidth := div 12 (int $columns) }}
 
-<div class="row g-4 mb-3 mt-1 me-1 d-flex justify-content-center">
+<div class="row g-4 mb-3 mt-1 me-1 d-flex">
   {{ .Inner }}
 </div>
 
@@ -10,6 +10,7 @@
   .navcard-container .card {
     background-color: #f6f6f7;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px;
   }
 
   .navcard-container:hover .card {
@@ -26,14 +27,14 @@
   }
 
   .navcard-container .title {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
   }
 
   .navcard-container .badge {
     margin: 5px 5px 0 0;
     border-radius: 14px;
-    font-size: 12px;
+    font-size: 9px;
   }
 
   .navcard-container .card-img-top {

@@ -319,10 +319,14 @@ pre[data-line] {
  }
 
  // 代码块折叠状态
- .code-toolbar.code-collapsed {
+ .code-toolbar.code-collapsed{
      max-height: 400px;
      overflow: hidden;
      position: relative;
+ }
+
+ .code-toolbar.code-collapsed pre{
+     overflow: hidden;
  }
 
  .code-toolbar.code-collapsed::after {
