@@ -11,6 +11,7 @@
                 <div class="card-body">
                   <h5 class="card-title">
                     <a href="{{ .Permalink }}" class="text-decoration-none">{{ .Title }}</a>
+                    {{ with .Params.top }}<span style="color: #2eca8b;">[置顶]</span>{{ end }}
                   </h5>
 
                   <!-- 显示文章所属分类 -->

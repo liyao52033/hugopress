@@ -1,3 +1,4 @@
+## 统计页面字数
 这段代码 <span>📖 {{ len (.Content | plainify) }} </span> 计算的是页面内容经过纯文本处理后的字符总数（包括所有文字、数字、符号等），具体特点如下：
 
 统计范围：
@@ -26,7 +27,7 @@ len (.Content | plainify) 会返回 8（5 个英文 + 1 个空格 + 2 个中文�
 这种方式对于中文内容往往更准确，因为中文通常按 "字"（字符）计算阅读速度，而不是按 "词"。
 
 
-
+## .Site.Pages 和 .Site.RegularPages 的区别
 在 Hugo 中，.Site.Pages 和 .Site.RegularPages 是两个常用的页面集合变量，它们的主要区别在于包含的页面类型不同：
 1. .Site.Pages
 包含内容：站点中所有类型的页面，包括：
@@ -62,3 +63,23 @@ content/
 用 .Site.Pages 处理「所有页面」（包括特殊页面）
 
 在统计文章数量、计算内容字数等场景中，RegularPages 更常用，因为它能精准过滤掉非内容页面。
+
+
+## Markdown 渲染短代码
+在 Hugo 中，Markdown 渲染是通过 .Page.RenderString() 函数实现的。
+这个函数会把 Markdown 内容渲染成 HTML，并返回结果。
+如果必须用 .Page.RenderString（比如 alert 内需要 Markdown 解析），那应该在 内容还没渲染成 HTML 之前 做替换：
+html
+预览
+{{ $rawContent := .RawContent }}
+
+{{ $pattern := `(?ms)::: *(info|warning|danger|success|primary|default)\s*\n(.*?)\n:::` }}
+{{ $replacement := `{{< alert type="$1" >}}\n$2\n{{< /alert >}}` }}
+
+{{ $newContent := replaceRE $pattern $replacement $rawContent }}
+
+{{ $newContent | .Page.RenderString }}
+这里的关键是用 .RawContent（原始 Markdown 文本）而不是 .Content（已渲染的 HTML）。
+这样 .Page.RenderString 只会渲染一次，不会破坏 codeblock。
+
+这样就能正确解析代码块中的短代码了，使用跟vp一样::: info ... :::

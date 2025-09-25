@@ -1,9 +1,21 @@
 {{ define "main" }}
 
+    {{ $rawContent := .RawContent }}
+
+
+    {{/* 替换:::格式为alert短代码 */}}
+    {{/* $pattern := `(?ms)::: *(info|warning|danger|success|primary|default)\s*\n(.*?)\n:::` */}}
+    {{/* $replacement := `{{< alert type="$1" >}}$2{{< /alert >}}` */}}
+    
+    {{ $pattern := `(?ms)::: *(info|warning|danger|success|primary|default)(?:\s+([^\n]+))?\n(.*?)\n:::` }}
+    {{ $replacement := `{{< alert type="$1" title="$2" >}}$3{{< /alert >}}` }}
+    {{ $content := replaceRE $pattern $replacement $rawContent | .Page.RenderString }}
+
+
     <!-- override Prism's default copy messages to 'empty'. Required by CSS styling.
          see: https://prismjs.com/plugins/copy-to-clipboard/#styling -->
     <div data-prismjs-copy="" data-prismjs-copy-success="" data-prismjs-copy-error="">
-          {{ .Content | safeHTML }}
+          {{ $content | safeHTML }}
     </div>
     
 

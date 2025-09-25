@@ -179,7 +179,7 @@ function calculateActualLines(codeElement) {
     }
 
     // 优先使用高度计算结果，但不少于文本行数
-    return Math.max(calculatedLines, textLines, wrappedLines);
+    return Math.max(calculatedLines, textLines);
 }
 
 function calculateWrappedLines(codeElement, codeText) {

@@ -25,9 +25,29 @@
     
     {{/* 获取需要显示的文章列表 */}}
     {{ $pages := where .Site.RegularPages "Type" "docs" }}
+    
+    {{/* 置顶文章（有 top 参数） */}}
+    {{ $topPages := where $pages "Params.top" "!=" nil }}
+    {{ $topPages := $topPages.ByParam "top" }}
+
+    {{/* 普通文章（无 top 参数） */}}
+    {{ $normalPages := where $pages "Params.top" "eq" nil }}
+    {{ $normalPages := $normalPages.ByDate.Reverse }}
+
+    {{/* 
+        合并切片（置顶在前，普通在后）
+        1、先把 $topPages（置顶文章，已按 top 升序排好）赋值给 $sorted
+        2、然后遍历 $normalPages（普通文章，已按日期降序排好）
+        3、在循环里，把每一篇普通文章追加到 $sorted 末尾
+
+     */}}
+    {{ $sorted := $topPages }}
+    {{ range $normalPages }}
+        {{ $sorted = $sorted | append . }}
+    {{ end }}
 
     {{/* 添加分页功能 */}}
-    {{ $paginator := .Paginate $pages 10 }} {{/* 每页显示 10 篇文章 */}}
+    {{ $paginator := .Paginate $sorted 10 }} {{/* 每页显示 10 篇文章 */}}
 
     {{/* 调用 partial 并传递参数 */}}
     {{ partial "taxonomy-and-articles.html" (dict 
