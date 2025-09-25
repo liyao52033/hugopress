@@ -1,18 +1,37 @@
 <script>
-    window.addEventListener('DOMContentLoaded', function() {
-        // DocSearch Config
-        docsearch({
+  (function () {
+    function initDocSearch() {
+      try {
+        if (typeof window.docsearch === 'function' && document.getElementById('docsearch')) {
+          window.docsearch({
             container: '#docsearch',
             appId: '{{ .Site.Params.docsearch.appID }}',
             apiKey: '{{ .Site.Params.docsearch.apiKey }}',
             indexName: '{{ .Site.Params.docsearch.indexName }}',
             placeholder: 'Search Documentation',
             translations: {
-                button: {
-                    buttonText: '{{ i18n "search_title" }}',
-                    buttonAriaLabel: 'Search',
-                }
+              button: {
+                buttonText: '{{ i18n "search_title" }}',
+                buttonAriaLabel: 'Search',
+              }
             }
-        });
-    });
+          });
+          return true;
+        }
+      } catch (e) {
+        if (window.console && console.debug) console.debug('docsearch init error:', e);
+      }
+      return false;
+    }
+
+    // 优先在 DOMContentLoaded 时初始化
+    window.addEventListener('DOMContentLoaded', function () {
+      if (!initDocSearch()) {
+        // 若此时未就绪，等到完整加载后再尝试一次
+        window.addEventListener('load', function () {
+          initDocSearch();
+        }, { once: true });
+      }
+    }, { once: true });
+  })();
 </script>

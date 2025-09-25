@@ -1,4 +1,4 @@
-baseURL = 'https://vp.xiaoying.org.cn/'
+baseURL = 'https://hugo.xiaoying.org.cn/'
 languageCode = "zh-CN"
 title = 'Lotus Docs'
 publishDir = "dist"

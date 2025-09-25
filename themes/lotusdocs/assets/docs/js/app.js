@@ -105,7 +105,7 @@ function activateSidebarMenu() {
     var currentFile = currentPath.substring(currentPath.lastIndexOf('/') + 1);
     
     if (document.getElementById("sidebar")) {
-        var menuItems = document.querySelectorAll('#sidebar button');
+        var menuItems = document.querySelectorAll('#sidebar button[href]');
         var foundMatch = false;
         
         // 首先尝试匹配完整路径（frontmatter.url）

@@ -10,12 +10,12 @@ rows:
   - # 第二行
     - { name: "MySQL", icon: "MysqlDark" }
     - { name: "Redis", icon: "RedisDark" }
-    - { name: "RabbitMQ", icon: "RabbitMQDark" }
+    - { name: "RabbitMQ", icon: "RabbitMqDark" }
     - { name: "HTML5", icon: "Html" }
     - { name: "CSS3", icon: "Css" }
-    - { name: "JavaScript", icon: "javascript" }
+    - { name: "JavaScript", icon: "Javascript" }
     - { name: "TypeScript", icon: "Typescript" }
-    - { name: "VSCode", icon: "VSCodeDark" }
+    - { name: "VSCode", icon: "VscodeDark" }
 
   - # 第三行
     - { name: "Vue", icon: "VuejsDark" }
@@ -25,7 +25,7 @@ rows:
     - { name: "Nginx", icon: "Nginx" }
     - { name: "Node.js", icon: "NodejsDark" }
     - { name: "React", icon: "ReactDark" }
-    - { name: "TailwindCSS", icon: "TailwindCSSDark" }
+    - { name: "TailwindCSS", icon: "TailwindcssDark" }
 
   - # 第四行
     - { name: "Npm", icon: "NpmDark" }
