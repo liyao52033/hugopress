@@ -80,9 +80,9 @@ ignoreLogs = ['warning-goldmark-raw-html']
 
     # algolia搜索
     [params.docsearch] 
-        appID = "ATLKN4M9QW"                       
-        apiKey = "ce779f01445c267329bb716cff2c9c01" 
-        indexName = "blog"                   
+        appID = ""  
+        apiKey = "" 
+        indexName = "hugopress"                   
 
     # 浏览器模糊搜索
     [params.flexsearch]

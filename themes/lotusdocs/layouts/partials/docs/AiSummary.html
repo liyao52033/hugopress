@@ -1,0 +1,361 @@
+<div id="summary-card" class="summary-card">
+  <div class="header">
+    <div class="title-container">
+      <span class="title">
+        <svg aria-hidden="true" class="icon">
+          <use xlink:href="#icon-aijiqiren"></use>
+        </svg>
+      </span>
+      AI摘要
+    </div>
+
+    <div class="header-right">
+      <div id="progress-container" class="progress-container" style="display:none;">
+        <div class="progress-bar">
+          <div id="progress-indicator" class="progress-indicator" style="width:0%;"></div>
+        </div>
+      </div>
+
+      <a class="provider" href="https://www.coze.com" target="_blank">
+        扣子AI
+        <svg aria-hidden="true" class="icon">
+          <use xlink:href="#icon-arrow-right-s-line"></use>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="content-container">
+    <div id="summary-text" class="summary-text">
+      {{ with .Params.description }}
+        {{ . | safeHTML }}
+      {{ else }}
+        <span id="dynamic-placeholder"></span>
+      {{ end }}
+      <span id="caret" class="caret" style="display:none;"></span>
+    </div>
+
+    <div id="error-message" class="error-message" style="display:none;"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const placeholderEl = document.getElementById("dynamic-placeholder");
+  const summaryEl = document.getElementById("summary-text");
+  const caretEl = document.getElementById("caret");
+  const errorEl = document.getElementById("error-message");
+  const progressContainer = document.getElementById("progress-container");
+  const progressBar = document.getElementById("progress-indicator");
+  let contentEl = null;
+
+  let buffer = [];
+  let typing = false;
+  let summary = "";
+  let progress = 0;
+  let es = null;
+
+  const TYPE_DELAY = 20;
+  const FIRST_CHAR_PAUSE = 300;
+  const SSE_ERROR_DELAY = 300;
+
+  function updateProgress() {
+    const len = summary.length;
+    progress = Math.max(progress, Math.min(95, Math.floor(95 * (1 - Math.exp(-len / 800)))));
+    progressBar.style.width = progress + "%";
+  }
+
+  async function consumeLoop() {
+    if (typing) return;
+    typing = true;
+
+    // 关键1：开始打字前，主动显示光标
+    caretEl.style.display = "inline-block";
+
+    while (buffer.length > 0) {
+        const chunk = buffer.shift();
+        for (let i = 0; i < chunk.length; i++) {
+        if (i === 0) await new Promise(r => setTimeout(r, FIRST_CHAR_PAUSE));
+        summary += chunk[i];
+        contentEl.innerHTML = summary;
+        updateProgress();
+        await new Promise(r => setTimeout(r, TYPE_DELAY));
+        }
+    }
+
+    typing = false;
+    finish();
+}
+
+  function resetState() {
+    summary = "";
+    progress = 0;
+    if (contentEl) contentEl.innerHTML = "";
+    progressBar.style.width = "0%";
+    // 关键修改：初始不强制显示光标，等有内容要打字时再显示
+    caretEl.style.display = "none"; 
+    errorEl.style.display = "none";
+    progressContainer.style.display = "block";
+    buffer = [];
+    typing = false;
+}
+
+  function closeES() {
+    if (es) {
+      try { es.close(); } catch {}
+      es = null;
+    }
+  }
+
+  function finish() {
+    progress = 100;
+    progressBar.style.width = "100%";
+    caretEl.style.display = "none";
+    progressContainer.style.display = "none";
+    closeES();
+  }
+
+  function extractText(data) {
+    if (!data) return "";
+    if (typeof data === "string") return data;
+    if (data.summary && typeof data.summary === "string") return data.summary;
+    if (data.content && typeof data.content === "string") return data.content;
+    if (data.text && typeof data.text === "string") return data.text;
+    return "";
+  }
+
+ function start() {
+    closeES();
+
+    function ensureContentEl() {
+      if (placeholderEl) {
+        contentEl = placeholderEl;
+      } else {
+        contentEl = document.getElementById("typing-content");
+        if (!contentEl) {
+          contentEl = document.createElement("span");
+          contentEl.id = "typing-content";
+          summaryEl.insertBefore(contentEl, caretEl);
+        }
+        // 清理除 caret 与 contentEl 外的其它已渲染内容节点
+        Array.from(summaryEl.childNodes).forEach(n => {
+          if (n !== contentEl && n !== caretEl) summaryEl.removeChild(n);
+        });
+      }
+    }
+
+    ensureContentEl();
+    resetState();
+
+    // -------------------------- 核心判断：按 placeholderEl 存在与否分支 --------------------------
+    if (placeholderEl) {
+      // 1. placeholderEl 存在 → 无 frontmatter → 走 SSE 请求 + 打字机
+      const currentUrl = "{{ .Site.BaseURL }}" + window.location.pathname;
+      es = new EventSource(`/coze/summary?url=${encodeURIComponent(currentUrl)}`);
+
+      let firstMessageReceived = false;
+
+      es.onopen = () => {
+        if (progress < 5) {
+          progress = 5;
+          progressBar.style.width = "5%";
+        }
+      };
+
+      es.onmessage = async (e) => {
+        firstMessageReceived = true;
+        if (!e.data || e.data === "[DONE]") return;
+
+        let text = "";
+        try {
+          const obj = JSON.parse(e.data);
+          text = extractText(obj);
+        } catch {
+          text = e.data;
+        }
+
+        if (text && text.trim().length > 0) {
+          buffer.push(text);
+          await consumeLoop();
+        }
+      };
+
+      es.addEventListener("done", async () => {
+        while (typing || buffer.length > 0) {
+          await new Promise(r => setTimeout(r, 100));
+        }
+        errorEl.style.display = "none";
+        finish();
+      });
+
+      es.onerror = () => {
+        setTimeout(() => {
+          if (!firstMessageReceived && summary.length === 0) {
+            errorEl.innerText = "摘要生成失败，请稍后再试";
+            errorEl.style.display = "block";
+            progressContainer.style.display = "none";
+            caretEl.style.display = "none";
+            closeES();
+          } else if (summary.length > 0) {
+            errorEl.style.display = "none";
+            finish();
+          }
+        }, SSE_ERROR_DELAY);
+      };
+    } else {
+      // 2. placeholderEl 不存在 → 有 frontmatter → 直接取原内容执行打字机
+      // 读取原 summaryEl 里的 frontmatter 内容（模板已渲染的内容）
+      const frontmatterContent = "{{ .Params.description }}".trim();
+      if (frontmatterContent) {
+        buffer.push(frontmatterContent);
+        consumeLoop().then(finish); // 打字结束后收尾
+      }
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", start);
+  window.addEventListener("beforeunload", closeES);
+})();
+</script>
+
+
+<style>
+
+.icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  fill: currentColor;
+  overflow: hidden;
+}
+
+.summary-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f0f0f0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  margin: 1.5rem 0;
+}
+
+.summary-card:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f5f5f5;
+  background-color: #fafafa;
+}
+
+.title-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.title-container:hover {
+  transform: translateX(2px);
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333333;
+  margin-right: 6px;
+}
+
+.title-container:hover .arrow-icon {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.progress-container {
+  width: 120px;
+  height: 4px;
+  background-color: #f0f0f0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.progress-indicator {
+  position: absolute;
+  height: 100%;
+  width: 40%;
+  background-color: #409EFF;
+  border-radius: 2px;
+  animation: progressMove 1.5s infinite ease-in-out;
+}
+
+@keyframes progressMove {
+  0% {
+    left: -40%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.provider {
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+  font-size: 12px;
+  color: #888888;
+  white-space: nowrap;
+}
+
+.content-container {
+  padding: 20px;
+}
+
+.summary-text {
+  font-size: 14px;
+  color: #666666;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+}
+
+.error-message {
+  font-size: 14px;
+  color: #f56c6c;
+  line-height: 1.7;
+  padding: 5px 0;
+}
+
+.caret {
+  display: inline-block;
+  margin-left: 6px;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid #409EFF;
+  border-right: 2px solid #409EFF;
+  transform: rotate(45deg);
+  animation: caretBlink 1.2s infinite;
+}
+
+@keyframes caretBlink {
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+</style>

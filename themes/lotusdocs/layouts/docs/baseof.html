@@ -59,7 +59,7 @@
                                             {{ if eq $currentPage.Kind "page" }}
                                                 {{ if and (.Params.description) (site.Params.docs.descriptions | default false) }}
                                                     {{/* <p class="lead mb-3 mt-3">{{ $currentPage.Description | markdownify }}</p> */}}
-                                                    <div class="card mt-3 mb-3">
+                                                    {{/* <div class="card mt-3 mb-3">
                                                         <div class="card-header d-flex justify-content-between align-items-center">
                                                             <h5 class="card-title mb-0"><img src="/icons/ai.svg" class="me-1"></img>文章摘要</h5>
                                                             <span class="badge bg-secondary">本地</span>
@@ -73,7 +73,10 @@
                                                             <a href="/archives/" class="btn btn-outline-secondary btn-sm">归档</a>
                                                             <a href="/" class="btn btn-outline-secondary btn-sm" >前往主页</a>
                                                         </div>
-                                                    </div>
+                                                    </div> */}}
+
+                                                    {{ partial "docs/Aisummary.html" . }}
+
                                                 {{ end }}
                                             {{end}}
                                             <div id="content" class="main-content" {{ if eq .Site.Params.docs.toc true -}}data-bs-spy="scroll" data-bs-root-margin="0px 0px -65%" data-bs-target="#toc-mobile"{{ end }}>

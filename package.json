@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "server": "hugo server --disableFastRender",
+    "server": "hugo server --disableFastRender -D -F",
     "build": "hugo",
+    "dev": "bash start.sh",
+    "build:prod": "bash build.sh",
     "build:all": "hugo -D -F",
     "clean": "hugo --cleanDestinationDir",
     "proxy": "node proxy.js"

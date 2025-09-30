@@ -14,7 +14,7 @@ const apiServer = 'https://vp.xiaoying.org.cn';
 
 // 启动 Hugo
 console.log('正在启动 Hugo 开发服务器...');
-const hugoProcess = spawn('hugo', ['server', '--disableFastRender'], {
+const hugoProcess = spawn('yarn', ['run', 'dev'], {
     stdio: 'inherit', // 直接输出到控制台
     shell: true
 });
