@@ -57,7 +57,7 @@
                                                 </h1>
                                             </div>
                                             {{ if eq $currentPage.Kind "page" }}
-                                                {{ if and (.Params.description) (site.Params.docs.descriptions | default false) }}
+                                                {{ if or (.Params.description) (site.Params.docs.descriptions | default false) }}
                                                     {{/* <p class="lead mb-3 mt-3">{{ $currentPage.Description | markdownify }}</p> */}}
                                                     {{/* <div class="card mt-3 mb-3">
                                                         <div class="card-header d-flex justify-content-between align-items-center">
@@ -75,7 +75,7 @@
                                                         </div>
                                                     </div> */}}
 
-                                                    {{ partial "docs/Aisummary.html" . }}
+                                                    {{ partial "docs/AiSummary.html" . }}
 
                                                 {{ end }}
                                             {{end}}

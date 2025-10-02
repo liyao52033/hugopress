@@ -1,5 +1,6 @@
 Thumbs.db
 dist
+.vscode
 .codebuddy
 .tmp
 .env

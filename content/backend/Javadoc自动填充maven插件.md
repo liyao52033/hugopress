@@ -1,10 +1,11 @@
 ---
-date: 2025-04-26 12:43:13
+date: 2025-04-26T12:43:13.000Z
 title: Javadoc自动填充maven插件
 url: /pages/6ae52b
 weight: 120
-type: "docs"
-description: Javadoc自动填充Maven插件专为满足发布中央仓库时的注释需求设计，支持多版本Java，采用模块化设计，提供丰富配置选项，能自动补充缺失的类、方法及参数等注释。插件具备完善的错误处理机制，确保构建过程稳定。用户可单独使用或与maven-javadoc-plugin集成，方便快捷地生成完整的Javadoc文档。
+type: docs
+description: >-
+  Javadoc自动填充Maven插件专为满足发布中央仓库时的注释需求设计，支持多版本Java，采用模块化设计，提供丰富配置选项，能自动补充缺失的类、方法及参数等注释。插件具备完善的错误处理机制，确保构建过程稳定。用户可单独使用或与maven-javadoc-plugin集成，方便快捷地生成完整的Javadoc文档。
 categories:
   - 后端
   - 功能扩展
@@ -12,7 +13,9 @@ author:
   name: liyao
   link: https://xiaoying.org.cn
 icon: menu
+tags: []
 ---
+
 
 
 ## 背景

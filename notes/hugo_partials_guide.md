@@ -1,7 +1,7 @@
 
 # Hugo Partials 使用指南
 
-## 1. 什么是 Partials
+## _1. 什么是 Partials
 
 Partials 是 Hugo 提供的一种模板复用机制，用于将可重复的模板片段提取出来，以便在多个页面或模板中复用。
 
@@ -11,11 +11,11 @@ layouts/partials/
 ```
 - 文件可以是任意模板，如 `head.html`、`footer.html` 等。
 
-## 2. 基本使用方法
+## _2. 基本使用方法
 
 使用 `partial` 函数在模板中引入 partial：
 
-```go
+```html
 {{ partial "head.html" . }}
 ```
 
@@ -35,7 +35,7 @@ layouts/partials/
 
 **layouts/_default/baseof.html**
 
-```go
+```html
 <!DOCTYPE html>
 <html lang="zh-CN">
 {{ partial "head.html" . }}
@@ -45,11 +45,11 @@ layouts/partials/
 </html>
 ```
 
-## 3. 带参数的 Partials
+## _3. 带参数的 Partials
 
 可以在调用时传入自定义参数：
 
-```go
+```html
 {{ partial "alert.html" (dict "Type" "warning" "Message" "这是警告信息") }}
 ```
 
@@ -61,11 +61,11 @@ layouts/partials/
 </div>
 ```
 
-## 4. 动态引入 Partials
+## _4. 动态引入 Partials
 
 Hugo 允许使用 `printf` 或其他字符串操作函数动态拼接 partial 路径：
 
-```go
+```html
 {{ $pathName := "components/header" }}
 {{ partial (printf "%s.html" $pathName) . }}
 ```
@@ -81,12 +81,12 @@ layouts/partials/components/header-about.html
 
 根据页面类型动态加载：
 
-```go
+```html
 {{ $pageType := .Type }}
 {{ partial (printf "components/header-%s.html" $pageType) . }}
 ```
 
-## 5. 使用 Scratch 临时存储路径
+## _5. 使用 Scratch 临时存储路径
 
 ```go
 {{ $.Scratch.Set "pathName" "components/header" }}
@@ -97,7 +97,7 @@ layouts/partials/components/header-about.html
 - `$.Scratch.Get`：获取变量。
 - `$` 表示全局上下文。
 
-## 6. 示例项目结构
+## _6. 示例项目结构
 
 ```
 my-hugo-site/
@@ -141,7 +141,7 @@ type: "about"
 
 ### baseof.html 动态加载 header
 
-```go
+```html
 <!DOCTYPE html>
 <html lang="zh-CN">
 {{ partial "head.html" . }}
@@ -154,7 +154,7 @@ type: "about"
 </html>
 ```
 
-## 7. 注意事项
+## _7. 注意事项
 
 1. **路径相对性**：partial 路径是相对于 `layouts/partials` 的。
 2. **传参**：传入 partial 的上下文可以是 `.` 或 `dict`。

@@ -1,3 +1,5 @@
+//给md文件添加type字段
+
 const fs = require('fs');
 const path = require('path');
 

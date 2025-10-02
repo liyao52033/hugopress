@@ -3,19 +3,19 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "server": "hugo server --disableFastRender -D -F",
-    "build": "hugo",
+    "server": "node scripts/add-frontmatter.js && hugo server --disableFastRender -D -F",
+    "build": "hugo -D -F",
     "dev": "bash start.sh",
     "build:prod": "bash build.sh",
-    "build:all": "hugo -D -F",
     "clean": "hugo --cleanDestinationDir",
-    "proxy": "node proxy.js"
+    "proxy": "node scripts/proxy.js"  
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "gray-matter": "^4.0.3",
     "http-proxy": "^1.18.1"
   }
 }

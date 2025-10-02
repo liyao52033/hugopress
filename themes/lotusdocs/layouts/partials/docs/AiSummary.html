@@ -150,7 +150,7 @@
     // -------------------------- 核心判断：按 placeholderEl 存在与否分支 --------------------------
     if (placeholderEl) {
       // 1. placeholderEl 存在 → 无 frontmatter → 走 SSE 请求 + 打字机
-      const currentUrl = "{{ .Site.BaseURL }}" + window.location.pathname;
+      const currentUrl = "{{ .Permalink }}";
       es = new EventSource(`/coze/summary?url=${encodeURIComponent(currentUrl)}`);
 
       let firstMessageReceived = false;
@@ -191,7 +191,7 @@
       es.onerror = () => {
         setTimeout(() => {
           if (!firstMessageReceived && summary.length === 0) {
-            errorEl.innerText = "摘要生成失败，请稍后再试";
+            errorEl.innerText = "摘要生成失败, frontmatter.description不存在或者为空 (仅部署后的线上环境且frontmatter.description不存在或为空时调用AI大模型生成摘要)";
             errorEl.style.display = "block";
             progressContainer.style.display = "none";
             caretEl.style.display = "none";
