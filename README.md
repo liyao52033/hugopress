@@ -26,7 +26,10 @@
 
 ## 三、3 步完成基本配置
 1) 获取项目  
-下载或 `git clone` [本仓库](https://github.com/liyao52033/hugopress)，然后在项目根目录打开终端。
+下载或 `git clone` 本仓库，然后在项目根目录打开终端。
+```sh
+git clone https://github.com/liyao52033/hugopress.git
+```
 
 2) 修改关键信息（文件：`hugo.toml`, `.env`,`themes/data/xxx`）,具体查看该文件详细注释
 - 域名 baseURL：改成你的域名（必须含 `http://` 或 `https://`，建议末尾加 `/`）  
