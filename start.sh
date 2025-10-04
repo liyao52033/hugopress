@@ -16,4 +16,4 @@ if ! command -v hugo &> /dev/null; then
   exit 1
 fi
 
-yarn run clean && yarn run server
+yarn run server

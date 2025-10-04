@@ -13,5 +13,5 @@ if ! command -v hugo &> /dev/null; then
   exit 1
 fi
 echo "🔨 开始打包..."
-yarn run clean && yarn run build
+yarn run build
 echo "✅ 打包完成"
