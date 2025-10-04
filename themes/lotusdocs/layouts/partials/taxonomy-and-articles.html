@@ -177,8 +177,8 @@
                   {{ $minutes := div $seconds 60 }}
                   {{ $hours := div $minutes 60 }}
                   {{ $days := div $hours 24 }}
-                  {{ $months := div $days 30 }}  {{/* 简化计算，以30天为一个月 */}}
-                  {{ $years := div $months 12 }}  {{/* 简化计算，以12个月为一年 */}}
+                  {{ $months := div $days 30 }}  {{/* 简化计算，统一以30天为一个月 */}}
+                  {{ $years := div $months 12 }} 
                   
                   {{ if ge $years 1 }}
                     {{ $years }}年前
