@@ -221,6 +221,48 @@
 
 <style>
 
+:root {
+  --summary-bg: #ffffff;
+  --summary-border: #f0f0f0;
+  --summary-header-bg: #fafafa;
+  --summary-header-border: #f5f5f5;
+  --summary-title: #333333;
+  --summary-text: #666666;
+  --summary-muted: #888888;
+  --summary-progress-bg: #f0f0f0;
+  --summary-accent: #409EFF;
+  --summary-error: #f56c6c;
+}
+
+html[data-dark-mode], [data-theme="dark"], html.dark {
+  --summary-bg: #1f2125;
+  --summary-border: #2a2c31;
+  --summary-header-bg: #22252b;
+  --summary-header-border: #2a2c31;
+  --summary-title: #eaeaea;
+  --summary-text: #c7c7c7;
+  --summary-muted: #a0a0a0;
+  --summary-progress-bg: #2a2c31;
+  --summary-accent: #4ea3ff;
+  --summary-error: #ff8a8a;
+}
+
+/* 兜底：系统暗色且未显式设置 data-dark-mode 时应用 */
+@media (prefers-color-scheme: dark) {
+  html:not([data-dark-mode]) {
+    --summary-bg: #1f2125;
+    --summary-border: #2a2c31;
+    --summary-header-bg: #22252b;
+    --summary-header-border: #2a2c31;
+    --summary-title: #eaeaea;
+    --summary-text: #c7c7c7;
+    --summary-muted: #a0a0a0;
+    --summary-progress-bg: #2a2c31;
+    --summary-accent: #4ea3ff;
+    --summary-error: #ff8a8a;
+  }
+}
+
 .icon {
   width: 1em;
   height: 1em;
@@ -230,10 +272,10 @@
 }
 
 .summary-card {
-  background: #ffffff;
+  background: var(--summary-bg);
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--summary-border);
   overflow: hidden;
   transition: all 0.3s ease;
   margin: 1.5rem 0;
@@ -248,8 +290,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid #f5f5f5;
-  background-color: #fafafa;
+  border-bottom: 1px solid var(--summary-header-border);
+  background-color: var(--summary-header-bg);
 }
 
 .title-container {
@@ -266,7 +308,7 @@
 .title {
   font-size: 16px;
   font-weight: 600;
-  color: #333333;
+  color: var(--summary-title);
   margin-right: 6px;
 }
 
@@ -283,7 +325,7 @@
 .progress-container {
   width: 120px;
   height: 4px;
-  background-color: #f0f0f0;
+  background-color: var(--summary-progress-bg);
   border-radius: 2px;
   overflow: hidden;
 }
@@ -298,7 +340,7 @@
   position: absolute;
   height: 100%;
   width: 40%;
-  background-color: #409EFF;
+  background-color: var(--summary-accent);
   border-radius: 2px;
   animation: progressMove 1.5s infinite ease-in-out;
 }
@@ -317,7 +359,7 @@
   align-items: center;
   margin-left: 10px;
   font-size: 12px;
-  color: #888888;
+  color: var(--summary-muted);
   white-space: nowrap;
 }
 
@@ -327,14 +369,14 @@
 
 .summary-text {
   font-size: 14px;
-  color: #666666;
+  color: var(--summary-text);
   line-height: 1.7;
   letter-spacing: 0.02em;
 }
 
 .error-message {
   font-size: 14px;
-  color: #f56c6c;
+  color: var(--summary-error);
   line-height: 1.7;
   padding: 5px 0;
 }
@@ -344,8 +386,8 @@
   margin-left: 6px;
   width: 10px;
   height: 10px;
-  border-top: 2px solid #409EFF;
-  border-right: 2px solid #409EFF;
+  border-top: 2px solid var(--summary-accent);
+  border-right: 2px solid var(--summary-accent);
   transform: rotate(45deg);
   animation: caretBlink 1.2s infinite;
 }
@@ -357,5 +399,36 @@
   50% {
     opacity: 1;
   }
+}
+/* 暗色模式下的强优先级覆盖，避免外部样式影响卡片显示 */
+html[data-dark-mode] .summary-card {
+  background: var(--summary-bg) !important;
+  border-color: var(--summary-border) !important;
+}
+html[data-dark-mode] .summary-card .header {
+  background-color: var(--summary-header-bg) !important;
+  border-bottom-color: var(--summary-header-border) !important;
+}
+html[data-dark-mode] .summary-card .title {
+  color: var(--summary-title) !important;
+}
+html[data-dark-mode] .summary-card .summary-text {
+  color: var(--summary-text) !important;
+}
+html[data-dark-mode] .summary-card .provider {
+  color: var(--summary-muted) !important;
+}
+html[data-dark-mode] .summary-card .progress-container {
+  background-color: var(--summary-progress-bg) !important;
+}
+html[data-dark-mode] .summary-card .progress-indicator {
+  background-color: var(--summary-accent) !important;
+}
+html[data-dark-mode] .summary-card .error-message {
+  color: var(--summary-error) !important;
+}
+html[data-dark-mode] .summary-card .caret {
+  border-top-color: var(--summary-accent) !important;
+  border-right-color: var(--summary-accent) !important;
 }
 </style>

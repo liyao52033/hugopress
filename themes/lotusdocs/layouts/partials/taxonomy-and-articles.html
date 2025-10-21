@@ -170,21 +170,21 @@
 
             <li class="list-group-item d-flex justify-content-between align-items-center">
               最后活动时间
-              <span class="badge bg-success">
+              {{/* 增加 data-lastmod 供前端动态刷新；保留原有静态回退显示 */}}
+              <span class="badge bg-success" 
+                    {{ with first 1 (sort .Site.RegularPages "Lastmod" "desc") }}
+                      {{ $lastmod := (index . 0).Lastmod }}
+                      data-lastmod="{{ $lastmod.Unix }}"
+                    {{ end }}>
                 {{ with first 1 (sort .Site.RegularPages "Lastmod" "desc") }}
                   {{ $lastmod := (index . 0).Lastmod }}
                   {{ $seconds := sub now.Unix $lastmod.Unix }}
                   {{ $minutes := div $seconds 60 }}
                   {{ $hours := div $minutes 60 }}
                   {{ $days := div $hours 24 }}
-                  {{ $months := div $days 30 }}  {{/* 简化计算，统一以30天为一个月 */}}
-                  {{ $years := div $months 12 }} 
+                  {{/* 此处仅作静态回退，按天/小时/分钟展示 */}}
                   
-                  {{ if ge $years 1 }}
-                    {{ $years }}年前
-                  {{ else if ge $months 1 }}
-                    {{ $months }}个月前
-                  {{ else if ge $days 1 }}
+                  {{ if ge $days 1 }}
                     {{ $days }}天前
                   {{ else if ge $hours 1 }}
                     {{ $hours }}小时前
@@ -201,14 +201,14 @@
 
             <li class="list-group-item d-flex justify-content-between align-items-center">
               已运行时间
-              <span class="badge bg-success">
-                {{ $start := .Site.Params.docs.startTime | time }}
+              {{/* 增加 data-start 供前端动态刷新；保留原有静态回退显示 */}}
+              <span class="badge bg-success" 
+                    {{ $start := .Site.Params.docs.startTime | time }}
+                    data-start="{{ $start.Unix }}">
                 {{ $days := div (sub now.Unix $start.Unix) 86400 }}
                 
                 {{ if ge $days 0 }}
                   {{ $days }} 天
-                {{ else }}
-                  尚未开始
                 {{ end }}
               </span>
             </li>
@@ -240,6 +240,11 @@
               </span>
             </li>
           </ul>
+          
+          {{/* 已引入动态刷新脚本（含最后活动时间/已运行时间/字数覆盖显示） */}}
+          {{ $runtime := resources.Get "js/runtime-meta.js" | js.Build | fingerprint }}
+          <script src="{{ $runtime.RelPermalink }}" defer></script>
+
         </div>
       </div>
     </div>

@@ -38,3 +38,28 @@
     text-decoration: underline;
 }
 
+/* 暗色模式覆盖（使用主题标识 html[data-dark-mode]） */
+html[data-dark-mode] .custom-block.tip {
+    /* 压低亮度的浅绿背景，避免过亮 */
+    background-color: rgba(0, 148, 0, 0.10);
+    /* 加深左侧边框绿 */
+    border-left-color: #2e7d32;
+}
+
+/* 暗色下的标题前图标，轻微提亮但保持绿色调 */
+html[data-dark-mode] .custom-block.tip [class*="custom-block-title"]::before {
+    filter: brightness(1.1) saturate(1.05);
+}
+
+/* 声明容器在暗色模式的整体可读性 */
+html[data-dark-mode] .article-bottom-tip {
+    color: #c7c7c7;
+    background-color: rgba(0, 148, 0, 0.08);
+    border: 1px solid #2e7d32;
+}
+
+/* 声明容器链接颜色在暗色模式下更显眼 */
+html[data-dark-mode] .article-bottom-tip a {
+    color: #4ea3ff;
+}
+
