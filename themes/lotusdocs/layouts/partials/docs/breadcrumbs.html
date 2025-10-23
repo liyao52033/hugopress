@@ -55,8 +55,9 @@
     </span>
     <span>📖 {{ len (.Content | plainify) }} </span>
     <span>⏱ {{ .ReadingTime }}m</span>
-    <span>👁 <span id="busuanzi_page_pv"></span></span>
-    <span>⏲ <span id="busuanzi_page_uv"></span></span>
+    <!-- <span>👁 <span id="busuanzi_page_pv"></span></span>
+    <span>⏲ <span id="busuanzi_page_uv"></span></span> -->
+    <span>👁 <span id="vercount_value_page_pv">Loading</span></span> 
   </div>
   {{ end }}
 

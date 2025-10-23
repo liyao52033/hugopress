@@ -75,12 +75,6 @@
         el.textContent = days >= 0 ? (days + ' 天') : '尚未开始';
       }
     });
-
-    // 覆盖“本站总字数”（若构建阶段已注入）
-    var totalEl = document.getElementById('site-total-words');
-    if (totalEl && window.SITE_STATS && typeof window.SITE_STATS.totalWordCount === 'number') {
-      totalEl.textContent = formatWordCount(window.SITE_STATS.totalWordCount) + ' 字';
-    }
   }
 
   // 初次渲染与定时刷新
