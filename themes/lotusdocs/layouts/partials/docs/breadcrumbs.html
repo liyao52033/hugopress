@@ -46,18 +46,18 @@
   <!-- 文章信息 -->
   {{ if .IsPage }}
   <div class="post-meta d-flex flex-wrap align-items-center gap-3" style="font-size: 0.9rem; color: #666;">
-    <a href="{{ .Params.author.link }}">👤 {{ .Params.author.name }}</a>
-    <a href="/archives">📅 {{ .Date.Format "2006-01-02" }}</a>
-    <span>📂 
+    <a href="{{ .Params.author.link }}" title="本文作者">👤 {{ .Params.author.name }}</a>
+    <a href="/archives" title="本文创建时间">📅 {{ .Date.Format "2006-01-02" }}</a>
+    <span title="本文标签" style="cursor: pointer;">📂 
       {{ range $index, $cat := .Params.tags }}
         {{ if $index }}/{{ end }}{{ $cat }}
       {{ end }}
     </span>
-    <span>📖 {{ len (.Content | plainify) }} </span>
-    <span>⏱ {{ .ReadingTime }}m</span>
+    <span title="本文字数" style="cursor: pointer;">📖 {{ len (.Content | plainify) }} </span>
+    <span title="阅读时长" style="cursor: pointer;">⏱ {{ .ReadingTime }}m</span>
     <!-- <span>👁 <span id="busuanzi_page_pv"></span></span>
     <span>⏲ <span id="busuanzi_page_uv"></span></span> -->
-    <span>👁 <span id="vercount_value_page_pv">Loading</span></span> 
+    <span title="本文阅读量" style="cursor: pointer;">👁 <span id="vercount_value_page_pv">Loading</span></span> 
   </div>
   {{ end }}
 
