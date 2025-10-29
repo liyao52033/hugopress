@@ -31,6 +31,7 @@ ignoreLogs = ['warning-goldmark-raw-html']
         path = "github.com/gohugoio/hugo-mod-bootstrap-scss/v5"
         disable = false
 
+# goldmark选项参考：https://gohugo.io/configuration/markup/#goldmark
 [markup]
   defaultMarkdownHandler = "goldmark"
   [markup.tableOfContents]
@@ -40,10 +41,13 @@ ignoreLogs = ['warning-goldmark-raw-html']
     [markup.goldmark.renderer]
       unsafe = true
     [markup.goldmark.parser]
+       autoDefinitionTermID = true
+       autoHeadingID = true
+       autoIDType = 'github-ascii'  #在浏览器地址栏将中文锚点转化为英文，参考 https://gohugo.io/configuration/markup/#parserautoidtype
       [markup.goldmark.parser.attribute]
-        block = true
+        block = true  
     [markup.goldmark.extensions]
-      attr = true    # 启用属性扩展
+      table = true
   [markup.admonition]
     enabled = true  
 
@@ -86,7 +90,7 @@ ignoreLogs = ['warning-goldmark-raw-html']
 
     # 浏览器模糊搜索
     [params.flexsearch]
-        enabled = false
+      enabled = false
     
     [params.docs]
         darkMode = true    
@@ -137,11 +141,12 @@ ignoreLogs = ['warning-goldmark-raw-html']
 
         # Link behaviour
         intLinkTooltip  = true                                # Enable a tooltip for internal links that displays info about the destination? default false         
+        extLinkNewTab   = true
         
 
     [params.footer]
-        copyright = "© :YEAR: Lotus Labs. Built with [**Lotus Docs**](https://github.com/colinwilson/lotusdocs)"
-        version = true # includes git commit info
+      copyright = "© :YEAR: Lotus Labs. Built with <a href='https://lotusdocs.dev/docs/quickstart/' target='_blank' rel='noopener noreferrer'>**Lotus Docs**</a>"
+      version = true
 
     [params.social]
         github = "liyao52033/hugopress"        

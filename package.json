@@ -10,7 +10,7 @@
     "clean": "hugo --cleanDestinationDir",
     "proxy": "node scripts/proxy.js"  
   },
-  "keywords": [],
+  "keywords": ["hugo"],
   "author": "",
   "license": "ISC",
   "description": "",

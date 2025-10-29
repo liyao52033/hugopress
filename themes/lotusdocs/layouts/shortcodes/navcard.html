@@ -8,7 +8,7 @@
 {{/* 从父容器获取列宽设置 */}}
 {{ $colWidth := .Parent.Scratch.Get "colWidth" | default 6 }}
 
-<a href="{{ $link }}" class="col-md-{{ $colWidth }} navcard-container d-block text-decoration-none">
+<a href="{{ $link }}" target="_blank" class="col-md-{{ $colWidth }} navcard-container d-block text-decoration-none">
   <div class="card h-100 d-flex flex-column transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
     <div class="relative">
       <div class="d-flex align-items-center">
