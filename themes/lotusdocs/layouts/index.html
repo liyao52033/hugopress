@@ -21,8 +21,6 @@
         {{ partial $path $.Page }}
     {{ end }}
 
-
-    
     {{/* 获取需要显示的文章列表 */}}
     {{ $pages := where .Site.RegularPages "Type" "docs" }}
     

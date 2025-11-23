@@ -1,4 +1,3 @@
-
 :root {
   --katex-scrollbar-bg: var(--gray-200);
   --katex-scrollbar-thumb-color: var(--gray-400);
@@ -12,7 +11,7 @@
 /* stylelint-disable font-family-no-missing-generic-family-keyword */
 @font-face {
   font-family: 'KaTeX_AMS';
-  font-display: block;
+  font-display: swap;
   src: url(../fonts/KaTeX_AMS-Regular.woff2) format('woff2'), url(../fonts/KaTeX_AMS-Regular.woff) format('woff'), url(../fonts/KaTeX_AMS-Regular.ttf) format('truetype');
   font-weight: normal;
   font-style: normal;

@@ -3,101 +3,93 @@
     <!-- 桌面导航 - 默认显示，小屏幕隐藏 -->
     <div class="navbar-nav d-none d-lg-flex flex-lg-row navbar-center-nav">
         {{ if .Site.Menus.primary }}
-        <ul class="navbar-nav flex-lg-row gap-1">
+        <ul class="navbar-nav flex-lg-row gap-1" role="menubar" aria-label="主导航">
             {{ range .Site.Menus.primary }}
-                {{ if not .Parent }}
-                    {{ $hasChildren := .HasChildren }}
-                    {{ $children := .Children }}
-                    {{ $currentURL := $.RelPermalink }}
-                    {{ with .Page }}{{ $currentURL = .RelPermalink }}{{ end }}
-                    
-                    {{ if $hasChildren }}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle px-3 py-2 rounded" 
-                               href="#" 
-                               role="button" 
-                               data-bs-toggle="dropdown" 
-                               aria-expanded="false">
-                                {{ .Name }}
-                            </a>
-                             <ul class="dropdown-menu">
-                                {{ range $children }}
-                                    <li>
-                                        <a class="dropdown-item {{ if eq $currentURL (relLangURL .URL) }}active{{ end }}" 
-                                           href="{{ .URL | relLangURL }}">
-                                            {{ .Name }}
-                                        </a>
-                                    </li>
-                                {{ end }}
-                            </ul>
-                        </li>
-                    {{ else }}
-                        <li class="nav-item">
-                            <a class="nav-link px-3 py-2 rounded {{ if eq $currentURL (relLangURL .URL) }}active bg-primary/10 text-primary{{ end }}"
-                                href="{{ .URL | relLangURL }}">
-                                {{ .Name }}
-                            </a>
-                        </li>
+            {{ if not .Parent }}
+            {{ $hasChildren := .HasChildren }}
+            {{ $children := .Children }}
+            {{ $currentURL := $.RelPermalink }}
+            {{ with .Page }}{{ $currentURL = .RelPermalink }}{{ end }}
+
+            {{ if $hasChildren }}
+            <li class="nav-item dropdown" role="none">
+                <a class="nav-link dropdown-toggle px-3 py-2 rounded" href="#" role="menuitem" aria-haspopup="true"
+                    aria-expanded="false" tabindex="0">
+                    {{ .Name }}
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                    {{ range $children }}
+                    <li role="none">
+                        <a class="dropdown-item {{ if eq $currentURL (relLangURL .URL) }}active{{ end }}"
+                            href="{{ .URL | relLangURL }}" role="menuitem" tabindex="0">
+                            {{ .Name }}
+                        </a>
+                    </li>
                     {{ end }}
-                {{ end }}
+                </ul>
+            </li>
+            {{ else }}
+            <li class="nav-item" role="none">
+                <a class="nav-link px-3 py-2 rounded {{ if eq $currentURL (relLangURL .URL) }}active bg-primary/10 text-primary{{ end }}"
+                    href="{{ .URL | relLangURL }}" role="menuitem" tabindex="0">
+                    {{ .Name }}
+                </a>
+            </li>
+            {{ end }}
+            {{ end }}
             {{ end }}
         </ul>
         {{ end }}
     </div>
-    
+
     <!-- 移动端导航触发器 -->
-    <button class="navbar-toggler d-lg-none ms-2" type="button" 
-            data-bs-toggle="collapse" data-bs-target="#navbarNav" 
-            aria-controls="navbarNav" aria-expanded="false" 
-            aria-label="Toggle navigation">
+    <button class="navbar-toggler d-lg-none ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon">
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
         </span>
     </button>
-    
+
     <!-- 移动端导航菜单 -->
     <div class="collapse navbar-collapse" id="navbarNav">
         <div class="navbar-nav w-100 d-lg-none mobile-nav-menu">
             {{ if .Site.Menus.primary }}
             <ul class="navbar-nav flex-column gap-1 mt-2">
                 {{ range .Site.Menus.primary }}
-                    {{ if not .Parent }}
-                        {{ $hasChildren := .HasChildren }}
-                        {{ $children := .Children }}
-                        {{ $currentURL := $.RelPermalink }}
-                        {{ with .Page }}{{ $currentURL = .RelPermalink }}{{ end }}
-                        
-                        {{ if $hasChildren }}
-                            <li class="nav-item dropdown d-block">
-                                <a class="nav-link dropdown-toggle px-3 py-2 rounded w-100 text-start" 
-                                   href="#" 
-                                   role="button" 
-                                   data-bs-toggle="dropdown" 
-                                   aria-expanded="false">
-                                    {{ .Name }}
-                                </a>
-                                <ul class="dropdown-menu w-100 start-0">
-                                    {{ range $children }}
-                                        <li>
-                                            <a class="dropdown-item {{ if eq $currentURL (relLangURL .URL) }}active{{ end }}" 
-                                               href="{{ .URL | relLangURL }}">
-                                                {{ .Name }}
-                                            </a>
-                                        </li>
-                                    {{ end }}
-                                </ul>
-                            </li>
-                        {{ else }}
-                            <li class="nav-item">
-                                <a class="nav-link px-3 py-2 rounded w-100 text-start {{ if eq $currentURL (relLangURL .URL) }}active bg-primary/10 text-primary{{ end }}"
-                                    href="{{ .URL | relLangURL }}">
-                                    {{ .Name }}
-                                </a>
-                            </li>
+                {{ if not .Parent }}
+                {{ $hasChildren := .HasChildren }}
+                {{ $children := .Children }}
+                {{ $currentURL := $.RelPermalink }}
+                {{ with .Page }}{{ $currentURL = .RelPermalink }}{{ end }}
+
+                {{ if $hasChildren }}
+                <li class="nav-item dropdown d-block">
+                    <a class="nav-link dropdown-toggle px-3 py-2 rounded w-100 text-start" href="#" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ .Name }}
+                    </a>
+                    <ul class="dropdown-menu w-100 start-0">
+                        {{ range $children }}
+                        <li>
+                            <a class="dropdown-item {{ if eq $currentURL (relLangURL .URL) }}active{{ end }}"
+                                href="{{ .URL | relLangURL }}">
+                                {{ .Name }}
+                            </a>
+                        </li>
                         {{ end }}
-                    {{ end }}
+                    </ul>
+                </li>
+                {{ else }}
+                <li class="nav-item">
+                    <a class="nav-link px-3 py-2 rounded w-100 text-start {{ if eq $currentURL (relLangURL .URL) }}active bg-primary/10 text-primary{{ end }}"
+                        href="{{ .URL | relLangURL }}">
+                        {{ .Name }}
+                    </a>
+                </li>
+                {{ end }}
+                {{ end }}
                 {{ end }}
             </ul>
             {{ end }}

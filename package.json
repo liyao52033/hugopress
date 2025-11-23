@@ -8,9 +8,13 @@
     "dev": "bash start.sh",
     "build:prod": "bash build.sh",
     "clean": "hugo --cleanDestinationDir",
-    "proxy": "node scripts/proxy.js"  
+    "proxy": "node scripts/proxy.js",
+    "purgecss": "purgecss --css static/scss/*.css --content layouts/**/*.html --output static/scss/purged/",
+    "build:js": "esbuild static/js/*.js --bundle --minify --tree-shaking=true --outdir static/js/dist"
   },
-  "keywords": ["hugo"],
+  "keywords": [
+    "hugo"
+  ],
   "author": "",
   "license": "ISC",
   "description": "",

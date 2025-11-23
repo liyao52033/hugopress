@@ -11,8 +11,10 @@
     <meta name="email" content="support@aigis.uk" />
     <meta name="website" content="https://lotusdocs.dev" />
     <meta name="Version" content="v0.1.0" />
-    <meta name="algolia-site-verification"  content="2870E376591D9E12" />
+    <meta name="algolia-site-verification" content="2870E376591D9E12" />
     <link href="/scss/bootstrap.min.css" rel="stylesheet">
+
+    <!-- 所有 CSS 均应放在 <head>，确保渲染优先 -->
 
     <!-- favicon -->
     {{ block "head/favicon" . }}{{ partialCached "head/favicon.html" . }}{{ end }}
@@ -21,36 +23,38 @@
     <!-- Custom CSS -->
     {{- $options := dict "enableSourceMap" true }}
     {{- if hugo.IsProduction}}
-        {{- $options := dict "enableSourceMap" false "outputStyle" "compressed" }}
+    {{- $options := dict "enableSourceMap" false "outputStyle" "compressed" }}
     {{- end }}
     {{- $style := resources.Get "scss/style.scss" }}
     {{- $style = $style | resources.ExecuteAsTemplate "/scss/style.scss" . | css.Sass $options }}
     {{- if hugo.IsProduction }}
-        {{- $style = $style | minify | fingerprint "sha384" }}
+    {{- $style = $style | minify | fingerprint "sha384" }}
     {{- end -}}
-    <link rel="stylesheet" href="{{ $style.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $style.Data.Integrity }}"{{ end -}}/>
+    <link rel="stylesheet" href="{{ $style.RelPermalink }}" {{ if hugo.IsProduction
+        }}integrity="{{ $style.Data.Integrity }}" {{ end -}} />
 
     <!-- Image Compare Viewer -->
     {{ if ($.Scratch.Get "image_compare_enabled") }}
-        {{ $imagecompare := resources.Get "js/image-compare-viewer.min.js" }}
-        {{- if not hugo.IsServer }}
-            {{- $js := (slice $imagecompare) | resources.Concat "/js/image-compare.js" | minify | fingerprint "sha384" }}
-            <script type="text/javascript" src="{{ $js.Permalink }}" integrity="{{ $js.Data.Integrity }}"></script>
-        {{- else }}
-            {{- $js := (slice $imagecompare) | resources.Concat "/js/image-compare.js" }}
-            <script type="text/javascript" src="{{ $js.Permalink }}" {{ if hugo.IsProduction }}integrity="{{ $js.Data.Integrity }}"{{ end }}></script>
-        {{- end }}
+    {{ $imagecompare := resources.Get "js/image-compare-viewer.min.js" }}
+    {{- if not hugo.IsServer }}
+    {{- $js := (slice $imagecompare) | resources.Concat "/js/image-compare.js" | minify | fingerprint "sha384" }}
+    <script type="text/javascript" src="{{ $js.Permalink }}" integrity="{{ $js.Data.Integrity }}"></script>
+    {{- else }}
+    {{- $js := (slice $imagecompare) | resources.Concat "/js/image-compare.js" }}
+    <script type="text/javascript" src="{{ $js.Permalink }}" {{ if hugo.IsProduction
+        }}integrity="{{ $js.Data.Integrity }}" {{ end }} defer></script>
+    {{- end }}
     {{- end }}
     <!-- Plausible Analytics Config -->
     {{- if not hugo.IsServer }}
     {{ if and (.Site.Params.plausible.scriptURL) (.Site.Params.plausible.dataDomain) -}}
-        {{- partialCached "head/plausible" . }}
+    {{- partialCached "head/plausible" . }}
     {{- end -}}
     {{- end -}}
     <!-- Google Analytics v4 Config -->
     {{- if not hugo.IsServer }}
     {{- if .Site.Config.Services.GoogleAnalytics.ID }}
-        {{- template "_internal/google_analytics.html" . -}}
+    {{- template "_internal/google_analytics.html" . -}}
     {{- end -}}
     {{- end -}}
 </head>

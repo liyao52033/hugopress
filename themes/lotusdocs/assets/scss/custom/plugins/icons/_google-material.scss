@@ -4,9 +4,10 @@
 @font-face {
   font-family: 'Material Symbols Outlined';
   font-weight: 400;
-  font-display: block;
+  font-display: swap;
   font-style: normal;
   src: local('Material Icons'), local('MaterialIcons-Outlined'),
-    url('../docs/fonts/material-symbols-outlined.woff2') format('woff2'), /* Super Modern Browsers */
+    url('../docs/fonts/material-symbols-outlined.woff2') format('woff2'),
+    /* Super Modern Browsers */
     // url('../docs/fonts/material-symbols-outlined.woff') format('woff'); /* Modern Browsers */
 }

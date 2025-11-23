@@ -6,8 +6,10 @@
                 <div class="col-sm-6">
                     <div class="text-sm-start">
                         <p class="mb-0">
-                            {{ $yearToken := (cond (isset .Site.Params (lower "copyrightYearToken")) $.Site.Params.copyrightYearToken ":YEAR:") }}
-                            {{ replace $.Site.Params.footer.copyright $yearToken (string (now.Format "2006")) | markdownify }}
+                            {{ $yearToken := (cond (isset .Site.Params (lower "copyrightYearToken"))
+                            $.Site.Params.copyrightYearToken ":YEAR:") }}
+                            {{ replace $.Site.Params.footer.copyright $yearToken (string (now.Format "2006")) |
+                            markdownify }}
                         </p>
                     </div>
                 </div>
@@ -21,4 +23,6 @@
 </footer><!--end footer-->
 <!-- Footer End -->
 
-<script defer src='{{ "js/popper.min.js" | relURL }}'></script>
+<script src='{{ "js/popper.min.js" | relURL }}' defer></script>
+<script src='{{ "/js/responsive-navbar.js" | relURL }}' defer></script>
+<!-- 可按需添加更多 JS 文件，并确保使用 defer 或 async -->

@@ -3,17 +3,17 @@
     <title>
         {{- $url := replace .Permalink ( printf "%s" .Site.BaseURL) "" }}
         {{- if eq $url "/" }}
-            {{- .Site.Title }}
+        {{- .Site.Title }}
         {{- else }}
-            {{- if .Params.heading }}
-                {{ .Params.heading }}
-            {{ else }}
-                {{- if eq .Title .Site.Title }}
-                    {{- .Title }}
-                {{- else }}
-                    {{- .Title }} | {{ .Site.Params.docs.Title | default (.Site.Title) }}
-                {{- end }}
-            {{- end }}
+        {{- if .Params.heading }}
+        {{ .Params.heading }}
+        {{ else }}
+        {{- if eq .Title .Site.Title }}
+        {{- .Title }}
+        {{- else }}
+        {{- .Title }} | {{ .Site.Params.docs.Title | default (.Site.Title) }}
+        {{- end }}
+        {{- end }}
         {{- end -}}
     </title>
     {{- if not hugo.IsProduction }}
@@ -30,96 +30,120 @@
     <meta name="Version" content="v0.1.0" />
     <script defer src="//at.alicdn.com/t/c/font_5002477_3r8q6p0a9n8.js"></script>
     <!-- favicon -->
-    {{ block "favicon" . }}{{ partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "head/favicon.html") . }}{{ end }}
+    {{ block "favicon" . }}{{ partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "head/favicon.html") . }}{{ end
+    }}
     {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "head/opengraph") . }}
     {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "head/twitter_cards") . }}
     <!-- Atom feed autodiscovery -->
     {{- with .Site.Title }}
-        <link rel="alternate" type="application/atom+xml" title="Atom feed for {{ . }}" href="/index.xml" />
+    <link rel="alternate" type="application/atom+xml" title="Atom feed for {{ . }}" href="/index.xml" />
     {{- end }}
     <!-- Dark Mode -->
     {{ if eq .Site.Params.docs.darkMode true -}}
-        {{ $darkModeInit := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/darkmode-init.js") | js.Build | minify -}}
-        <script>{{ $darkModeInit.Content | safeJS }}</script>
+    {{ $darkModeInit := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/darkmode-init.js") | js.Build |
+    minify -}}
+    <script>{{ $darkModeInit.Content | safeJS }}</script>
     {{ end -}}
     <!-- FlexSearch -->
     {{ if or (not (isset .Site.Params.flexsearch "enabled")) (eq .Site.Params.flexsearch.enabled true) -}}
-        {{ if and (.Site.Params.docsearch.appID) (.Site.Params.docsearch.apiKey) -}}
-        {{ else }}
-            {{ $flexSearch := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/flexsearch.bundle.js") }}
-            {{- if not hugo.IsServer }}
-                {{ $flexSearch := $flexSearch | minify | fingerprint "sha384" }}
-                <script type="text/javascript" src="{{ $flexSearch.Permalink }}" integrity="{{ $flexSearch.Data.Integrity }}" crossorigin="anonymous"></script>
-                {{ else }}
-                <script type="text/javascript" src="{{ $flexSearch.Permalink }}"></script>
-            {{ end }}
-        {{ end }}
+    {{ if and (.Site.Params.docsearch.appID) (.Site.Params.docsearch.apiKey) -}}
+    {{ else }}
+    {{ $flexSearch := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/flexsearch.bundle.js") }}
+    {{- if not hugo.IsServer }}
+    {{ $flexSearch := $flexSearch | minify | fingerprint "sha384" }}
+    <script type="text/javascript" src="{{ $flexSearch.Permalink }}" integrity="{{ $flexSearch.Data.Integrity }}"
+        crossorigin="anonymous" defer></script>
+    {{ else }}
+    <script type="text/javascript" src="{{ $flexSearch.Permalink }}" defer></script>
+    {{ end }}
+    {{ end }}
     {{ end }}
     <!-- Google Fonts -->
     {{- partialCached "google-fonts" . }}
     <!-- Font Variables -->
     <style>
         :root {
+
             /* 自定义字体变量 */
-            --font-family-secondary: {{ .Site.Params.secondary_font | default "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Ubuntu'" }};
-            --font-family-sans-serif: {{ .Site.Params.sans_serif_font | default "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Ubuntu'" }};
-            --font-family-monospace: {{ .Site.Params.mono_font | default "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace" }};
-            
+            --font-family-secondary: {{
+                    .Site.Params.secondary_font | default "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Ubuntu'"
+                }};
+
+            --font-family-sans-serif: {{
+                    .Site.Params.sans_serif_font | default "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Ubuntu'"
+                }};
+
+            --font-family-monospace: {{
+                    .Site.Params.mono_font | default "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace"
+                }};
+
             /* Bootstrap 字体变量 */
-            --bs-font-sans-serif: {{ .Site.Params.sans_serif_font | default "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Ubuntu'" }};
-            --bs-font-monospace: {{ .Site.Params.mono_font | default "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace" }};
+            --bs-font-sans-serif: {{
+                    .Site.Params.sans_serif_font | default "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Ubuntu'"
+                }};
+
+            --bs-font-monospace: {{
+                    .Site.Params.mono_font | default "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace"
+                }};
         }
     </style>
     <!-- Custom CSS -->
     {{- $options := dict "enableSourceMap" true }}
     {{- if hugo.IsProduction}}
-        {{- $options := dict "enableSourceMap" false "outputStyle" "compressed" }}
+    {{- $options := dict "enableSourceMap" false "outputStyle" "compressed" }}
     {{- end }}
     {{- $style := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/style.scss") }}
-    {{- $style = $style | resources.ExecuteAsTemplate (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/style.scss") . | css.Sass $options }}
+    {{- $style = $style | resources.ExecuteAsTemplate (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/style.scss") . |
+    css.Sass $options }}
     {{- if hugo.IsProduction }}
-        {{- $style = $style | minify | fingerprint "sha384" }}
+    {{- $style = $style | minify | fingerprint "sha384" }}
     {{- end -}}
-    <link rel="stylesheet" href="{{ $style.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $style.Data.Integrity }}"{{ end -}} crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ $style.RelPermalink }}" {{ if hugo.IsProduction
+        }}integrity="{{ $style.Data.Integrity }}" {{ end -}} crossorigin="anonymous">
     <!-- Katex CSS -->
     {{- if .Params.katex -}}
     {{- $options := dict "enableSourceMap" true }}
     {{- if hugo.IsProduction}}
-        {{- $options := dict "enableSourceMap" false "outputStyle" "compressed" }}
+    {{- $options := dict "enableSourceMap" false "outputStyle" "compressed" }}
     {{- end -}}
     {{- $katexCSS := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/katex.scss") }}
-    {{- $katexCSS = $katexCSS | resources.ExecuteAsTemplate (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/katex.scss") . | css.Sass $options }}
+    {{- $katexCSS = $katexCSS | resources.ExecuteAsTemplate (printf "/%s/%s" ($.Scratch.Get "pathName")
+    "scss/katex.scss") . | css.Sass $options }}
     {{- if hugo.IsProduction }}
-        {{- $katexCSS = $katexCSS | minify | fingerprint "sha384" }}
+    {{- $katexCSS = $katexCSS | minify | fingerprint "sha384" }}
     {{- end -}}
-    <link rel="stylesheet" href="{{ $katexCSS.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $katexCSS.Data.Integrity }}"{{ end -}} crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ $katexCSS.RelPermalink }}" {{ if hugo.IsProduction
+        }}integrity="{{ $katexCSS.Data.Integrity }}" {{ end -}} crossorigin="anonymous">
     {{- end -}}
     <!-- Katex JS -->
     {{- if .Params.katex -}}
     {{ $katex := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/katex.js") }}
     {{ $katexAutoRender := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/auto-render.js") }}
     {{ if hugo.IsProduction }}
-        {{ $katex = $katex | minify | fingerprint "sha384" }}
-        {{ $katexAutoRender = $katexAutoRender | minify | fingerprint "sha384" }}
+    {{ $katex = $katex | minify | fingerprint "sha384" }}
+    {{ $katexAutoRender = $katexAutoRender | minify | fingerprint "sha384" }}
     {{- end -}}
-    <script src="{{ $katex.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $katex.Data.Integrity }}"{{ end -}} defer></script>
-    <script src="{{ $katexAutoRender.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $katexAutoRender.Data.Integrity }}"{{ end -}} defer></script>
+    <script src="{{ $katex.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $katex.Data.Integrity }}" {{ end -}}
+        defer></script>
+    <script src="{{ $katexAutoRender.RelPermalink }}" {{ if hugo.IsProduction
+        }}integrity="{{ $katexAutoRender.Data.Integrity }}" {{ end -}} defer></script>
     {{ end -}}
 
     <!-- Katex Config -->
     {{ if .Params.katex }}
-        {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "footer/katex.html") . -}}
+    {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "footer/katex.html") . -}}
     {{ end }}
     <!-- Plausible Analytics Config -->
     {{- if not hugo.IsServer }}
-    {{ if and (.Site.Params.plausible.scriptURL | default "https://plausible.io") (.Site.Params.plausible.dataDomain) -}}
-        {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "head/plausible") . }}
+    {{ if and (.Site.Params.plausible.scriptURL | default "https://plausible.io") (.Site.Params.plausible.dataDomain)
+    -}}
+    {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "head/plausible") . }}
     {{- end -}}
     {{- end -}}
     <!-- Google Analytics v4 Config -->
     {{- if not hugo.IsServer }}
     {{- if .Site.Config.Services.GoogleAnalytics.ID }}
-        {{- template "_internal/google_analytics.html" . -}}
+    {{- template "_internal/google_analytics.html" . -}}
     {{- end -}}
     {{- end -}}
 </head>

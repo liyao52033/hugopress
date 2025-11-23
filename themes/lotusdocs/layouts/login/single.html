@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8">
   <title>Login | 组件库文档</title>
@@ -11,6 +12,7 @@
       font-family: "Helvetica Neue", Arial, sans-serif;
       background: #fff;
     }
+
     .login-container {
       display: flex;
       min-height: 100vh;
@@ -19,14 +21,17 @@
       padding: 40px;
       box-sizing: border-box;
     }
+
     /* 左侧背景区域 */
     .login-left {
       flex: 1;
       background: url('/assets/bg.png') center/cover no-repeat;
       border-radius: 12px;
       margin-right: 40px;
-      height: 500px; /* 固定高度使布局更稳定 */
+      height: 500px;
+      /* 固定高度使布局更稳定 */
     }
+
     /* 右侧登录表单区域 */
     .login-right {
       flex: 1;
@@ -36,6 +41,7 @@
       border-radius: 12px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
     }
+
     /* 标题栏（含图标 + 文字） */
     .login-header {
       display: flex;
@@ -43,35 +49,44 @@
       justify-content: center;
       margin-bottom: 10px;
     }
+
     .login-header img {
       width: 40px;
       height: 40px;
       margin-right: 10px;
     }
+
     .login-header h2 {
       margin: 0;
       font-size: 20px;
     }
+
     /* 提示信息 + 日期 */
     .info {
       text-align: center;
-      color: #ff4d4f; /* 使用更标准的错误红色 */
+      color: #ff4d4f;
+      /* 使用更标准的错误红色 */
       margin-bottom: 20px;
-      min-height: 20px; /* 防止布局跳动 */
+      min-height: 20px;
+      /* 防止布局跳动 */
     }
+
     /* 表单项通用样式 */
     .form-item {
       margin-bottom: 15px;
     }
+
     .form-item label {
       display: block;
       margin-bottom: 5px;
       font-size: 14px;
       color: #333;
     }
+
     .form-item label .required {
       color: #ff4d4f;
     }
+
     .form-item input {
       width: 100%;
       padding: 10px;
@@ -81,41 +96,49 @@
       box-sizing: border-box;
       transition: border-color 0.2s;
     }
+
     .form-item input:focus {
       outline: none;
       border-color: #3b60ff;
     }
+
     .form-item input.error {
       border-color: #ff4d4f;
     }
+
     /* 验证码容器 */
     .captcha-container {
       display: flex;
       align-items: center;
     }
+
     .captcha-container canvas {
       margin-left: 10px;
       cursor: pointer;
       border-radius: 6px;
       border: 1px solid #dcdfe6;
     }
+
     .captcha-wrapper {
-        display: flex;
-        align-items: center;
-        width: 100%;
+      display: flex;
+      align-items: center;
+      width: 100%;
     }
-  
+
     #captchaInput {
-        flex: 1; /* 输入框占满剩余空间 */
-        margin: 0; /* 清除默认边距 */
+      flex: 1;
+      /* 输入框占满剩余空间 */
+      margin: 0;
+      /* 清除默认边距 */
     }
 
     #captchaCanvas {
-        cursor: pointer;
-        border-radius: 6px;
-        border: 1px solid #dcdfe6;
-        height: 40px; /* 与输入框高度一致 */
-        box-sizing: border-box;
+      cursor: pointer;
+      border-radius: 6px;
+      border: 1px solid #dcdfe6;
+      height: 40px;
+      /* 与输入框高度一致 */
+      box-sizing: border-box;
     }
 
     /* 登录按钮 */
@@ -131,28 +154,35 @@
       margin-top: 10px;
       transition: background-color 0.2s;
     }
+
     .login-btn:hover {
       background-color: #5a7dff;
     }
+
     .login-btn:disabled {
       background-color: #a0b4ff;
       cursor: not-allowed;
     }
+
     /* 加载指示器 */
     .loading {
       display: inline-block;
       width: 20px;
       height: 20px;
-      border: 3px solid rgba(255,255,255,.3);
+      border: 3px solid rgba(255, 255, 255, .3);
       border-radius: 50%;
       border-top-color: white;
       animation: spin 1s ease-in-out infinite;
     }
+
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
   </style>
 </head>
+
 <body>
   <div class="login-container">
     <div class="login-left"></div>
@@ -183,7 +213,7 @@
             <canvas id="captchaCanvas" width="100" height="40"></canvas>
           </div>
         </div>
-        <button type="submit" class="login-btn" id="loginBtn">
+        <button type="submit" class="login-btn" id="loginBtn" aria-label="登录">
           <span id="btnText">登录</span>
           <span class="loading" id="loading" style="display: none;"></span>
         </button>
@@ -218,11 +248,11 @@
       captchaCode = '';
       const ctx = captchaCanvas.getContext('2d');
       ctx.clearRect(0, 0, captchaCanvas.width, captchaCanvas.height);
-      
+
       // 绘制背景
       ctx.fillStyle = '#f2f2f2';
       ctx.fillRect(0, 0, captchaCanvas.width, captchaCanvas.height);
-      
+
       // 绘制干扰线
       for (let i = 0; i < 5; i++) {
         ctx.strokeStyle = '#' + Math.floor(Math.random() * 16777215).toString(16);
@@ -231,7 +261,7 @@
         ctx.lineTo(Math.random() * captchaCanvas.width, Math.random() * captchaCanvas.height);
         ctx.stroke();
       }
-      
+
       // 绘制验证码字符
       const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
       for (let i = 0; i < 4; i++) {
@@ -254,7 +284,7 @@
     function showMessage(text, isError = true) {
       messageEl.textContent = text;
       messageEl.style.color = isError ? '#ff4d4f' : '#52c41a';
-      
+
       // 移除所有输入框的错误状态
       [usernameInput, passwordInput, captchaInput].forEach(input => {
         input.classList.remove('error');
@@ -280,45 +310,45 @@
     generateCaptcha();
 
     // 3. 登录表单提交逻辑 - 对接后端API
-    loginForm.addEventListener('submit', async function(e) {
+    loginForm.addEventListener('submit', async function (e) {
       e.preventDefault();
-      
+
       // 获取表单值
       const username = usernameInput.value.trim();
       const password = passwordInput.value.trim();
       const captcha = captchaInput.value.trim().toUpperCase();
-      
+
       // 前端验证
       if (!username) {
         showMessage('请输入用户名');
         usernameInput.classList.add('error');
         return;
       }
-      
+
       if (!password) {
         showMessage('请输入密码');
         passwordInput.classList.add('error');
         return;
       }
-      
+
       if (!captcha) {
         showMessage('请输入验证码');
         captchaInput.classList.add('error');
         return;
       }
-      
+
       if (captcha !== captchaCode) {
         showMessage('验证码错误');
         captchaInput.classList.add('error');
         generateCaptcha(); // 刷新验证码
         return;
       }
-      
+
       try {
         // 显示加载状态
         setButtonLoading(true);
         showMessage(''); // 清空消息
-        
+
         // 调用后端登录接口
         const response = await fetch('/coze/login', {
           method: 'POST',
@@ -332,13 +362,13 @@
           }),
           credentials: 'include' // 处理跨域cookie
         });
-        
+
         // 解析响应
         const result = await response.json();
-        
+
         // 处理响应结果
         if (response.ok && result.success) {
-          
+
           // 可以在这里保存token到localStorage或sessionStorage
           if (result.token) {
             localStorage.setItem('token', result.token);
@@ -346,13 +376,13 @@
 
           // 获取之前保存的跳转URL，没有则跳转到首页
           const redirectUrl = localStorage.getItem('redirectUrl') || '/';
-        
+
           // 清除保存的跳转URL
           localStorage.removeItem('redirectUrl');
 
           // 跳转到首页或之前的页面
           window.location.href = redirectUrl;
-          
+
         } else {
           // 登录失败
           showMessage(result.message || '登录失败，请重试');
@@ -370,4 +400,5 @@
     });
   </script>
 </body>
+
 </html>
