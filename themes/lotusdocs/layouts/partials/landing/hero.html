@@ -8,28 +8,6 @@
 {{ $pathDesktop := printf "%s/%s" $path $filename.desktop }}
 {{ $pathMobile := printf "%s/%s" $path $filename.mobile }}
 
-{{/*
-
-// <style>
-    //     .hero {
-    //         {{ with $filename.desktop }}
-    //             {{ with resources.Get $pathDesktop }}
-    //                 @media (min-width: 768px) {
-    //                     background-image: url("{{ .RelPermalink }}");
-    //                 }
-    //             {{ end }}
-    //         {{ end }}
-    //         {{ with $filename.mobile }}
-    //             {{ with resources.Get $pathMobile }}
-    //                 background-image: url("{{ .RelPermalink }}");
-    //             {{ end }}
-    //         {{ end }}
-    //     }
-    // 
-</style>
-
-*/}}
-
 {{ end }}
 <section id="{{ $sectionTitle }}" class="d-table w-100 overflow-hidden hero">
     <div class="container">
@@ -91,7 +69,7 @@
                 {{ $rounded := .rounded | default false }}
                 {{ $path := printf "%s/%s" $path $filename }}
                 {{ with $filename }}
-                <div class="ms-lg-4">
+                <div class="ms-lg-4 d-none d-lg-block">
                     <div class="classic-hero-image">
                         {{ with $image := resources.Get $path }}
                         {{ if eq .MediaType.SubType "svg" }}

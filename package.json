@@ -4,12 +4,13 @@
   "main": "index.js",
   "scripts": {
     "server": "node scripts/add-frontmatter.js && hugo server --disableFastRender -D -F",
+    "server:dev": "bash start.sh",
     "build": "hugo -D -F",
-    "dev": "bash start.sh",
+    "dev:prod": "hugo server --environment production",
     "build:prod": "bash build.sh",
     "clean": "hugo --cleanDestinationDir",
     "proxy": "node scripts/proxy.js",
-    "purgecss": "purgecss --css static/scss/*.css --content layouts/**/*.html --output static/scss/purged/",
+    "purgecss": "purgecss --css static/scss/*.css --content **/*.html",
     "build:js": "esbuild static/js/*.js --bundle --minify --tree-shaking=true --outdir static/js/dist"
   },
   "keywords": [
@@ -19,7 +20,11 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@fullhuman/postcss-purgecss": "^7.0.2",
+    "autoprefixer": "^10.4.22",
     "gray-matter": "^4.0.3",
-    "http-proxy": "^1.18.1"
+    "http-proxy": "^1.18.1",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1"
   }
 }
