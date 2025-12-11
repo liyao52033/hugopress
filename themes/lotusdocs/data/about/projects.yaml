@@ -4,7 +4,7 @@
     name: "vitepress"
     bg: "#e3edfa"
     color: "#3976c6"
-  projectsimg: "https://picsum.photos/id/66/600/400"
+  projectsimg: "https://picsum.photos/600/400"
   Star: 1258
   Fork: 342
   View: 3876
@@ -18,7 +18,7 @@
     name: 'vue'
     bg: '#fffbe6'
     color: '#e4ae3a'
-  projectsimg: 'https://picsum.photos/id/24/600/400'
+  projectsimg: 'https://picsum.photos/600/400'
   Star: 876
   Fork: 215
   View: 2543
@@ -31,7 +31,7 @@
     name: 'picgo'
     bg: '#fffbe6'
     color: '#e4ae3a' 
-  projectsimg: 'https://picsum.photos/id/42/600/400'
+  projectsimg: 'https://picsum.photos/600/400'
   Star: 723
   Fork: 198
   View: 1987
@@ -43,7 +43,7 @@
     name: 'JavaScript'
     bg: '#fffbe6'
     color: '#e4ae3a' 
-  projectsimg: 'https://picsum.photos/id/96/600/400'
+  projectsimg: 'https://picsum.photos/600/400'
   Star: 645
   Fork: 132
   View: 1756
@@ -55,7 +55,7 @@
     name: 'ssl'
     bg: '#eaf6ff'
     color: '#33a474' 
-  projectsimg: 'https://picsum.photos/id/180/600/400'
+  projectsimg: 'https://picsum.photos/600/400'
   Star: 1532,
   Fork: 487,
   View: 4289,
@@ -67,7 +67,7 @@
     name: '有来组织'
     bg: '#fffbe6' 
     color: '#e4ae3a' 
-  projectsimg: 'https://picsum.photos/id/119/600/400'
+  projectsimg: 'https://picsum.photos/600/400'
   Star: 968
   Fork: 243
   View: 3125

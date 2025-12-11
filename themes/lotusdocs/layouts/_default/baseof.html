@@ -34,9 +34,9 @@ If so, collect and consolidate the items config from each enabled instance
     <div>
         {{- partial "header.html" . -}}
     </div>
-    <div class="mb-4 flex-grow-1" id="content" style="padding-top: calc(70px);">
+    <main class="mb-4 flex-grow-1" id="content" style="padding-top: calc(70px);">
         {{- block "main" . }}{{- end }}
-    </div>
+    </main>
     {{- partial "footer.html" . -}}
 
     {{/* common CSS and JS */}}
