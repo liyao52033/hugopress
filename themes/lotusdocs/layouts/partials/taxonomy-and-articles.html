@@ -1,12 +1,12 @@
 <div class="container py-5">
   <div class="row g-4">
     <!-- 文章列表 -->
-    <div class="col-md-9">
+    <div class="col-xl-9">
       <p class="mb-4" style="color:#222;font-size: 35px;font-weight: 600;">{{ .Title }}</p>
       {{ if .Pages }}
       <div class="row g-4">
         {{ range .Pages }}
-        <div class="col-md-6">
+        <div class="col-lg-6">
           <div class="card h-100 shadow-sm" style="background:#fff;color:#222;">
             <div class="card-body">
               <p class="card-title">
@@ -47,7 +47,7 @@
               </p>
             </div>
 
-            <div class="card-footer d-flex justify-content-between align-items-center">
+            <div class="cardfooter d-flex justify-content-between align-items-center">
               <div class="d-flex align-items-center">
                 <small class="text-muted">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 1024 1024">
@@ -108,7 +108,7 @@
     </div>
 
     <!-- 右侧边栏 -->
-    <div class="col-md-3 home-card">
+    <div class="col-xl-3 home-card">
       <!-- 文章分类 -->
       <div class="card mb-4">
         <div class="card-header">文章分类</div>
@@ -272,15 +272,30 @@
 </div>
 
 <style>
-  .home-card {
+.home-card {
+  margin-top: 2.8rem;
+  padding-top: 3.7rem;
+}
 
-    margin-top: 2.8rem;
-    padding-top: 2.8rem;
+.card-tag {
+  background:#0052cc;
+  color:#fff;
+}
 
+  /* 基础样式（所有屏幕生效） */
+.cardfooter {
+  padding: .5rem 1rem;
+  color: var(--bs-card-cap-color);
+  background-color: var(--bs-card-cap-bg);
+  border-top: var(--bs-card-border-width) solid var(--bs-card-border-color);
+
+  /* 小屏（≤768px）覆盖样式 */
+  @media (max-width: 768px) {
+      padding: .5rem .5rem;
   }
+  
+}
 
-  .card-tag {
-    background:#0052cc;
-    color:#fff;
-  }
+
+
 </style>

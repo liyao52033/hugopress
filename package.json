@@ -6,7 +6,7 @@
     "server": "node scripts/add-frontmatter.js && hugo server --disableFastRender -D -F",
     "server:dev": "bash start.sh",
     "build": "hugo -D -F",
-    "dev:prod": "hugo server --environment production",
+    "dev:prod": "hugo server --environment production --bind 0.0.0.0",
     "build:prod": "bash build.sh",
     "clean": "hugo --cleanDestinationDir",
     "proxy": "node scripts/proxy.js",
