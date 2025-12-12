@@ -1,0 +1,103 @@
+// 全局焦点样式，提升无障碍分数
+:root {
+    --provider-bg: #212529;
+    --provider-color: #fff700;
+}
+
+a.provider {
+    background: var(--provider-bg) !important;
+    color: var(--provider-color) !important;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+:focus {
+    outline: 2px solid #0050b3;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px rgba(0, 80, 179, 0.2);
+}
+
+
+/* 通用复用样式 */
+.article-title {
+    color: #222;
+    font-size: 35px;
+    font-weight: 600;
+}
+
+.card-article {
+    background: #fff;
+    color: #222;
+}
+
+.article-desc {
+    color: #666;
+}
+
+.category-count-badge {
+    background: #f5f5f5;
+    color: #222;
+}
+
+.hot-tag-badge {
+    background: #0052cc;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* 原有样式优化 */
+.home-card {
+    margin-top: 2.8rem;
+    padding-top: 3.7rem;
+}
+
+.card-tag {
+    background: #0052cc;
+    color: #fff;
+}
+
+.top-article {
+    color: #00796b;
+    background: #fff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #009688;
+}
+
+.card-header-title {
+    color: #333333;
+    font-size: 20px;
+    font-weight: 600;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    text-decoration: none;
+}
+
+.card-header-title:hover {
+    color: rgb(17, 0, 255);
+}
+
+.cardfooter {
+    padding: .5rem 1rem;
+    color: var(--bs-card-cap-color);
+    background-color: var(--bs-card-cap-bg);
+    border-top: var(--bs-card-border-width) solid var(--bs-card-border-color);
+}
+
+/* 响应式样式 */
+@media (max-width: 768px) {
+    .cardfooter {
+        padding: .5rem .5rem;
+    }
+}
+
+/* 移除a标签默认焦点样式 */
+a.card-text:active,
+a.card-text:focus,
+a.card-text:focus-visible {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}

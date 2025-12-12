@@ -44,30 +44,12 @@ $font-family-monospace: var(--font-family-monospace);
 // // Pages
 // @import "custom/pages/blog";
 
+// 首页相关
 @import "custom/pages/features";
 @import "custom/pages/helper";
 @import "custom/pages/hero";
 @import "custom/pages/image-compare-viewer";
+@import "custom/pages/homepage";
+
+// 关于页相关
 @import "custom/pages/about";
-
-// @import "custom/pages/simplebar";
-
-// 全局焦点样式，提升无障碍分数
-:root {
-   --provider-bg: #212529;
-   --provider-color: #fff700;
-}
-
-a.provider {
-   background: var(--provider-bg) !important;
-   color: var(--provider-color) !important;
-   padding: 2px 6px;
-   border-radius: 3px;
-   font-weight: bold;
-}
-
-:focus {
-   outline: 2px solid #0050b3;
-   outline-offset: 2px;
-   box-shadow: 0 0 0 2px rgba(0, 80, 179, 0.2);
-}

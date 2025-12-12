@@ -2,49 +2,26 @@
   <div class="row g-4">
     <!-- 文章列表 -->
     <div class="col-xl-9">
-      <p class="mb-4" style="color:#222;font-size: 35px;font-weight: 600;">{{ .Title }}</p>
+      <p class="mb-4 article-title">{{ .Title }}</p>
       {{ if .Pages }}
       <div class="row g-4">
         {{ range .Pages }}
         <div class="col-lg-6">
-          <div class="card h-100 shadow-sm" style="background:#fff;color:#222;">
+          <div class="card h-100 shadow-sm card-article">
             <div class="card-body">
               <p class="card-title">
-                <a href="{{ .Permalink }}" class="text-decoration-none" style="color:#0052cc;font-size: 20px;font-weight: 600;">{{ .Title }}</a>
-                {{ with .Params.top }}<span
-                  style="color: #00796b;background:#fff;padding:2px 6px;border-radius:3px;border:1px solid #009688;">置顶</span>{{
-                end }}
+                <a href="{{ .Permalink }}" class="card-header-title">{{ .Title }}</a>
+                {{ with .Params.top }}
+                <span class="top-article">置顶</span>{{ end }}
               </p>
-           
-              <!-- 显示文章所属分类 -->
-              {{/*
 
-              {{ if .Params.categories }}
-              <div class="mb-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 1024 1024">
-                  <path fill="currentColor"
-                    d="M878.08 448H241.92l-96 384h636.16zM832 384v-64H485.76L357.504 192H128v448l57.92-231.744A32 32 0 0 1 216.96 384zm-24.96 512H96a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h287.872l128.384 128H864a32 32 0 0 1 32 32v96h23.04a32 32 0 0 1 31.04 39.744l-112 448A32 32 0 0 1 807.04 896">
-                  </path>
-                </svg>
-                {{ range .Params.categories }}
-                <a href="{{ " /categories/" | relLangURL }}{{ . | urlize }}"
-                  class="badge bg-secondary text-decoration-none me-1">
-                  {{ . }}
-                </a>
-                {{ end }}
-              </div>
-              {{ end }}
-
-              */}}
-
-
-              <p class="card-text" style="color:#333;">
+              <a href="{{ .Permalink }}" class="card-text article-desc">
                 {{ if .Description }}
                 {{ .Description | truncate 100 }}
                 {{ else }}
                 暂无摘要
                 {{ end }}
-              </p>
+              </a>
             </div>
 
             <div class="cardfooter d-flex justify-content-between align-items-center">
@@ -59,43 +36,43 @@
                 </small>
                 <small class="text-muted">
                   {{ if .Params.tags }}
-                    <div class="ms-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 1024 1024">
-                        <path fill="currentColor"
-                          d="M256 128v698.88l196.032-156.864a96 96 0 0 1 119.936 0L768 826.816V128zm-32-64h576a32 32 0 0 1 32 32v797.44a32 32 0 0 1-51.968 24.96L531.968 720a32 32 0 0 0-39.936 0L243.968 918.4A32 32 0 0 1 192 893.44V96a32 32 0 0 1 32-32">
-                        </path>
-                      </svg>
-                      {{ range .Params.tags }}
-                        <a href='{{ "/tags/" | relLangURL }}{{ . | urlize }}' class="badge text-decoration-none me-md-1 card-tag">
-                          {{ . }}
-                        </a>
-                      {{ end }}
-                    </div>
+                  <div class="ms-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 1024 1024">
+                      <path fill="currentColor"
+                        d="M256 128v698.88l196.032-156.864a96 96 0 0 1 119.936 0L768 826.816V128zm-32-64h576a32 32 0 0 1 32 32v797.44a32 32 0 0 1-51.968 24.96L531.968 720a32 32 0 0 0-39.936 0L243.968 918.4A32 32 0 0 1 192 893.44V96a32 32 0 0 1 32-32">
+                      </path>
+                    </svg>
+                    {{ range .Params.tags }}
+                    <a href='{{ "/tags/" | relLangURL }}{{ . | urlize }}'
+                      class="badge text-decoration-none me-md-1 card-tag">
+                      {{ . }}
+                    </a>
+                    {{ end }}
+                  </div>
                   {{ end }}
                 </small>
                 <small class="text-muted">
                   {{ if .Params.categories }}
-                    <div class="ms-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 1024 1024">
-                        <path fill="currentColor"
-                          d="M878.08 448H241.92l-96 384h636.16zM832 384v-64H485.76L357.504 192H128v448l57.92-231.744A32 32 0 0 1 216.96 384zm-24.96 512H96a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h287.872l128.384 128H864a32 32 0 0 1 32 32v96h23.04a32 32 0 0 1 31.04 39.744l-112 448A32 32 0 0 1 807.04 896">
-                        </path>
-                      </svg>
-                      {{ range .Params.categories }}
-                      <a href='{{ "/categories/" | relLangURL }}{{ . | urlize }}' class="badge bg-secondary text-decoration-none me-1">
-                        {{ . }}
-                      </a>
-                      {{ end }}
-                    </div>
+                  <div class="ms-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 1024 1024">
+                      <path fill="currentColor"
+                        d="M878.08 448H241.92l-96 384h636.16zM832 384v-64H485.76L357.504 192H128v448l57.92-231.744A32 32 0 0 1 216.96 384zm-24.96 512H96a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h287.872l128.384 128H864a32 32 0 0 1 32 32v96h23.04a32 32 0 0 1 31.04 39.744l-112 448A32 32 0 0 1 807.04 896">
+                      </path>
+                    </svg>
+                    {{ range .Params.categories }}
+                    <a href='{{ "/categories/" | relLangURL }}{{ . | urlize }}'
+                      class="badge bg-secondary text-decoration-none me-1">
+                      {{ . }}
+                    </a>
+                    {{ end }}
+                  </div>
                   {{ end }}
                 </small>
               </div>
               <div>
                 {{ $wordCount := len (.Content | plainify) }}
-                {{ $readingSpeed := .Site.Params.reading_speed | default 300 }} <!-- 明确设置速度，如300字/分钟 -->
+                {{ $readingSpeed := .Site.Params.reading_speed | default 300 }}
                 {{ $readingTime := math.Ceil (div (float $wordCount) $readingSpeed) }}
-                {{/* <small class="text-muted">{{ $wordCount }}字</small> */}}
-                {{/* <small class="text-muted">⏱️{{ $readingTime }}分钟阅读</small> */}}
               </div>
             </div>
           </div>
@@ -118,16 +95,16 @@
             {{ $categories := .Site.Taxonomies.categories }}
             {{ $limit := 5 }}
 
-            {{ $i := 0 }} <!-- 定义一个计数器变量 -->
+            {{ $i := 0 }}
             {{ range $key, $category := $categories }}
             {{ if lt $i $limit }}
             <li class="list-group-item d-flex justify-content-between align-items-center">
               <a href="{{ " /categories/" | relLangURL }}{{ $key | urlize }}" class="text-decoration-none">
                 {{ $key }}
               </a>
-              <span class="badge" style="background:#f5f5f5;color:#222;">{{ len $category }}</span>
+              <span class="badge category-count-badge">{{ len $category }}</span>
             </li>
-            {{ $i = add $i 1 }} <!-- 每次循环计数器加1 -->
+            {{ $i = add $i 1 }}
             {{ end }}
             {{ end }}
 
@@ -156,15 +133,13 @@
 
           {{ range $key, $value := .Site.Taxonomies.tags }}
           {{ if lt $i $limit }}
-          <a href="{{ " /tags/" | relLangURL }}{{ $key | urlize }}" class="badge text-decoration-none me-2 mb-2"
-            style="background:#0052cc;color:#fff;">
+          <a href="{{ " /tags/" | relLangURL }}{{ $key | urlize }}" class="badge hot-tag-badge me-2 mb-2">
             {{ $key }} ({{ len $value }})
           </a>
           {{ $i = add $i 1 }}
           {{ end }}
           {{ end }}
 
-          <!-- 如果标签总数超过限制，显示更多标签链接 -->
           {{ if gt $totalTags $limit }}
           <a href="{{ " /tags/" | relLangURL }}" class="badge bg-secondary text-decoration-none me-2 mb-2">
             更多标签({{ sub $totalTags $limit }}) →
@@ -181,7 +156,6 @@
         <div class="card-header bg-primary text-white">站点信息</div>
         <div class="card-body">
           <ul class="list-group">
-
             <li class="list-group-item d-flex justify-content-between align-items-center">
               文章数目
               <span class="badge card-tag">
@@ -191,17 +165,14 @@
 
             <li class="list-group-item d-flex justify-content-between align-items-center">
               最后活动时间
-              {{/* 增加 data-lastmod 供前端动态刷新；保留原有静态回退显示 */}}
-              <span class="badge card-tag"  {{ with first 1 (sort
-                .Site.RegularPages "Lastmod" "desc" ) }} {{ $lastmod :=(index . 0).Lastmod }}
-                data-lastmod="{{ $lastmod.Unix }}" {{ end }}>
+              <span class="badge card-tag" {{ with first 1 (sort .Site.RegularPages "Lastmod" "desc" ) }} {{ $lastmod
+                :=(index . 0).Lastmod }} data-lastmod="{{ $lastmod.Unix }}" {{ end }}>
                 {{ with first 1 (sort .Site.RegularPages "Lastmod" "desc") }}
                 {{ $lastmod := (index . 0).Lastmod }}
                 {{ $seconds := sub now.Unix $lastmod.Unix }}
                 {{ $minutes := div $seconds 60 }}
                 {{ $hours := div $minutes 60 }}
                 {{ $days := div $hours 24 }}
-                {{/* 此处仅作静态回退，按天/小时/分钟展示 */}}
 
                 {{ if ge $days 1 }}
                 {{ $days }}天前
@@ -222,12 +193,12 @@
               已运行时间
               <span class="badge card-tag" id="site-runtime-days">
                 {{- if .Site.Params.docs.startTime -}}
-                  {{- $startDate := time .Site.Params.docs.startTime -}}
-                  {{- $now := now -}}
-                  {{- $diffDays := div (sub $now.Unix $startDate.Unix) 86400 -}}
-                  {{ $diffDays }} 天
+                {{- $startDate := time .Site.Params.docs.startTime -}}
+                {{- $now := now -}}
+                {{- $diffDays := div (sub $now.Unix $startDate.Unix) 86400 -}}
+                {{ $diffDays }} 天
                 {{- else -}}
-                    -
+                -
                 {{- end -}}
               </span>
             </li>
@@ -238,9 +209,7 @@
                 {{ $totalChars := 0 }}
                 {{ range where .Site.RegularPages "Type" "docs" }}
                 {{ $totalChars = add $totalChars (len (.Content | plainify)) }}
-                {{/* $totalChars = add $totalChars .FuzzyWordCount */}}
                 {{ end }}
-
                 {{ div (float $totalChars) 10000 | printf "%.1f" }}w 字
               </span>
             </li>
@@ -248,8 +217,7 @@
             <li class="list-group-item d-flex justify-content-between align-items-center">
               本站总访问量
               <span class="badge card-tag">
-                <span id="busuanzi_site_pv"></span>次 
-                {{/*  <span id="vercount_value_site_pv">Loading</span>次  */}}
+                <span id="busuanzi_site_pv"></span>次
               </span>
             </li>
 
@@ -257,16 +225,12 @@
               本站总访客数
               <span class="badge card-tag">
                 <span id="busuanzi_site_uv"></span> 人
-                {{/*  <span id="vercount_value_site_uv">Loading</span>人  */}}
               </span>
             </li>
-
           </ul>
 
-          {{/* 已引入动态刷新脚本（含最后活动时间/已运行时间） */}}
           {{ $runtime := resources.Get "js/runtime-meta.js" | js.Build | fingerprint }}
           <script src="{{ $runtime.RelPermalink }}" defer></script>
-
         </div>
       </div>
     </div>
@@ -274,57 +238,25 @@
 </div>
 
 <script>
-
   (function () {
-      // 近一周和近一月的数据已在服务器端计算，无需 JavaScript
+    // 计算运行天数（实时更新）
+    function calculateRuntime() {
+      const startDate = new Date('{{ .Site.Params.docs.startTime }}');
+      const now = new Date();
+      const diffTime = Math.abs(now - startDate);
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-      // 计算运行天数（实时更新）
-      function calculateRuntime() {
-        const startDate = new Date('{{ .Site.Params.docs.startTime }}');
-        const now = new Date();
-        const diffTime = Math.abs(now - startDate);
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-        const elem = document.getElementById('site-runtime-days');
-        if (elem) {
-          elem.textContent = diffDays + ' 天';
-        }
+      const elem = document.getElementById('site-runtime-days');
+      if (elem) {
+        elem.textContent = diffDays + ' 天';
       }
+    }
 
-      // 初始化运行天数
-      calculateRuntime();
-      // 每天更新一次运行天数
-      setInterval(calculateRuntime, 86400000);
-
-    })();
-
+    // 初始化运行天数
+    calculateRuntime();
+    // 每天更新一次运行天数
+    setInterval(calculateRuntime, 86400000);
+  })();
 </script>
 
-<style>
-.home-card {
-  margin-top: 2.8rem;
-  padding-top: 3.7rem;
-}
-
-.card-tag {
-  background:#0052cc;
-  color:#fff;
-}
-
-  /* 基础样式（所有屏幕生效） */
-.cardfooter {
-  padding: .5rem 1rem;
-  color: var(--bs-card-cap-color);
-  background-color: var(--bs-card-cap-bg);
-  border-top: var(--bs-card-border-width) solid var(--bs-card-border-color);
-
-  /* 小屏（≤768px）覆盖样式 */
-  @media (max-width: 768px) {
-      padding: .5rem .5rem;
-  }
-  
-}
-
-
-
-</style>
+<!-- css样式在 themes\lotusdocs\assets\scss\custom\pages\_homepage.scss -->
