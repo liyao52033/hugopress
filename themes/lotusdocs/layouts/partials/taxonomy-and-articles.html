@@ -220,14 +220,15 @@
 
             <li class="list-group-item d-flex justify-content-between align-items-center">
               已运行时间
-              {{/* 增加 data-start 供前端动态刷新；保留原有静态回退显示 */}}
-              <span class="badge card-tag" {{ $start :=.Site.Params.docs.startTime | time
-                }} data-start="{{ $start.Unix }}">
-                {{ $days := div (sub now.Unix $start.Unix) 86400 }}
-
-                {{ if ge $days 0 }}
-                {{ $days }} 天
-                {{ end }}
+              <span class="badge card-tag" id="site-runtime-days">
+                {{- if .Site.Params.docs.startTime -}}
+                  {{- $startDate := time .Site.Params.docs.startTime -}}
+                  {{- $now := now -}}
+                  {{- $diffDays := div (sub $now.Unix $startDate.Unix) 86400 -}}
+                  {{ $diffDays }} 天
+                {{- else -}}
+                    -
+                {{- end -}}
               </span>
             </li>
 
@@ -247,18 +248,19 @@
             <li class="list-group-item d-flex justify-content-between align-items-center">
               本站总访问量
               <span class="badge card-tag">
-                <!-- <span id="busuanzi_site_pv"></span>次 -->
-                <span id="vercount_value_site_pv">Loading</span>次
+                <span id="busuanzi_site_pv"></span>次 
+                {{/*  <span id="vercount_value_site_pv">Loading</span>次  */}}
               </span>
             </li>
 
             <li class="list-group-item d-flex justify-content-between align-items-center">
               本站总访客数
               <span class="badge card-tag">
-                <!-- <span id="busuanzi_site_uv"></span>人 -->
-                <span id="vercount_value_site_uv">Loading</span>人
+                <span id="busuanzi_site_uv"></span> 人
+                {{/*  <span id="vercount_value_site_uv">Loading</span>人  */}}
               </span>
             </li>
+
           </ul>
 
           {{/* 已引入动态刷新脚本（含最后活动时间/已运行时间） */}}
@@ -270,6 +272,33 @@
     </div>
   </div>
 </div>
+
+<script>
+
+  (function () {
+      // 近一周和近一月的数据已在服务器端计算，无需 JavaScript
+
+      // 计算运行天数（实时更新）
+      function calculateRuntime() {
+        const startDate = new Date('{{ .Site.Params.docs.startTime }}');
+        const now = new Date();
+        const diffTime = Math.abs(now - startDate);
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+        const elem = document.getElementById('site-runtime-days');
+        if (elem) {
+          elem.textContent = diffDays + ' 天';
+        }
+      }
+
+      // 初始化运行天数
+      calculateRuntime();
+      // 每天更新一次运行天数
+      setInterval(calculateRuntime, 86400000);
+
+    })();
+
+</script>
 
 <style>
 .home-card {

@@ -1,5 +1,5 @@
 <!-- Footer Start -->
-<footer class="shadow py-3 d-print-none">
+<footer class="py-3 d-print-none">
     <div class="container-fluid">
         <div class="row align-items-center">
             <div class="col">
@@ -8,8 +8,30 @@
                         {{ $yearToken := (cond (isset .Site.Params (lower "copyrightYearToken")) $.Site.Params.copyrightYearToken ":YEAR:") }}
                         {{ replace $.Site.Params.footer.copyright $yearToken (string (now.Format "2006")) | markdownify }}
                     </p>
+
+                    <span class="busuanzi">
+                        <span class="busuanzi-item">今日访客数 <span id="busuanzi_today_uv"></span></span>
+                        <span class="separator">|</span>
+                        <span class="busuanzi-item">今日访问量 <span id="busuanzi_today_pv"></span></span>
+                        <span class="separator">|</span>
+                        <span class="busuanzi-item">昨日访客数 <span id="busuanzi_yesterday_uv"></span></span>
+                        <span class="separator">|</span>
+                        <span class="busuanzi-item">昨日访问量 <span id="busuanzi_yesterday_pv"></span></span>
+                        <span class="separator">|</span>
+                        <span class="busuanzi-item">本月访客数 <span id="busuanzi_month_uv"></span></span>
+                        <span class="separator">|</span>
+                        <span class="busuanzi-item">本月访问量 <span id="busuanzi_month_pv"></span></span>
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 </footer>
+
+<style>
+    .busuanzi {
+        font-size: 14px;
+        margin-bottom: 2rem;
+        padding: 1rem 0;
+    }
+</style>

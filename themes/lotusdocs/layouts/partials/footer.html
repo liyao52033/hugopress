@@ -3,7 +3,7 @@
     <div class="footer-py-30">
         <div class="container text-center">
             <div class="row align-items-center">
-                <div class="col-sm-6">
+                <div class="col-sm-5">
                     <div class="text-sm-start">
                         <p class="mb-0">
                             {{ $yearToken := (cond (isset .Site.Params (lower "copyrightYearToken"))
@@ -14,8 +14,20 @@
                     </div>
                 </div>
 
-                <div class="col-sm-6 mt-4 mt-sm-0 pt-2 pt-sm-0">
-                    <!-- <p>Privacy</p> -->
+                <div class="col-sm-7 mt-4 mt-sm-0 pt-2 pt-sm-0">
+                    <span class="busuanzi-stats">
+                        <span class="busuanzi-item">今日访客数 <span id="busuanzi_today_uv"></span></span>
+                        <span class="separator">|</span>
+                        <span class="busuanzi-item">今日访问量 <span id="busuanzi_today_pv"></span></span>
+                        <span class="separator">|</span>
+                        <span class="busuanzi-item">昨日访客数 <span id="busuanzi_yesterday_uv"></span></span>
+                        <span class="separator">|</span>
+                        <span class="busuanzi-item">昨日访问量 <span id="busuanzi_yesterday_pv"></span></span>
+                        <span class="separator">|</span>
+                        <span class="busuanzi-item">本月访客数 <span id="busuanzi_month_uv"></span></span>
+                        <span class="separator">|</span>
+                        <span class="busuanzi-item">本月访问量 <span id="busuanzi_month_pv"></span></span>
+                    </span>
                 </div><!--end col-->
             </div><!--end row-->
         </div><!--end container-->
@@ -24,5 +36,4 @@
 <!-- Footer End -->
 
 <script src='{{ "js/popper.min.js" | relURL }}' defer></script>
-<script src='{{ "/js/responsive-navbar.js" | relURL }}' defer></script>
-<!-- 可按需添加更多 JS 文件，并确保使用 defer 或 async -->
+{{/*  <script src='{{ "/js/responsive-navbar.js" | relURL }}' defer></script>  */}}

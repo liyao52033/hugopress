@@ -4,8 +4,9 @@
    <script defer src='{{ "/js/responsive-navbar.js" | relURL }}'></script>
 
    <!-- 不蒜子统计 -->
-   <!-- <script defer src="/js/busuanzi.js"></script> -->
-   <script defer src="https://events.vercount.one/js"></script>
+   <!-- <script async src="/js/busuanzi.js"></script> -->
+   {{/*  <script async src="https://events.vercount.one/js"></script>  */}}
+   <script async src="https://cdn.xxdevops.cn/projects/busuanzi/js/busuanzi.js"></script>
    
    <!-- Global Bootstrap JS via basic.html -->
    {{ $js := resources.Get "docs/js/bootstrap.js" }}
