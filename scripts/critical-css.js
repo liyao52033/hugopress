@@ -8,9 +8,9 @@ const path = require('path');
 // 配置选项
 const config = {
   // 源HTML文件目录
-  src: 'public/**/*.html',
+  src: 'dist/**/*.html',
   // 输出目录（保持原有结构）
-  dest: 'public',
+  dest: 'dist',
   // Critical CSS配置
   critical: {
     // 视口尺寸

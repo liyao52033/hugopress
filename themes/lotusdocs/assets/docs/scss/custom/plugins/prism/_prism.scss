@@ -88,8 +88,8 @@ pre[data-line] {
           * This will prevent browsers from replacing the background color with white.
           * It's necessary because the element is layered on top of the displayed code.
           */
+        print-color-adjust: exact;
         -webkit-print-color-adjust: exact;
-        color-adjust: exact;
     }
 }
 
@@ -255,6 +255,7 @@ div.code-toolbar>.toolbar>.toolbar-item>button {
     line-height: normal;
     overflow: visible;
     padding: 0;
+    user-select: none;
     -webkit-user-select: none;
     /* for button */
     -moz-user-select: none;

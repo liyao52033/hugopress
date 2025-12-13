@@ -1,9 +1,9 @@
 const purgecss = require('@fullhuman/postcss-purgecss').default({
     content: [
-        './hugo_stats.json',
-        './layouts/**/*.html',
-        './content/**/*.md',
-        './themes/**/*.html'
+        '../hugo_stats.json',
+        '../layouts/**/*.html',
+        '../content/**/*.md',
+        '../themes/**/*.html'
     ],
     defaultExtractor: (content) => {
         if (content.endsWith('.json')) {

@@ -10,9 +10,8 @@
     "build:prod": "bash build.sh",
     "clean": "hugo --cleanDestinationDir",
     "proxy": "node scripts/proxy.js",
-    "purgecss": "purgecss --css static/scss/*.css --content **/*.html",
     "build:js": "esbuild static/js/*.js --bundle --minify --tree-shaking=true --outdir=static/js/dist --format=esm --splitting=true",
-    "build:js:theme": "node build-theme.cjs",
+    "build:js:theme": "node scripts/build-theme.cjs",
     "critical:gulp": "gulp critical-css",
     "critical:script": "node scripts/critical-css.js",
     "build:critical": "yarn run build && yarn run critical:script"
