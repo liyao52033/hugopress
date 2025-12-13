@@ -524,14 +524,123 @@ var Prism = (function (_self) {
 			};
 
 			_.hooks.run('before-highlightall', env);
-
-			env.elements = Array.prototype.slice.apply(env.container.querySelectorAll(env.selector));
-
+			var elements = Array.prototype.slice.apply(env.container.querySelectorAll(env.selector));
 			_.hooks.run('before-all-elements-highlight', env);
 
-			for (var i = 0, element; (element = env.elements[i++]);) {
-				_.highlightElement(element, async === true, env.callback);
-			}
+			// 可见性优先 + requestIdleCallback批处理
+			var observer = new IntersectionObserver(function (entries, observer) {
+				var visibleElements = entries.filter(function (entry) {
+					return entry.isIntersecting;
+				}).map(function (entry) {
+					return entry.target;
+				});
+
+				// 使用requestIdleCallback处理可见的代码块，优化批次大小
+				var index = 0;
+				function processNextElement(deadline) {
+					var processedCount = 0;
+					// 动态调整每帧处理的代码块数量
+					// 当有充足的空闲时间时处理更多，时间紧张时处理更少
+					var availableTime = deadline.timeRemaining();
+					var maxPerFrame;
+					if (availableTime > 50) {
+						// 空闲时间充足，每帧处理5个代码块
+						maxPerFrame = 5;
+					} else if (availableTime > 25) {
+						// 中等空闲时间，每帧处理3个代码块
+						maxPerFrame = 3;
+					} else {
+						// 时间紧张，每帧处理1-2个代码块
+						maxPerFrame = availableTime > 10 ? 2 : 1;
+					}
+					while (index < visibleElements.length && processedCount < maxPerFrame && (deadline.timeRemaining() > 0 || deadline.didTimeout)) {
+						var element = visibleElements[index];
+						if (!element.dataset.highlighted || element.dataset.highlighted === 'false') {
+							_.highlightElement(element, async === true, env.callback);
+							element.dataset.highlighted = 'true';
+							// 高亮后停止观察该元素
+							observer.unobserve(element);
+							processedCount++;
+						}
+						index++;
+					}
+					if (index < visibleElements.length) {
+						requestIdleCallback(processNextElement, { timeout: 5000 });
+					}
+				}
+
+				if (visibleElements.length > 0) {
+					if ('requestIdleCallback' in window) {
+						requestIdleCallback(processNextElement, { timeout: 5000 });
+					} else {
+						// 回退方案
+						var batchSize = 3; // 减少批次大小，降低主线程阻塞风险
+						var delay = 16; // 约60fps
+						function fallbackProcess() {
+							// 使用requestAnimationFrame确保DOM操作在动画帧中进行
+							requestAnimationFrame(function () {
+								var batchEnd = Math.min(index + batchSize, visibleElements.length);
+								for (; index < batchEnd; index++) {
+									var element = visibleElements[index];
+									if (!element.dataset.highlighted || element.dataset.highlighted === 'false') {
+										_.highlightElement(element, async === true, env.callback);
+										element.dataset.highlighted = 'true';
+										observer.unobserve(element);
+									}
+								}
+								if (index < visibleElements.length) {
+									setTimeout(fallbackProcess, delay);
+								}
+							});
+						}
+						fallbackProcess();
+					}
+				}
+			}, {
+				rootMargin: '20px', // 减小预加载范围到20px，减少提前处理的元素数量
+				threshold: 0.1 // 提高可见性阈值到10%，减少触发频率
+			});
+
+			// 观察所有代码块
+			elements.forEach(function (element) {
+				// 跳过已经高亮或部分高亮的元素
+				if (element.dataset.highlighted) {
+					return;
+				}
+
+				// 先检查元素是否已经可见
+				var rect = element.getBoundingClientRect();
+				var isVisible = rect.top < window.innerHeight + 50 && rect.bottom >= -50; // 与IntersectionObserver保持一致的阈值
+				if (isVisible) {
+					// 立即高亮可见元素
+					_.highlightElement(element, async === true, env.callback);
+					element.dataset.highlighted = 'true';
+				} else {
+					// 检查是否为折叠代码块
+					var codeToolbar = element.closest('.code-toolbar');
+					if (codeToolbar && codeToolbar.classList.contains('code-collapsed')) {
+						// 折叠代码块，仅高亮可见部分
+						var visibleHeight = 400; // 可见高度（与CSS中的max-height一致）
+						var originalContent = element.textContent;
+
+						// 保存原始内容
+						element.dataset.originalContent = originalContent;
+
+						// 临时截断内容到可见区域
+						var lineHeight = parseInt(getComputedStyle(element).lineHeight) || 18;
+						var visibleLines = Math.floor(visibleHeight / lineHeight);
+						var truncatedContent = originalContent.split('\n').slice(0, visibleLines).join('\n');
+
+						// 更新元素内容并高亮
+						element.textContent = truncatedContent;
+						_.highlightElement(element, async === true, env.callback);
+						element.dataset.highlighted = 'partial';
+					} else {
+						// 观察未高亮的非折叠元素
+						observer.observe(element);
+					}
+				}
+			});
 		},
 
 		/**
@@ -1180,7 +1289,7 @@ var Prism = (function (_self) {
 
 	function highlightAutomaticallyCallback() {
 		if (!_.manual) {
-			_.highlightAll();
+			_.highlightAll(false);
 		}
 	}
 
@@ -1192,7 +1301,7 @@ var Prism = (function (_self) {
 		// been loaded when Prism.highlightAll() is executed, depending on how fast resources are loaded.
 		// See https://github.com/PrismJS/prism/issues/2102
 		var readyState = document.readyState;
-		if (readyState === 'loading' || readyState === 'interactive' && script && script.defer) {
+		if (readyState === 'loading' || readyState === 'interactive' && script && script.async) {
 			document.addEventListener('DOMContentLoaded', highlightAutomaticallyCallback);
 		} else {
 			if (window.requestAnimationFrame) {
@@ -2220,91 +2329,86 @@ Prism.languages.js = Prism.languages.javascript;
 	 *
 	 * @param {HTMLElement[]} elements
 	 */
+
+	/**
+	 * Resizes the given elements.
+	 *
+	 * @param {HTMLElement[]} elements
+	 */
 	function resizeElements(elements) {
+		// 分批处理优化版
 		elements = elements.filter(function (e) {
 			var codeStyles = getStyles(e);
 			var whiteSpace = codeStyles['white-space'];
 			return whiteSpace === 'pre-wrap' || whiteSpace === 'pre-line';
 		});
 
-		if (elements.length == 0) {
+		if (elements.length === 0) {
 			return;
 		}
 
-		var infos = elements.map(function (element) {
-			var codeElement = element.querySelector('code');
-			var lineNumbersWrapper = element.querySelector('.line-numbers-rows');
-			if (!codeElement || !lineNumbersWrapper) {
-				return undefined;
-			}
+		// 分批处理函数
+		function processBatch(batch) {
+			batch.forEach(function (element) {
+				var codeElement = element.querySelector('code');
+				var lineNumbersWrapper = element.querySelector('.line-numbers-rows');
+				if (!codeElement || !lineNumbersWrapper) {
+					return;
+				}
 
-			/** @type {HTMLElement} */
-			var lineNumberSizer = element.querySelector('.line-numbers-sizer');
-			var codeLines = codeElement.textContent.split(NEW_LINE_EXP);
+				/** @type {HTMLElement} */
+				var lineNumberSizer = element.querySelector('.line-numbers-sizer');
+				var codeLines = codeElement.textContent.split(NEW_LINE_EXP);
 
-			if (!lineNumberSizer) {
-				lineNumberSizer = document.createElement('span');
-				lineNumberSizer.className = 'line-numbers-sizer';
+				if (!lineNumberSizer) {
+					lineNumberSizer = document.createElement('span');
+					lineNumberSizer.className = 'line-numbers-sizer';
+					codeElement.appendChild(lineNumberSizer);
+				}
 
-				codeElement.appendChild(lineNumberSizer);
-			}
+				// 简化行高计算：只测量单行高度，避免为每一行创建span
+				lineNumberSizer.textContent = '0';
+				lineNumberSizer.style.display = 'block';
+				lineNumberSizer.style.visibility = 'hidden';
+				lineNumberSizer.style.position = 'absolute';
+				lineNumberSizer.style.width = 'auto';
+				lineNumberSizer.style.height = 'auto';
 
-			lineNumberSizer.innerHTML = '0';
-			lineNumberSizer.style.display = 'block';
+				var lineHeight = lineNumberSizer.getBoundingClientRect().height;
 
-			var oneLinerHeight = lineNumberSizer.getBoundingClientRect().height;
-			lineNumberSizer.innerHTML = '';
+				// 恢复sizer状态
+				lineNumberSizer.style.display = 'none';
+				lineNumberSizer.textContent = '';
 
-			return {
-				element: element,
-				lines: codeLines,
-				lineHeights: [],
-				oneLinerHeight: oneLinerHeight,
-				sizer: lineNumberSizer,
-			};
-		}).filter(Boolean);
-
-		infos.forEach(function (info) {
-			var lineNumberSizer = info.sizer;
-			var lines = info.lines;
-			var lineHeights = info.lineHeights;
-			var oneLinerHeight = info.oneLinerHeight;
-
-			lineHeights[lines.length - 1] = undefined;
-			lines.forEach(function (line, index) {
-				if (line && line.length > 1) {
-					var e = lineNumberSizer.appendChild(document.createElement('span'));
-					e.style.display = 'block';
-					e.textContent = line;
-				} else {
-					lineHeights[index] = oneLinerHeight;
+				// 使用估算的行高设置所有行号高度
+				if (lineHeight > 0) {
+					for (var i = 0; i < lineNumbersWrapper.children.length; i++) {
+						lineNumbersWrapper.children[i].style.height = lineHeight + 'px';
+					}
 				}
 			});
-		});
+		}
 
-		infos.forEach(function (info) {
-			var lineNumberSizer = info.sizer;
-			var lineHeights = info.lineHeights;
+		// 分批处理，每批处理3个元素
+		var batchSize = 3;
+		var index = 0;
 
-			var childIndex = 0;
-			for (var i = 0; i < lineHeights.length; i++) {
-				if (lineHeights[i] === undefined) {
-					lineHeights[i] = lineNumberSizer.children[childIndex++].getBoundingClientRect().height;
-				}
+		function processNextBatch() {
+			var batch = elements.slice(index, index + batchSize);
+			if (batch.length === 0) {
+				return;
 			}
-		});
 
-		infos.forEach(function (info) {
-			var lineNumberSizer = info.sizer;
-			var wrapper = info.element.querySelector('.line-numbers-rows');
-
-			lineNumberSizer.style.display = 'none';
-			lineNumberSizer.innerHTML = '';
-
-			info.lineHeights.forEach(function (height, lineNumber) {
-				wrapper.children[lineNumber].style.height = height + 'px';
+			// 使用requestAnimationFrame调度下一批处理
+			requestAnimationFrame(function () {
+				processBatch(batch);
+				index += batchSize;
+				processNextBatch();
 			});
-		});
+		}
+
+		// 开始处理
+		processNextBatch();
 	}
 
 	/**
@@ -2362,12 +2466,13 @@ Prism.languages.js = Prism.languages.javascript;
 		var linesNum = match ? match.length + 1 : 1;
 		var lineNumbersWrapper;
 
-		var lines = new Array(linesNum + 1).join('<span></span>');
-
 		lineNumbersWrapper = document.createElement('span');
 		lineNumbersWrapper.setAttribute('aria-hidden', 'true');
 		lineNumbersWrapper.className = 'line-numbers-rows';
-		lineNumbersWrapper.innerHTML = lines;
+
+		// 使用纯CSS行号，无需创建大量span元素
+		// 设置容器高度以匹配代码行数
+		lineNumbersWrapper.style.height = (linesNum * 1.5) + 'em'; // 1.5em为代码行高
 
 		if (pre.hasAttribute('data-start')) {
 			pre.style.counterReset = 'linenumber ' + (parseInt(pre.getAttribute('data-start'), 10) - 1);
@@ -2375,7 +2480,8 @@ Prism.languages.js = Prism.languages.javascript;
 
 		env.element.appendChild(lineNumbersWrapper);
 
-		resizeElements([pre]);
+		// 纯CSS行号不需要resizeElements调整高度
+		// resizeElements([pre]);
 
 		Prism.hooks.run('line-numbers', env);
 	});
@@ -2542,7 +2648,7 @@ Prism.languages.js = Prism.languages.javascript;
 
 					// highlight code
 					code.textContent = text;
-					Prism.highlightElement(code);
+					Prism.highlightElement(code, false);
 				},
 				function (error) {
 					// mark as failed
@@ -2566,7 +2672,7 @@ Prism.languages.js = Prism.languages.javascript;
 			var elements = (container || document).querySelectorAll(SELECTOR);
 
 			for (var i = 0, element; (element = elements[i++]);) {
-				Prism.highlightElement(element);
+				Prism.highlightElement(element, false);
 			}
 		}
 	};
@@ -3200,11 +3306,11 @@ Prism.languages.js = Prism.languages.javascript;
 			return input.replace(/\s+$/, '');
 		},
 		tabsToSpaces: function (input, spaces) {
-			spaces = spaces|0 || 4;
+			spaces = spaces | 0 || 4;
 			return input.replace(/\t/g, new Array(++spaces).join(' '));
 		},
 		spacesToTabs: function (input, spaces) {
-			spaces = spaces|0 || 4;
+			spaces = spaces | 0 || 4;
 			return input.replace(RegExp(' {' + spaces + '}', 'g'), '\t');
 		},
 		removeTrailing: function (input) {
@@ -3233,7 +3339,7 @@ Prism.languages.js = Prism.languages.javascript;
 			return input.replace(/^[^\S\n\r]*(?=\S)/gm, new Array(++tabs).join('\t') + '$&');
 		},
 		breakLines: function (input, characters) {
-			characters = (characters === true) ? 80 : characters|0 || 80;
+			characters = (characters === true) ? 80 : characters | 0 || 80;
 
 			var lines = input.split('\n');
 			for (var i = 0; i < lines.length; ++i) {
@@ -3363,7 +3469,7 @@ Prism.languages.js = Prism.languages.javascript;
 
 	var callbacks = [];
 	var map = {};
-	var noop = function () {};
+	var noop = function () { };
 
 	Prism.plugins.toolbar = {};
 
@@ -3653,46 +3759,42 @@ Prism.languages.js = Prism.languages.javascript;
 	Prism.plugins.toolbar.registerButton('collapse-code', function (env) {
 		var element = env.element;
 		var pre = element.parentNode;
-		
+
 		// 安全检查
 		if (!pre || !/pre/i.test(pre.nodeName)) {
 			return null;
 		}
-		
+
 		var codeBlock = pre.parentNode;
 		if (!codeBlock) {
 			return null;
 		}
 
-        const LIMIT = 400;
-		const need = pre.scrollHeight > LIMIT
-
 		// 创建折叠按钮
 		var collapseBtn = document.createElement('button');
+		// 折叠图标
+		collapseBtn.className = 'collapse-code-button';
+		collapseBtn.setAttribute('type', 'button');
+		collapseBtn.setAttribute('data-collapse-state', 'collapsed');
+		collapseBtn.setAttribute('aria-label', 'toggle code collapse');
+
+		var btnSpan = document.createElement('span');
+		collapseBtn.appendChild(btnSpan);
 
 		//创建遮罩按钮
 		var btn = document.createElement('button');
-		
+		btn.className = 'cb-toggle-btn';
+		btn.type = 'button';
+		btn.setAttribute('aria-expanded', 'false');
+		btn.textContent = '展开';
+
 		// 检查代码块高度，只有超过400px的才显示折叠按钮
 		// 使用setTimeout确保DOM已经渲染完成
-		setTimeout(function() {
+		setTimeout(function () {
+			const LIMIT = 400;
+			const need = pre.scrollHeight > LIMIT;
 
 			if (need) {
-
-				// 折叠图标
-				collapseBtn.className = 'collapse-code-button';
-				collapseBtn.setAttribute('type', 'button');
-				collapseBtn.setAttribute('data-collapse-state', 'collapsed');
-				collapseBtn.setAttribute('aria-label', 'toggle code collapse');
-				
-				var btnSpan = document.createElement('span');
-				collapseBtn.appendChild(btnSpan);
-
-				//遮罩按钮
-				btn.className = 'cb-toggle-btn';
-				btn.type = 'button';
-				btn.setAttribute('aria-expanded', 'false');
-				btn.textContent = '展开';
 				codeBlock.appendChild(btn);
 
 				btn.addEventListener('click', function () {
@@ -3701,30 +3803,48 @@ Prism.languages.js = Prism.languages.javascript;
 
 					btn.style.display = 'none';
 
-					// 获取当前aria-expanded状态
-    			//	const isExpanded = btn.getAttribute('aria-expanded') === 'true';
-					// 切换状态
-					// const newState = !isExpanded;
-					// btn.setAttribute('aria-expanded', newState);
-
-					// btn.textContent = newState ? '收起' : '展开';
+					// 展开时完整高亮代码块
+					var codeElement = codeBlock.querySelector('code[class*="language-"]');
+					if (codeElement) {
+						// 恢复原始内容并完整高亮
+						if (codeElement.dataset.originalContent) {
+							codeElement.innerHTML = codeElement.dataset.originalContent;
+						}
+						// 使用同步高亮确保立即生效
+						Prism.highlightElement(codeElement, false);
+						codeElement.dataset.highlighted = 'true';
+					}
 				});
-
 
 				// 初始化为折叠状态
 				codeBlock.classList.add('code-collapsed');
-			} 
-			
+			} else {
+				// 如果不需要折叠，隐藏折叠按钮
+				collapseBtn.style.display = 'none';
+			}
+
 		}, 100);
-		
+
 		collapseBtn.addEventListener('click', function () {
 			var isCollapsed = collapseBtn.getAttribute('data-collapse-state') === 'collapsed';
-			
+
 			if (isCollapsed) {
 				// 展开
 				btn.style.display = 'none';
 				codeBlock.classList.remove('code-collapsed');
 				collapseBtn.setAttribute('data-collapse-state', 'expanded');
+
+				// 展开时完整高亮代码块
+				var codeElement = codeBlock.querySelector('code[class*="language-"]');
+				if (codeElement) {
+					// 恢复原始内容并完整高亮
+					if (codeElement.dataset.originalContent) {
+						codeElement.innerHTML = codeElement.dataset.originalContent;
+					}
+					// 使用同步高亮确保立即生效
+					Prism.highlightElement(codeElement, false);
+					codeElement.dataset.highlighted = 'true';
+				}
 			} else {
 				// 折叠
 				btn.style.display = 'block';
@@ -3861,79 +3981,79 @@ Prism.languages.js = Prism.languages.javascript;
 		'vue-directive': {
 			pattern: /v-[\w:-]+(?:=(?:"[^"]*"|'[^']*'|[^'">]+))?/g,
 			inside: {
-			'directive-name': {
-				pattern: /^v-[\w:-]+/,
-				alias: 'keyword'
-			},
-			'equals': {
-				pattern: /=/,
-				alias: 'operator'
-			},
-			'value': {
-				pattern: /(?:"[^"]*"|'[^']*'|[^'">]+)/,
-				inside: {
-				'string': {
-					pattern: /"[^"]*"|'[^']*'/,
-					alias: 'string'
+				'directive-name': {
+					pattern: /^v-[\w:-]+/,
+					alias: 'keyword'
 				},
-				'expression': {
-					pattern: /[^\s'"]+/,
-					inside: Prism.languages.javascript
+				'equals': {
+					pattern: /=/,
+					alias: 'operator'
+				},
+				'value': {
+					pattern: /(?:"[^"]*"|'[^']*'|[^'">]+)/,
+					inside: {
+						'string': {
+							pattern: /"[^"]*"|'[^']*'/,
+							alias: 'string'
+						},
+						'expression': {
+							pattern: /[^\s'"]+/,
+							inside: Prism.languages.javascript
+						}
+					}
 				}
-				}
-			}
 			}
 		},
-		
+
 		// 处理模板插值 {{ }}
 		'vue-interpolation': {
 			pattern: /{{[\s\S]*?}}/,
 			inside: {
-			'delimiter': {
-				pattern: /^{{|}}$/,
-				alias: 'punctuation'
-			},
-			'expression': {
-				pattern: /[\s\S]+/,
-				inside: Prism.languages.javascript
-			}
+				'delimiter': {
+					pattern: /^{{|}}$/,
+					alias: 'punctuation'
+				},
+				'expression': {
+					pattern: /[\s\S]+/,
+					inside: Prism.languages.javascript
+				}
 			},
 			alias: 'template-variable'
 		},
-		
+
 		// 处理组件标签（自定义标签）
 		'vue-component': {
 			pattern: /<\/?[A-Z][\w-]+(?=\s|>)/,
 			inside: {
-			'tag': {
-				pattern: /[A-Z][\w-]+/,
-				alias: 'tag'
-			}
+				'tag': {
+					pattern: /[A-Z][\w-]+/,
+					alias: 'tag'
+				}
 			}
 		},
-		
+
 		// 处理 script 标签内容
 		'script': {
 			pattern: /(<script[\s\S]*?>)[\s\S]*?(?=<\/script>)/i,
 			lookbehind: true,
 			inside: {
-			'language-javascript': {
-				pattern: /[\s\S]+/,
-				inside: Prism.languages.javascript
-			}
+				'language-javascript': {
+					pattern: /[\s\S]+/,
+					inside: Prism.languages.javascript
+				}
 			},
 			alias: 'javascript'
 		},
-		
+
 		// 处理 style 标签内容
 		'style': {
 			pattern: /(<style[\s\S]*?>)[\s\S]*?(?=<\/style>)/i,
 			lookbehind: true,
 			inside: {
-			'language-css': {
-				pattern: /[\s\S]+/,
-				inside: Prism.languages.css
-			}
+				'language-css': {
+					pattern: /[\s\S]+/,
+					inside: Prism.languages.css
+				}
 			},
 			alias: 'css'
 		}

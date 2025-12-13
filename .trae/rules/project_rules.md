@@ -1,0 +1,3 @@
+项目用的是hugo框架，生成的产物在dist目录下
+执行package.json中的脚本命令用yarn
+发现需要的依赖没有安装直接去安装而不是在package.json中直接添加版本号就完了

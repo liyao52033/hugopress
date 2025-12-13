@@ -116,7 +116,7 @@ ignoreLogs = ['warning-goldmark-raw-html']
          # 是否显示行号
         linenos = true
         # 是否启用点击行号高亮
-        clickhighlight = true
+        clickhighlight = false
         # 以下两个属性只能在Markdown代码块使用，linenos,clickhighlight也可以在Markdown使用
         # 高亮起始行号，默认从代码块第一行开始计算
         # linenostart = 1  

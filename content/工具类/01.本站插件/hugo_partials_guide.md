@@ -21,10 +21,8 @@ author:
 
 Partials 是 Hugo 提供的一种模板复用机制，用于将可重复的模板片段提取出来，以便在多个页面或模板中复用。
 
-- Partials 文件存放路径：
-```
-layouts/partials/
-```
+- Partials 文件存放路径：`layouts/partials/`
+
 - 文件可以是任意模板，如 `head.html`、`footer.html` 等。
 
 ## 基本使用方法

@@ -158,7 +158,7 @@ pre[class*="language-"].line-numbers>code {
 .line-numbers .line-numbers-rows {
     position: absolute;
     pointer-events: none;
-    top: .40em;
+    top: 2.5em;
     font-size: 100%;
     left: 0em;
     width: 3em;
@@ -172,19 +172,36 @@ pre[class*="language-"].line-numbers>code {
     -ms-user-select: none;
     user-select: none;
 
+    /* 使用CSS生成行号，无需span元素 */
+    counter-reset: linenumber;
+    overflow: hidden;
 }
 
+/* 纯CSS行号生成 */
+.line-numbers-rows:before {
+    content: '';
+    display: block;
+    /* 使用足够多的行号占位，实际显示的行号由代码内容决定 */
+    height: 10000px;
+}
+
+/* 保持兼容性，处理可能的span元素 */
 .line-numbers-rows>span {
     display: block;
-    counter-increment: linenumber;
 }
 
-.line-numbers-rows>span:before {
+.line-numbers-rows>span:before,
+.line-numbers-rows:before {
+    counter-increment: linenumber;
     content: counter(linenumber);
     color: var(--gray-400);
     display: block;
     padding-right: 0.8em;
     text-align: right;
+    height: 1.5em;
+    /* 与代码行高保持一致 */
+    line-height: 1.5em;
+    /* 与代码行高保持一致 */
 }
 
 div.code-toolbar {

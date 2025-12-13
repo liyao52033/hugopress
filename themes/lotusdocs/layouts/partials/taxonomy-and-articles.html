@@ -230,7 +230,7 @@
           </ul>
 
           {{ $runtime := resources.Get "js/runtime-meta.js" | js.Build | fingerprint }}
-          <script src="{{ $runtime.RelPermalink }}" defer></script>
+          <script src="{{ $runtime.RelPermalink }}" async></script>
         </div>
       </div>
     </div>
