@@ -699,6 +699,7 @@ var Prism = (function (_self) {
 
 				_.hooks.run('before-insert', env);
 
+				// Set the highlighted code content first
 				env.element.innerHTML = env.highlightedCode;
 
 				_.hooks.run('after-highlight', env);
@@ -728,17 +729,20 @@ var Prism = (function (_self) {
 			}
 
 			if (async && _self.Worker) {
-				var worker = new Worker(_.filename);
-
-				worker.onmessage = function (evt) {
-					insertHighlightedCode(evt.data);
-				};
-
-				worker.postMessage(JSON.stringify({
+				// 使用Worker池处理高亮任务
+				workerPool.current.addTask({
 					language: env.language,
 					code: env.code,
-					immediateClose: true
-				}));
+					callback: function (err, result) {
+						if (err) {
+							console.error('Worker pool error:', err);
+							// 失败时回退到同步处理
+							insertHighlightedCode(_.highlight(env.code, env.grammar, env.language));
+							return;
+						}
+						insertHighlightedCode(result);
+					}
+				});
 			} else {
 				insertHighlightedCode(_.highlight(env.code, env.grammar, env.language));
 			}
@@ -1258,22 +1262,257 @@ var Prism = (function (_self) {
 			return _;
 		}
 
+		// Worker池实现
+		var workerPool = {
+			// 静态Worker池配置
+			static: {
+				size: 4, // 默认4个Worker
+				workers: [],
+				taskQueue: [],
+				isInitialized: false,
+				batchSize: 5, // 每个批量任务包含5个高亮请求
+				batchTimeout: 100, // 批量超时时间（毫秒）
+				batchTimers: {},
+				pendingBatch: [],
+
+				// 初始化Worker池
+				init: function () {
+					if (this.isInitialized) return;
+					this.isInitialized = true;
+
+					for (var i = 0; i < this.size; i++) {
+						var worker = new Worker(_.filename);
+						worker.onmessage = this.handleMessage.bind(this);
+						worker.onerror = this.handleError.bind(this);
+						worker.busy = false;
+						worker.task = null;
+						this.workers.push(worker);
+					}
+				},
+
+				// 处理Worker消息
+				handleMessage: function (evt) {
+					var data = evt.data;
+					var worker = evt.target;
+					var task = worker.task;
+
+					if (task) {
+						if (Array.isArray(data) && Array.isArray(task.batch)) {
+							// 处理批量任务结果
+							for (var i = 0; i < data.length && i < task.batch.length; i++) {
+								task.batch[i].callback(null, data[i]);
+							}
+						} else {
+							// 处理单个任务结果
+							task.callback(null, data);
+						}
+						worker.busy = false;
+						worker.task = null;
+
+						// 处理队列中的下一个任务
+						this.processQueue();
+					}
+				},
+
+				// 处理Worker错误
+				handleError: function (evt) {
+					console.error('Worker error:', evt);
+					var worker = evt.target;
+					var task = worker.task;
+
+					if (task) {
+						if (Array.isArray(task.batch)) {
+							// 批量任务错误，将所有任务重新加入队列
+							for (var i = 0; i < task.batch.length; i++) {
+								if (task.batch[i].retries < 3) {
+									task.batch[i].retries++;
+									this.addTask(task.batch[i]);
+								} else {
+									task.batch[i].callback(new Error('Worker processing failed after 3 retries'));
+								}
+							}
+						} else {
+							// 单个任务错误，重试或失败回调
+							if (task.retries < 3) {
+								task.retries++;
+								this.addTask(task);
+							} else {
+								task.callback(new Error('Worker processing failed after 3 retries'));
+							}
+						}
+					}
+
+					// 替换出错的Worker
+					var index = this.workers.indexOf(worker);
+					if (index > -1) {
+						worker.terminate();
+						var newWorker = new Worker(_.filename);
+						newWorker.onmessage = this.handleMessage.bind(this);
+						newWorker.onerror = this.handleError.bind(this);
+						newWorker.busy = false;
+						newWorker.task = null;
+						this.workers[index] = newWorker;
+					}
+				},
+
+				// 添加任务到队列
+				addTask: function (task) {
+					this.taskQueue.push({
+						language: task.language,
+						code: task.code,
+						callback: task.callback,
+						retries: 0
+					});
+
+					// 触发批量处理
+					this.scheduleBatch();
+				},
+
+				// 调度批量处理
+				scheduleBatch: function () {
+					if (this.batchTimers.main) {
+						clearTimeout(this.batchTimers.main);
+					}
+
+					this.batchTimers.main = setTimeout(this.processBatch.bind(this), this.batchTimeout);
+				},
+
+				// 处理批量任务
+				processBatch: function () {
+					if (this.taskQueue.length === 0) return;
+
+					// 查找空闲的Worker
+					for (var i = 0; i < this.workers.length; i++) {
+						var worker = this.workers[i];
+						if (!worker.busy) {
+							// 提取批量任务
+							var batchSize = Math.min(this.batchSize, this.taskQueue.length);
+							var batch = this.taskQueue.splice(0, batchSize);
+
+							if (batch.length === 1) {
+								// 单个任务，使用二进制格式传递数据
+								var task = batch[0];
+								var encoder = new TextEncoder();
+								var data = {
+									language: task.language,
+									code: encoder.encode(task.code).buffer
+								};
+
+								worker.busy = true;
+								worker.task = task;
+								worker.postMessage(data, [data.code]);
+							} else {
+								// 批量任务，使用批量格式传递数据
+								var encoder = new TextEncoder();
+								var batchData = batch.map(function (task) {
+									return {
+										language: task.language,
+										code: encoder.encode(task.code).buffer
+									};
+								});
+
+								worker.busy = true;
+								worker.task = {
+									callback: function () { }, // 批量任务使用内部处理逻辑
+									batch: batch
+								};
+								worker.postMessage({ isBatch: true, tasks: batchData }, batchData.map(function (d) { return d.code; }));
+							}
+
+							// 如果还有任务，继续处理下一个Worker
+							if (this.taskQueue.length > 0) {
+								continue;
+							} else {
+								break;
+							}
+						}
+					}
+				},
+
+				// 处理任务队列
+				processQueue: function () {
+					this.processBatch();
+				},
+
+				// 销毁Worker池
+				destroy: function () {
+					this.workers.forEach(function (worker) {
+						worker.terminate();
+					});
+					this.workers = [];
+					this.taskQueue = [];
+					this.isInitialized = false;
+				}
+			},
+
+			// 动态Worker池配置（可选）
+			dynamic: {
+				minSize: 2,
+				maxSize: 8,
+				workers: [],
+				taskQueue: [],
+				isInitialized: false,
+				// ... 动态Worker池实现
+			},
+
+			// SharedWorker配置（可选）
+			shared: {
+				worker: null,
+				isInitialized: false,
+				// ... SharedWorker实现
+			},
+
+			// 当前使用的Worker池类型
+			current: null
+		};
+
+		// 初始化Worker池
+		workerPool.current = workerPool.static;
+		workerPool.current.init();
+
 		if (!_.disableWorkerMessageHandler) {
 			// In worker
 			_self.addEventListener('message', function (evt) {
-				var message = JSON.parse(evt.data);
-				var lang = message.language;
-				var code = message.code;
-				var immediateClose = message.immediateClose;
+				var data = evt.data;
+				var results = [];
 
-				_self.postMessage(_.highlight(code, _.languages[lang], lang));
-				if (immediateClose) {
-					_self.close();
+				// 处理批量任务
+				if (data.isBatch && Array.isArray(data.tasks)) {
+					results = data.tasks.map(function (task) {
+						var lang = task.language;
+						var code;
+
+						if (task.code instanceof ArrayBuffer) {
+							var decoder = new TextDecoder();
+							code = decoder.decode(task.code);
+						} else {
+							code = task.code;
+						}
+
+						return _.highlight(code, _.languages[lang], lang);
+					});
+					_self.postMessage(results);
+				} else {
+					// 处理单个任务
+					var lang, code;
+
+					// 支持二进制数据格式
+					if (data.code instanceof ArrayBuffer) {
+						lang = data.language;
+						var decoder = new TextDecoder();
+						code = decoder.decode(data.code);
+					} else {
+						// 兼容旧的JSON格式
+						var message = typeof data === 'string' ? JSON.parse(data) : data;
+						lang = message.language;
+						code = message.code;
+					}
+
+					var highlighted = _.highlight(code, _.languages[lang], lang);
+					_self.postMessage(highlighted);
 				}
 			}, false);
 		}
-
-		return _;
 	}
 
 	// Get current script and highlight
@@ -2854,6 +3093,8 @@ Prism.languages.js = Prism.languages.javascript;
 		"textile": "markup",
 		"twig": "markup-templating",
 		"typescript": "javascript",
+		"html": "markup",
+		"vue": ["markup", "javascript", "css"],
 		"v": "clike",
 		"vala": "clike",
 		"vbnet": "basic",
@@ -2968,7 +3209,8 @@ Prism.languages.js = Prism.languages.javascript;
 		"nb": "wolfram",
 		"wl": "wolfram",
 		"xeoracube": "xeora",
-		"yml": "yaml"
+		"yml": "yaml",
+		"vue": "vue"
 	}/*]*/;
 
 	/* eslint-enable */
@@ -3760,6 +4002,14 @@ Prism.languages.js = Prism.languages.javascript;
 		var element = env.element;
 		var pre = element.parentNode;
 
+		// 处理虚拟滚动元素
+		if (element.classList.contains('prism-virtual-element')) {
+			// 对于虚拟滚动元素，使用存储的原始pre元素
+			if (element._originalPreElement) {
+				pre = element._originalPreElement;
+			}
+		}
+
 		// 安全检查
 		if (!pre || !/pre/i.test(pre.nodeName)) {
 			return null;
@@ -3785,14 +4035,24 @@ Prism.languages.js = Prism.languages.javascript;
 		var btn = document.createElement('button');
 		btn.className = 'cb-toggle-btn';
 		btn.type = 'button';
-		btn.setAttribute('aria-expanded', 'false');
+		// btn.setAttribute('data-collapse-state', 'collapsed');
 		btn.textContent = '展开';
 
 		// 检查代码块高度，只有超过400px的才显示折叠按钮
 		// 使用setTimeout确保DOM已经渲染完成
 		setTimeout(function () {
 			const LIMIT = 400;
-			const need = pre.scrollHeight > LIMIT;
+			let need = false;
+
+			// 对于虚拟滚动元素，使用代码行数来判断是否需要折叠
+			if (element.classList.contains('prism-virtual-element') && element._prismVirtualScroll) {
+				const lineCount = element._prismVirtualScroll.lineCount;
+				// 假设每行20px，计算近似高度
+				need = lineCount * 20 > LIMIT;
+			} else {
+				// 对于普通元素，使用实际高度
+				need = pre.scrollHeight > LIMIT;
+			}
 
 			if (need) {
 				codeBlock.appendChild(btn);
@@ -3813,6 +4073,24 @@ Prism.languages.js = Prism.languages.javascript;
 						// 使用同步高亮确保立即生效
 						Prism.highlightElement(codeElement, false);
 						codeElement.dataset.highlighted = 'true';
+
+						// 确保pre元素和代码元素不启用内部滚动，让代码块跟随页面滚动
+						var preElement = codeElement.parentElement;
+						if (preElement && preElement.tagName.toLowerCase() === 'pre') {
+							preElement.style.overflow = 'auto';
+							preElement.style.maxHeight = 'none';
+						}
+						//	确保代码元素不启用内部滚动
+						codeElement.style.overflow = 'auto';
+
+						//如果是虚拟滚动元素，重新应用虚拟滚动
+						// if (codeElement._prismVirtualScroll) {
+						// 	// 确保容器不启用内部滚动
+						// 	codeElement._prismVirtualScroll.container.style.overflow = 'auto';
+						// 	codeElement._prismVirtualScroll.container.style.maxHeight = 'none';
+						// 	Prism.util.virtualScroll.applyVirtualRendering(codeElement);
+						// }
+
 					}
 				});
 
@@ -3844,12 +4122,32 @@ Prism.languages.js = Prism.languages.javascript;
 					// 使用同步高亮确保立即生效
 					Prism.highlightElement(codeElement, false);
 					codeElement.dataset.highlighted = 'true';
+
+					// 确保pre元素和代码元素不启用内部滚动，让代码块跟随页面滚动
+					var preElement = codeElement.parentElement;
+					if (preElement && preElement.tagName.toLowerCase() === 'pre') {
+						//	 preElement.style.overflow = 'auto';
+						preElement.style.maxHeight = 'none';
+					}
+					// 确保代码元素不启用内部滚动
+					// codeElement.style.overflow = 'auto';
+
+
 				}
 			} else {
 				// 折叠
 				btn.style.display = 'block';
 				codeBlock.classList.add('code-collapsed');
 				collapseBtn.setAttribute('data-collapse-state', 'collapsed');
+
+				// 折叠时确保不允许滚动
+				var codeElement = codeBlock.querySelector('code[class*="language-"]');
+				if (codeElement) {
+					var preElement = codeElement.parentElement;
+					if (preElement && preElement.tagName.toLowerCase() === 'pre') {
+						preElement.style.overflow = 'hidden';
+					}
+				}
 			}
 		});
 
@@ -3872,6 +4170,12 @@ Prism.languages.js = Prism.languages.javascript;
 
 		registerClipboard(linkCopy, {
 			getText: function () {
+				// 对于虚拟滚动元素，确保获取完整的代码内容
+				if (element.classList.contains('prism-virtual-element') && element._originalPreElement) {
+					// 对于虚拟滚动元素，使用原始的pre元素或env.code（源代码）
+					return env.code || element._originalPreElement.textContent || element.textContent;
+				}
+				// 对于普通元素，直接返回textContent
 				return element.textContent;
 			},
 			success: function () {
@@ -4065,5 +4369,7 @@ Prism.languages.js = Prism.languages.javascript;
 		'vue-interpolation': Prism.languages.vue['vue-interpolation'],
 		'vue-component': Prism.languages.vue['vue-component']
 	});
+
+
 
 }());

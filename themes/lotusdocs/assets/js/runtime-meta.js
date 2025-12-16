@@ -151,21 +151,21 @@
 })();
 
 // 兜底：直接请求 Busuanzi API 并填充（有值就显示，无值不显示）
-(function populateBusuanziFallback() {
-  try {
-    var api = 'https://cdn.xxdevops.cn/projects/busuanzi/js/busuanzi.js';
-    var prefix = 'busuanzi';
-    if (!api) return;
-    fetch(api, { method: 'GET' }).then(function (r) { return r.json(); }).then(function (json) {
-      var data = json && (json.data || json) || {};
-      var keys = ['site_pv', 'site_uv', 'page_pv', 'page_uv', 'today_pv', 'today_uv', 'yesterday_pv', 'yesterday_uv', 'month_pv', 'month_uv'];
-      keys.forEach(function (k) {
-        var el = document.getElementById(prefix + '_' + k) || document.getElementById('busuanzi_' + k) || document.getElementById('busuanzi_value_' + k);
-        var v = data[k];
-        if (el && (v !== undefined && v !== null && v !== '')) {
-          el.textContent = v;
-        }
-      });
-    }).catch(function () { /* ignore */ });
-  } catch (e) { /* ignore */ }
-})();
+// (function populateBusuanziFallback() {
+//   try {
+//     var api = 'https://busuanzi.xiaoying.org.cn/js';
+//     var prefix = 'busuanzi';
+//     if (!api) return;
+//     fetch(api, { method: 'GET' }).then(function (r) { return r.json(); }).then(function (json) {
+//       var data = json && (json.data || json) || {};
+//       var keys = ['site_pv', 'site_uv', 'page_pv', 'page_uv', 'today_pv', 'today_uv', 'yesterday_pv', 'yesterday_uv', 'month_pv', 'month_uv'];
+//       keys.forEach(function (k) {
+//         var el = document.getElementById(prefix + '_' + k) || document.getElementById('busuanzi_' + k) || document.getElementById('busuanzi_value_' + k);
+//         var v = data[k];
+//         if (el && (v !== undefined && v !== null && v !== '')) {
+//           el.textContent = v;
+//         }
+//       });
+//     }).catch(function () { /* ignore */ });
+//   } catch (e) { /* ignore */ }
+// })();

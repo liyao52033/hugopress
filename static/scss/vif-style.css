@@ -1,0 +1,32 @@
+/* 展开按钮样式 */
+.v-if-toggle-btn {
+    display: block;
+    min-width: 320px;
+    padding: 8px 16px;
+    border: 1px solid #42b983;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #42b983;
+    cursor: pointer;
+    margin: 2rem auto;
+    transition: all 0.2s ease;
+}
+
+.v-if-toggle-btn:hover {
+    background: #42b983;
+    color: #ffffff;
+}
+
+/* 隐藏内容容器样式 */
+.v-if-hidden-content {
+    padding: 16px 0;
+    border-top: 1px dashed #e5e5e5;
+    margin-top: 8px;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+    .v-if-toggle-btn {
+        width: 100%;
+    }
+}

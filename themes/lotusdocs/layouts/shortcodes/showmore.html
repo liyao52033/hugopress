@@ -1,0 +1,36 @@
+{{- /*
+Hugo showmore 短代码（无内嵌JS，依赖全局v-if-core.js）
+参数说明：
+name: 唯一标识（必填）
+trigger-type: 触发模式（manual/scroll/viewport）
+scroll-trigger: 滚动阈值（px）
+threshold: 视口可见比例（0-1）
+lazy: 是否懒加载内容（true/false，默认true）
+*/ -}}
+
+{{- $name := .Get "name" -}}
+{{- if not $name -}}
+    {{- errorf "showmore shortcode requires 'name' parameter (file: %s)" .Page.File.Path -}}
+{{- end -}}
+
+{{- $triggerType := .Get "trigger-type" | default "manual" -}}
+{{- $scrollTrigger := .Get "scroll-trigger" | default "0" -}}
+{{- $threshold := .Get "threshold" | default "0.1" | float -}}
+{{- $isLazy := .Get "lazy" | default "true" | eq "true" -}}
+
+
+<div 
+    id="vif-container-{{ $name }}" 
+    class="v-if-container" 
+    data-vif-name="{{ $name }}"
+    data-trigger-type="{{ $triggerType }}" 
+    data-scroll-trigger="{{ $scrollTrigger }}" 
+    data-threshold="{{ $threshold }}"
+    data-is-lazy="{{ $isLazy }}" 
+    {{ if $isLazy }}data-content="{{ .Inner | base64Encode  }}" {{ end }}
+    style="display: none;"
+>
+    {{ if not $isLazy }}
+        {{ .Inner }}
+    {{ end }}
+</div>

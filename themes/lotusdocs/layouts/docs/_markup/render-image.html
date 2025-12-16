@@ -1,48 +1,101 @@
 {{ $dest := .Destination }}
 {{ $text := .PlainText }}
-{{ $url := urls.Parse $dest }}
+{{ $url  := urls.Parse $dest }}
 
-{{ $image := newScratch }}
-{{ with $url.Scheme }}
-  <!-- 对于远程图片，直接使用URL而不尝试获取资源 -->
-  {{ $image.Set "resource" false }}
-  {{ $image.Set "isRemote" true }}
-{{ else }}
-  {{  $image.Set "resource" (resources.Get $dest) }}
-  {{ $image.Set "isRemote" false }}
-{{ end }}
+{{/* 判断是否远程图片 */}}
+{{ $isRemote := false }}
+{{ with $url.Scheme }}{{ $isRemote = true }}{{ end }}
 
-{{ if .Title }}
-  <figure>
-    {{ if ($image.Get "isRemote") }}
-      <!-- 远程图片直接使用原始URL -->
-      <img src="{{ $dest | safeURL }}" alt="{{ $text }}" loading="lazy">
-    {{ else }}
-      {{ with ($image.Get "resource") }}
-        {{ if eq .MediaType.SubType "svg" }}
-          {{ .Content | safeHTML }}
-        {{ else }}
-          <img src="{{ .RelPermalink | safeURL }}" alt="{{ $text }}" width="{{ .Width }}" height="{{ .Height }}" loading="lazy">
-        {{ end }}
-      {{ else }}
-        <img src="{{ $dest | safeURL }}" alt="{{ $text }}" loading="lazy">
-      {{ end }}
-    {{ end }}
-    <figcaption>{{ .Title | markdownify }}</figcaption>
-  </figure>
+{{/* ================= 远程图床图片 ================= */}}
+{{ if $isRemote }}
+
+  <img
+    class="post-image"
+    src="{{ $dest }}?w=1600"
+    srcset="
+      {{ $dest }}?w=480 480w,
+      {{ $dest }}?w=768 768w,
+      {{ $dest }}?w=1024 1024w,
+      {{ $dest }}?w=1600 1600w,
+      {{ $dest }}?w=2400 2400w
+    "
+    sizes="100vw"
+    alt="{{ $text }}"
+    loading="lazy"
+  >
+
+{{/* ================= 本地图片 ================= */}}
 {{ else }}
-  {{ if ($image.Get "isRemote") }}
-    <!-- 远程图片直接使用原始URL -->
-    <img src="{{ $dest | safeURL }}" alt="{{ $text }}" loading="lazy">
-  {{ else }}
-    {{ with ($image.Get "resource") }}
-      {{ if eq .MediaType.SubType "svg" }}
-        {{ .Content | safeHTML }}
-      {{ else }}
-        <img src="{{ .RelPermalink | safeURL }}" alt="{{ $text }}" width="{{ .Width }}" height="{{ .Height }}" loading="lazy">
-      {{ end }}
+
+  {{ with .Page.Resources.GetMatch $dest }}
+
+    {{ if eq .MediaType.SubType "svg" }}
+
+      {{ .Content | safeHTML }}
+
     {{ else }}
-      <img src="{{ $dest | safeURL }}" alt="{{ $text }}" loading="lazy">
+
+      {{/* 多尺寸 WebP */}}
+      {{ $w480  := .Resize "480x webp q75" }}
+      {{ $w768  := .Resize "768x webp q75" }}
+      {{ $w1024 := .Resize "1024x webp q75" }}
+      {{ $w1600 := .Resize "1600x webp q75" }}
+
+      {{/* 多尺寸 AVIF */}}
+      {{ $a480  := .Resize "480x avif q60" }}
+      {{ $a768  := .Resize "768x avif q60" }}
+      {{ $a1024 := .Resize "1024x avif q60" }}
+      {{ $a1600 := .Resize "1600x avif q60" }}
+
+      <picture>
+        <source
+          type="image/avif"
+          srcset="
+            {{ $a480.RelPermalink }} 480w,
+            {{ $a768.RelPermalink }} 768w,
+            {{ $a1024.RelPermalink }} 1024w,
+            {{ $a1600.RelPermalink }} 1600w
+          "
+          sizes="100vw"
+        >
+        <source
+          type="image/webp"
+          srcset="
+            {{ $w480.RelPermalink }} 480w,
+            {{ $w768.RelPermalink }} 768w,
+            {{ $w1024.RelPermalink }} 1024w,
+            {{ $w1600.RelPermalink }} 1600w
+          "
+          sizes="100vw"
+        >
+        <img
+          class="post-image"
+          src="{{ $w1024.RelPermalink }}"
+          alt="{{ $text }}"
+          loading="lazy"
+          width="{{ .Width }}"
+          height="{{ .Height }}"
+        >
+      </picture>
+
     {{ end }}
+
   {{ end }}
 {{ end }}
+
+<style>
+/* 流体内容区 */
+.post-content {
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* 图片基础样式 */
+.post-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1.5rem auto;
+}
+
+</style>
