@@ -99,7 +99,7 @@
             {{ range $key, $category := $categories }}
             {{ if lt $i $limit }}
             <li class="list-group-item d-flex justify-content-between align-items-center">
-              <a href="{{ " /categories/" | relLangURL }}{{ $key | urlize }}" class="text-decoration-none">
+              <a href='{{ "/categories/" | relLangURL }}{{ $key | urlize }}' class="text-decoration-none">
                 {{ $key }}
               </a>
               <span class="badge category-count-badge">{{ len $category }}</span>
@@ -110,7 +110,7 @@
 
             {{ if gt (len $categories) $limit }}
             <li class="list-group-item text-center">
-              <a href="{{ " /categories/" | relLangURL }}" class="text-decoration-none">更多分类({{ sub (len $categories)
+              <a href='{{ "/categories/" | relLangURL }}' class="text-decoration-none">更多分类({{ sub (len $categories)
                 $limit }}) →</a>
             </li>
             {{ end }}
@@ -133,7 +133,7 @@
 
           {{ range $key, $value := .Site.Taxonomies.tags }}
           {{ if lt $i $limit }}
-          <a href="{{ " /tags/" | relLangURL }}{{ $key | urlize }}" class="badge hot-tag-badge me-2 mb-2">
+          <a href='{{ "/tags/" | relLangURL }}{{ $key | urlize }}' class="badge hot-tag-badge me-2 mb-2">
             {{ $key }} ({{ len $value }})
           </a>
           {{ $i = add $i 1 }}
@@ -141,7 +141,7 @@
           {{ end }}
 
           {{ if gt $totalTags $limit }}
-          <a href="{{ " /tags/" | relLangURL }}" class="badge bg-secondary text-decoration-none me-2 mb-2">
+          <a href='{{ "/tags/" | relLangURL }}' class="badge bg-secondary text-decoration-none me-2 mb-2">
             更多标签({{ sub $totalTags $limit }}) →
           </a>
           {{ end }}

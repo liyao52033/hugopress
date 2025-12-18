@@ -200,7 +200,7 @@
 
 
 {{ if and .GitInfo .Site.Params.docs.repoURL -}}
-{{ partial (printf "%s/%s" ($.Scratch.Get "pathName") "gitinfo") . }}
+    {{ partial (printf "%s/%s" ($.Scratch.Get "pathName") "gitinfo") . }}
 {{ end -}}
 
 {{/* 文章底部版权信息 - 结束 */}}

@@ -51,50 +51,32 @@ class HugoVIf {
     }
 
     // 保护特殊标签，防止在HTML处理中丢失
+    static specialTags = ['template', 'script', 'html', 'body'];
     protectSpecialTags(content) {
-        // 保护template标签
-        content = content.replace(/<template([^>]*)>/gi, (match, attrs) => {
-            return `__TEMPLATE_START__${btoa(attrs)}__`;
+        HugoVIf.specialTags.forEach(tag => {
+            const startReg = new RegExp(`<${tag}([^>]*)>`, 'gi');
+            const endReg = new RegExp(`</${tag}>`, 'gi');
+            content = content.replace(startReg, (match, attrs) => `__${tag.toUpperCase()}_START__${btoa(attrs)}__`);
+            content = content.replace(endReg, `__${tag.toUpperCase()}_END__`);
         });
-
-        content = content.replace(/<\/template>/gi, '__TEMPLATE_END__');
-
-        // 保护script标签
-        content = content.replace(/<script([^>]*)>/gi, (match, attrs) => {
-            return `__SCRIPT_START__${btoa(attrs)}__`;
-        });
-
-        content = content.replace(/<\/script>/gi, '__SCRIPT_END__');
-
         return content;
     }
 
     // 恢复被保护的标签
     restoreSpecialTags(content) {
-        // 恢复template标签
-        content = content.replace(/__TEMPLATE_START__([^_]*)__/g, (match, encodedAttrs) => {
-            try {
-                const attrs = atob(encodedAttrs);
-                return `<template${attrs}>`;
-            } catch (e) {
-                return '<template>';
-            }
+        HugoVIf.specialTags.forEach(tag => {
+            const startReg = new RegExp(`__${tag.toUpperCase()}_START__([^_]*)__`, 'g');
+            const endReg = new RegExp(`__${tag.toUpperCase()}_END__`, 'g');
+            content = content.replace(startReg, (match, encodedAttrs) => {
+                try {
+                    const attrs = atob(encodedAttrs);
+                    return `<${tag}${attrs}>`;
+                } catch (e) {
+                    return `<${tag}>`;
+                }
+            });
+            content = content.replace(endReg, `</${tag}>`);
         });
-
-        content = content.replace(/__TEMPLATE_END__/g, '</template>');
-
-        // 恢复script标签
-        content = content.replace(/__SCRIPT_START__([^_]*)__/g, (match, encodedAttrs) => {
-            try {
-                const attrs = atob(encodedAttrs);
-                return `<script${attrs}>`;
-            } catch (e) {
-                return '<script>';
-            }
-        });
-
-        content = content.replace(/__SCRIPT_END__/g, '</script>');
-
         return content;
     }
 
@@ -184,16 +166,16 @@ class HugoVIf {
         this.cache.delete(name);
 
         // 初始化代码块行号和语言标签
-         if (window.codeBlockManager) {
-             window.codeBlockManager.reinit();
-             window.Prism.highlightAll();
-         }
-        
+        if (window.codeBlockManager) {
+            window.codeBlockManager.reinit();
+            window.Prism.highlightAll();
+        }
+
         // 处理图片
         if (window.ImageHandler) {
             window.ImageHandler.processImages(container);
         }
-        
+
         // 初始化KaTeX数学公式
         this.initKaTeX();
 
