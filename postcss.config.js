@@ -1,9 +1,11 @@
+const path = require('path');
+
 const purgecss = require('@fullhuman/postcss-purgecss').default({
     content: [
-        '../hugo_stats.json',
-        '../layouts/**/*.html',
-        '../content/**/*.md',
-        '../themes/**/*.html'
+        path.join(__dirname, 'hugo_stats.json'),
+        path.join(__dirname, 'layouts', '**', '*.html'),
+        path.join(__dirname, 'content', '**', '*.md'),
+        path.join(__dirname, 'themes', '**', '*.html')
     ],
     defaultExtractor: (content) => {
         if (content.endsWith('.json')) {

@@ -4067,12 +4067,12 @@ Prism.languages.js = Prism.languages.javascript;
 					var codeElement = codeBlock.querySelector('code[class*="language-"]');
 					if (codeElement) {
 						// 恢复原始内容并完整高亮
-						if (codeElement.dataset.originalContent) {
-							codeElement.innerHTML = codeElement.dataset.originalContent;
-						}
-						// 使用同步高亮确保立即生效
-						Prism.highlightElement(codeElement, false);
-						codeElement.dataset.highlighted = 'true';
+						// if (codeElement.dataset.originalContent) {
+						// 	codeElement.innerHTML = codeElement.dataset.originalContent;
+						// }
+						// // 使用同步高亮确保立即生效
+						// Prism.highlightElement(codeElement, false);
+						// codeElement.dataset.highlighted = 'true';
 
 						// 确保pre元素和代码元素不启用内部滚动，让代码块跟随页面滚动
 						var preElement = codeElement.parentElement;

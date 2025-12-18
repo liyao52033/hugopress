@@ -1,6 +1,16 @@
-<!-- 引入 ECharts-->
-{{$js:= resources.Get "js/echarts.min.js" }}
-<script src="{{ $js.RelPermalink }}"></script>
+<!-- 引入 ECharts（改用ESM入口 + 开启tree-shaking） -->
+{{/* 指向按需导入的ESM入口文件，而非直接处理echarts.min.js */}}
+{{ $echartsJs := resources.Get "js/echarts-entry.js" }}
+{{ $params := dict }}
+{{ $sourceMap := cond hugo.IsProduction "" "inline" }}
+{{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params "treeShaking" true
+}}
+{{ $echartsJs = $echartsJs | js.Build $opts }}
+{{ if hugo.IsProduction }}
+    {{ $echartsJs = $echartsJs | fingerprint "sha384" }}
+{{ end }}
+<script src="{{ $echartsJs.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $echartsJs.Data.Integrity }}" {{ end
+    -}} defer></script>
 
 <!-- 样式 -->
 <style>
@@ -38,7 +48,7 @@
 }
 </style>
 
-<!-- 热力图容器 -->
+<!-- 热力图容器（保留你的原有结构，无修改） -->
 <div class="container d-none d-md-block">
     <div class="contribution-container">
         <div id="contribute-chart"></div>
@@ -57,6 +67,7 @@
     </div>
 </div>
 
+<!-- 图表逻辑（仅修复1个日期格式化小问题，其余保留） -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // 初始化图表
@@ -101,7 +112,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 生成日期范围
     const allDates = generateDateRange();
-    const beforeOnYear = formatDate(new Date(new Date().getTime() - 365 * 24 * 60 * 60 * 1000), "yyyy-MM-dd");
+    // 修复：原代码formatDate传了第二个参数，但函数未接收，导致日期格式错误
+    const beforeOnYear = formatDate(new Date(new Date().getTime() - 365 * 24 * 60 * 60 * 1000));
   
     // 统计每日贡献数量
     const contributionMap = new Map();
@@ -115,9 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 转换为图表数据
     const chartData = Array.from(contributionMap, ([date, count]) => [date, count]);
     
-    
-    
-    // 配置项
+    // 配置项（保留你的原有配置，无修改）
     const option = {
         tooltip: {
             formatter: (params) => {

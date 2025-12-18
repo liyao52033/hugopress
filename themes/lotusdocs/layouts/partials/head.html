@@ -15,7 +15,6 @@
     <link href="/scss/bootstrap.min.css" rel="stylesheet">
 
     <!-- 所有 CSS 均应放在 <head>，确保渲染优先 -->
-
     <!-- favicon -->
     {{ block "head/favicon" . }}{{ partialCached "head/favicon.html" . }}{{ end }}
     <!-- Google Fonts -->
@@ -26,7 +25,7 @@
     {{- $options := dict "enableSourceMap" false "outputStyle" "compressed" }}
     {{- end }}
     {{- $style := resources.Get "scss/style.scss" }}
-    {{- $style = $style | resources.ExecuteAsTemplate "/scss/style.scss" . | css.Sass $options }}
+    {{- $style = $style | resources.ExecuteAsTemplate "/scss/style.scss" . | css.Sass $options | css.PostCSS }}
     {{- if hugo.IsProduction }}
     {{- $style = $style | minify | fingerprint "sha384" }}
     {{- end -}}
@@ -36,13 +35,16 @@
     <!-- Image Compare Viewer -->
     {{ if ($.Scratch.Get "image_compare_enabled") }}
     {{ $imagecompare := resources.Get "js/image-compare-viewer.min.js" }}
+    {{ $params := dict }}
+    {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
+    {{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params "treeShaking" true }}
+    {{ $imagecompare = $imagecompare | js.Build $opts }}
     {{- if not hugo.IsServer }}
     {{- $js := (slice $imagecompare) | resources.Concat "/js/image-compare.js" | minify | fingerprint "sha384" }}
-    <script type="text/javascript" src="{{ $js.Permalink }}" integrity="{{ $js.Data.Integrity }}"></script>
+    <script type="text/javascript" src="{{ $js.Permalink }}" integrity="{{ $js.Data.Integrity }}" defer></script>
     {{- else }}
     {{- $js := (slice $imagecompare) | resources.Concat "/js/image-compare.js" }}
-    <script type="text/javascript" src="{{ $js.Permalink }}" {{ if hugo.IsProduction
-        }}integrity="{{ $js.Data.Integrity }}" {{ end }} defer></script>
+    <script type="text/javascript" src="{{ $js.Permalink }}" defer></script>
     {{- end }}
     {{- end }}
     <!-- Plausible Analytics Config -->

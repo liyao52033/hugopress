@@ -1,256 +1,65 @@
 {{ if eq .Page.Site.Params.docs.prism true }}
-  {{- $attributes := .Attributes }}
-  {{- $ordinal := .Ordinal }}
+{{- $attributes := .Attributes }}
+{{- $ordinal := .Ordinal }}
 
-  <!-- 创建代码块的 SHA1 哈希 -->
-  {{ $innerRemoveLB := replaceRE "\r\n?|\n" "" .Inner | string }}
-  {{ $innerHash := substr (sha1 (printf "%s%s" $innerRemoveLB $ordinal)) 0 7 }}
+<!-- 创建代码块的 SHA1 哈希 -->
+{{ $innerRemoveLB := replaceRE "\r\n?|\n" "" .Inner | string }}
+{{ $innerHash := substr (sha1 (printf "%s%s" $innerRemoveLB $ordinal)) 0 7 }}
 
-  {{- $classes := slice (printf "language-%s" .Type) .Attributes.class }}
+{{- $classes := slice (printf "language-%s" .Type) .Attributes.class }}
 
-  {{/* 优先级: Markdown > hugo.toml */}}
-  {{ $prismConfig := site.Params.docs }}
-  {{ $options := .Options }}
-  {{- if isset .Attributes "clickhighlight" -}}
-    {{- $options = merge $options (dict "clickhighlight" (index .Attributes "clickhighlight")) -}}
-  {{- end -}}
+{{/* 优先级: Markdown > hugo.toml */}}
+{{ $prismConfig := site.Params.docs }}
+{{ $options := .Options }}
+{{- if isset .Attributes "clickhighlight" -}}
+{{- $options = merge $options (dict "clickhighlight" (index .Attributes "clickhighlight")) -}}
+{{- end -}}
 
-  {{ $linenos := cond (isset $options "linenos") $options.linenos $prismConfig.linenos }}
-  {{ $start := cond (isset $options "linenostart") $options.linenostart 1 }}
-  {{ $clickhighlight := cond (isset $options "clickhighlight") $options.clickhighlight $prismConfig.clickhighlight }}
+{{ $linenos := cond (isset $options "linenos") $options.linenos $prismConfig.linenos }}
+{{ $start := cond (isset $options "linenostart") $options.linenostart 1 }}
+{{ $clickhighlight := cond (isset $options "clickhighlight") $options.clickhighlight $prismConfig.clickhighlight }}
 
-  <!-- 行号高亮 -->
-  {{- if isset $options "hl_lines" }}
-    {{- $hl_lines := $options.hl_lines }}
-    {{ $offset := $start }}
-    {{ $data := newScratch }}
-    {{ range $value := $hl_lines }}
-      {{ $value = uniq $value }}
-      {{ if lt (len $value) 2 }}
-        {{ $value = slice (add $offset (index $value 0)) }}
-      {{ else }}
-        {{ $value = slice (delimit (slice (add $offset (index $value 0)) (add $offset (index $value 1))) "-") }}
-      {{ end }}
-      {{ $data.Add "lines" $value }}
-    {{ end }}
-    {{ $lines := delimit ($data.Get "lines") "," }}
-    {{- $attributes = merge $attributes (dict "data-wrapline" $lines) }}
-    {{- $attributes = merge $attributes (dict "data-line-offset" (string (sub $offset 1))) }}
-  {{ end }}
+<!-- 行号高亮 -->
+{{- if isset $options "hl_lines" }}
+{{- $hl_lines := $options.hl_lines }}
+{{ $offset := $start }}
+{{ $data := newScratch }}
+{{ range $value := $hl_lines }}
+{{ $value = uniq $value }}
+{{ if lt (len $value) 2 }}
+{{ $value = slice (add $offset (index $value 0)) }}
+{{ else }}
+{{ $value = slice (delimit (slice (add $offset (index $value 0)) (add $offset (index $value 1))) "-") }}
+{{ end }}
+{{ $data.Add "lines" $value }}
+{{ end }}
+{{ $lines := delimit ($data.Get "lines") "," }}
+{{- $attributes = merge $attributes (dict "data-wrapline" $lines) }}
+{{- $attributes = merge $attributes (dict "data-line-offset" (string (sub $offset 1))) }}
+{{ end }}
 
-  <!-- 行号显示开关 -->
-  {{- $attributes = merge $attributes (dict "data-linenos" (string $linenos)) }}
+<!-- 行号显示开关 -->
+{{- $attributes = merge $attributes (dict "data-linenos" (string $linenos)) }}
 
-  <!-- 行号起始值 -->
-  {{- if $start }}
-    {{- $attributes = merge $attributes (dict "data-start" (string $start)) }}
-  {{ end }}
+<!-- 行号起始值 -->
+{{- if $start }}
+{{- $attributes = merge $attributes (dict "data-start" (string $start)) }}
+{{ end }}
 
-  <!-- 点击高亮开关 -->
-  {{- $attributes = merge $attributes (dict "data-click-highlight" (string $clickhighlight)) }}
+<!-- 点击高亮开关 -->
+{{- $attributes = merge $attributes (dict "data-click-highlight" (string $clickhighlight)) }}
 
-  {{- $classes = $classes | append "wrap-line-numbers" }}
-  {{- $attributes = merge $attributes (dict "class" (delimit $classes " ")) -}}
+{{- $classes = $classes | append "wrap-line-numbers" }}
+{{- $attributes = merge $attributes (dict "class" (delimit $classes " ")) -}}
 
-  <div class="prism-codeblock">
-    <pre id="{{ $innerHash }}"
-      {{ range $k, $v := $attributes }}
-        {{ printf " %s=%q" $k $v | safeHTMLAttr }}
-      {{- end -}}
-    >
+<div class="prism-codeblock">
+  <pre id="{{ $innerHash }}" {{ range $k, $v :=$attributes }} {{ printf " %s=%q" $k $v | safeHTMLAttr }} {{- end -}}>
       <code>
         {{- .Inner | strings.TrimPrefix "\n" | strings.TrimSuffix "\n" -}}
       </code>
     </pre>
-  </div>
+</div>
 {{ else }}
-  {{ $result := transform.HighlightCodeBlock . }}
-  {{ $result.Wrapped }}
+{{ $result := transform.HighlightCodeBlock . }}
+{{ $result.Wrapped }}
 {{ end }}
-
-
-<script>
-
-
-document.addEventListener('DOMContentLoaded', function() {
-    // 使用多重检测确保完全加载
-    setTimeout(addLineNumbers, 100);
-
-    // 监听 Prism.js 的高亮完成事件
-    document.addEventListener('prismHighlighted', function() {
-        setTimeout(addLineNumbers, 50);
-    });
-
-    // 监听窗口大小变化，重新计算行号
-    window.addEventListener('resize', function() {
-        clearTimeout(window.resizeTimer);
-        window.resizeTimer = setTimeout(function() {
-            removeLineNumbers();
-            addLineNumbers();
-        }, 250);
-    });
-});
-
-function removeLineNumbers() {
-    document.querySelectorAll('.wrap-line-numbers-rows').forEach(function(el) {
-        el.remove();
-    });
-}
-
-function addLineNumbers() {
-    document.querySelectorAll('.prism-codeblock pre').forEach(function(pre) {
-        // 检查是否已经添加了行号
-        if (pre.querySelector('.wrap-line-numbers-rows')) {
-            return;
-        }
-
-        const code = pre.querySelector('code');
-        if (!code) return;
-
-        // 获取配置
-        const block = pre.closest('.prism-codeblock');
-        const startAttr = pre.getAttribute('data-start');
-        const startLine = startAttr ? parseInt(startAttr, 10) : 1;
-        const enableLinenos = pre.getAttribute('data-linenos') === 'false';
-        const enableClickHighlight = pre.getAttribute('data-click-highlight') === 'true';
-
-        if (enableLinenos) {
-            // 如果不启用行号，只处理默认高亮
-            handleHighlightedLines(pre);
-            return;
-        } else {
-            // 等待一帧确保渲染完成
-            requestAnimationFrame(function() {
-                const totalLines = calculateActualLines(code);
-
-                // 创建行号容器
-                const lineNumbersWrapper = document.createElement('span');
-                lineNumbersWrapper.className = 'wrap-line-numbers-rows';
-
-                if (startLine !== 1) {
-                    lineNumbersWrapper.setAttribute('data-start', startLine.toString());
-                    lineNumbersWrapper.style.counterReset = `linenumber ${startLine - 1}`;
-                }
-
-                // 生成行号
-                for (let i = 0; i < totalLines; i++) {
-                    const lineNumber = document.createElement('span');
-                    lineNumbersWrapper.appendChild(lineNumber);
-
-                    // 点击高亮开关
-                    if (enableClickHighlight) {
-                        lineNumber.addEventListener('click', function(e) {
-                            e.stopPropagation();
-                            const line = startLine + i;
-                            pre.setAttribute("data-wrapline", line);
-                            handleHighlightedLines(pre);
-                        });
-                    }
-                }
-
-                pre.appendChild(lineNumbersWrapper);
-                // 处理高亮行
-                handleHighlightedLines(pre);
-            });
-          }
-    });
-}
-
-function calculateActualLines(codeElement) {
-    // 方法1: 基于内容高度计算
-    const codeHeight = codeElement.offsetHeight;
-    const computedStyle = getComputedStyle(codeElement);
-    const lineHeight = parseFloat(computedStyle.lineHeight);
-    const paddingTop = parseFloat(computedStyle.paddingTop) || 0;
-    const paddingBottom = parseFloat(computedStyle.paddingBottom) || 0;
-
-    const contentHeight = codeHeight - paddingTop - paddingBottom;
-    const calculatedLines = Math.round(contentHeight / lineHeight);
-
-    // 方法2: 基于文本内容计算
-    let codeText = codeElement.textContent || codeElement.innerText;
-    codeText = codeText.replace(/^\n+/, '').replace(/\n+$/, '');
-    const textLines = codeText ? codeText.split('\n').length : 1;
-
-    // 方法3: 自动换行计算
-    let wrappedLines = textLines;
-    if (computedStyle.whiteSpace.includes('wrap')) {
-        wrappedLines = calculateWrappedLines(codeElement, codeText);
-    }
-
-    // 优先使用高度计算结果，但不少于文本行数
-    return Math.max(calculatedLines, textLines);
-}
-
-function calculateWrappedLines(codeElement, codeText) {
-    if (!codeText) return 1;
-
-    const lines = codeText.split('\n');
-    const computedStyle = getComputedStyle(codeElement);
-    const codeWidth = codeElement.offsetWidth -
-        (parseFloat(computedStyle.paddingLeft) || 0) -
-        (parseFloat(computedStyle.paddingRight) || 0);
-
-    const measurer = document.createElement('div');
-    measurer.style.cssText = computedStyle.cssText;
-    measurer.style.position = 'absolute';
-    measurer.style.visibility = 'hidden';
-    measurer.style.height = 'auto';
-    measurer.style.width = codeWidth + 'px';
-    measurer.style.whiteSpace = 'pre-wrap';
-    measurer.style.wordBreak = 'break-word';
-    document.body.appendChild(measurer);
-
-    let totalLines = 0;
-    const lineHeight = parseFloat(computedStyle.lineHeight);
-
-    lines.forEach(line => {
-        measurer.textContent = line || ' ';
-        const actualHeight = measurer.offsetHeight;
-        const wrappedCount = Math.max(1, Math.round(actualHeight / lineHeight));
-        totalLines += wrappedCount;
-    });
-
-    document.body.removeChild(measurer);
-    return totalLines;
-}
-
-function handleHighlightedLines(pre) {
-    const highlightData = pre.getAttribute('data-wrapline');
-    if (!highlightData) return;
-
-    pre.querySelectorAll('.line-highlight-overlay').forEach(el => el.remove());
-
-    const code = pre.querySelector('code');
-    if (!code) return;
-
-    const codeLines = code.textContent.replace(/^\n+|\n+$/g, '').split('\n');
-    const lineHeight = parseFloat(getComputedStyle(code).lineHeight);
-
-    const ranges = highlightData.split(',');
-    ranges.forEach(range => {
-        let start, end;
-        if (range.includes('-')) {
-            [start, end] = range.split('-').map(n => parseInt(n, 10));
-        } else {
-            start = end = parseInt(range, 10);
-        }
-
-        for (let i = start; i <= end; i++) {
-            const overlay = document.createElement('div');
-            overlay.className = 'line-highlight-overlay';
-
-            let topOffset = 0;
-            for (let j = 0; j < i; j++) {
-                topOffset += calculateWrappedLines(code, codeLines[j]) * lineHeight;
-            }
-            overlay.style.top = topOffset - 4 + 'px';
-            overlay.style.height = calculateWrappedLines(code, codeLines[i - 1]) * lineHeight + 'px';
-
-            pre.appendChild(overlay);
-        }
-    });
-}
-
-
-</script>

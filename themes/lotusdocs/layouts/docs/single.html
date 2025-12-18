@@ -7,174 +7,255 @@
 {{/* $pattern := `(?ms)::: *(info|warning|danger|success|primary|default)\s*\n(.*?)\n:::` */}}
 {{/* $replacement := `{{< alert type="$1">}}$2{{< /alert>}}` */}}
 
-        {{ $pattern := `(?ms)::: *(info|warning|danger|success|primary|default)(?:\s+([^\n]+))?\n(.*?)\n:::` }}
-        {{ $replacement := `{{< alert type="$1" title="$2">}}$3{{< /alert>}}` }}
-                {{ $content := replaceRE $pattern $replacement $rawContent | .Page.RenderString }}
+{{ $pattern := `(?ms)::: *(info|warning|danger|success|primary|default)(?:\s+([^\n]+))?\n(.*?)\n:::` }}
+{{ $replacement := `{{< alert type="$1" title="$2">}}$3{{< /alert>}}` }}
+    {{ $content := replaceRE $pattern $replacement $rawContent | .Page.RenderString }}
 
-                <!-- override Prism's default copy messages to 'empty'. Required by CSS styling.
-         see: https://prismjs.com/plugins/copy-to-clipboard/#styling -->
-                <div data-prismjs-copy="" data-prismjs-copy-success="" data-prismjs-copy-error="">
-                    {{/* {{ $content | safeHTML }} */}}
-                    {{/* 核心：自动截断长文章逻辑 */}}
-                    {{ $vifConfig := .Site.Data.vif.config }}
+<!-- override Prism's default copy messages to 'empty'. Required by CSS styling.
+    see: https://prismjs.com/plugins/copy-to-clipboard/#styling -->
+<div data-prismjs-copy="" data-prismjs-copy-success="" data-prismjs-copy-error="">
+    {{/* {{ $content | safeHTML }} */}}
+    {{/* 核心：自动截断长文章逻辑 */}}
+    {{ $vifConfig := .Site.Data.vif.config }}
 
-                    {{ if and $vifConfig.auto_split.enable (or
-                    (gt (len (.Content | plainify)) $vifConfig.auto_split.word_threshold)
-                    (in $content $vifConfig.auto_split.manual_marker)
-                    ) }}
-                    {{/* 1. 处理内容分割 */}}
-                    {{ $firstPart := "" }}
-                    {{ $secondPart := "" }}
+    {{ if and $vifConfig.auto_split.enable (or
+    (gt (len (.Content | plainify)) $vifConfig.auto_split.word_threshold)
+    (in $content $vifConfig.auto_split.manual_marker)
+    ) }}
+    {{/* 1. 处理内容分割 */}}
+    {{ $firstPart := "" }}
+    {{ $secondPart := "" }}
 
-                    {{/* 优先处理手动分割标记 */}}
-                    {{ if in $content $vifConfig.auto_split.manual_marker }}
-                    {{ $parts := split $content $vifConfig.auto_split.manual_marker }}
-                    {{ $firstPart = index $parts 0 }}
-                    {{ $secondPart = index $parts 1 }}
-                    {{ else }}
-                    {{/* 自动按段落分割 */}}
-                    {{ $paragraphs := split $content "</p>" }}
-                    {{ $splitIndex := int (mul (len $paragraphs) $vifConfig.auto_split.paragraph_ratio) }}
-                    {{ range $index, $para := $paragraphs }}
-                    {{ if lt $index $splitIndex }}
-                    {{ $firstPart = printf "%s%s</p>" $firstPart $para }}
-                    {{ else if ne $para "" }}
-                    {{ $secondPart = printf "%s%s</p>" $secondPart $para }}
-                    {{ end }}
-                    {{ end }}
-                    {{ end }}
+    {{/* 优先处理手动分割标记 */}}
+    {{ if in $content $vifConfig.auto_split.manual_marker }}
+        {{ $parts := split $content $vifConfig.auto_split.manual_marker }}
+        {{ $firstPart = index $parts 0 }}
+        {{ $secondPart = index $parts 1 }}
+    {{ else }}
+        {{/* 自动按段落分割 */}}
+        {{ $paragraphs := split $content "</p>" }}
+        {{ $splitIndex := int (mul (len $paragraphs) $vifConfig.auto_split.paragraph_ratio) }}
+        {{ range $index, $para := $paragraphs }}
+            {{ if lt $index $splitIndex }}
+                {{ $firstPart = printf "%s%s</p>" $firstPart $para }}
+                {{ else if ne $para "" }}
+                {{ $secondPart = printf "%s%s</p>" $secondPart $para }}
+            {{ end }}
+        {{ end }}
+    {{ end }}
 
-                    {{/* 渲染前半部分内容 */}}
-                    {{ $firstPart | safeHTML }}
+    {{/* 渲染前半部分内容 */}}
+    {{ $firstPart | safeHTML }}
 
-                    {{/* 2. 生成v-if隐藏区块（支持单篇文章覆盖全局配置） */}}
-                    {{ $vifName := printf "auto-vif-%s" .File.UniqueID }}
-                    {{/* 读取配置：全局默认 + 单篇文章覆盖 */}}
-                    {{ $triggerType := .Params.vif_trigger_type | default $vifConfig.trigger.default_type }}
-                    {{ $scrollTrigger := .Params.vif_scroll_threshold | default $vifConfig.trigger.scroll_threshold }}
-                    {{ $viewportThreshold := .Params.vif_viewport_threshold | default
-                    $vifConfig.trigger.viewport_threshold }}
+    {{/* 2. 生成v-if隐藏区块（支持单篇文章覆盖全局配置） */}}
+    {{ $vifName := printf "auto-vif-%s" .File.UniqueID }}
+    {{/* 读取配置：全局默认 + 单篇文章覆盖 */}}
+    {{ $triggerType := .Params.vif_trigger_type | default $vifConfig.trigger.default_type }}
+    {{ $scrollTrigger := .Params.vif_scroll_threshold | default $vifConfig.trigger.scroll_threshold }}
+    {{ $viewportThreshold := .Params.vif_viewport_threshold | default
+    $vifConfig.trigger.viewport_threshold }}
 
-                    <div class="v-if-toggle-wrapper">
-                        {{/* 手动模式显示切换按钮 */}}
-                        {{ if eq $triggerType "manual" }}
-                        <button onclick="hugoVIf.toggle('{{ $vifName }}');this.style.display = 'none';"
-                            class="{{ $vifConfig.style.toggle_btn_class }}">
-                            {{ $vifConfig.style.toggle_btn_text }}
-                        </button>
-                        {{ end }}
+    <div class="v-if-toggle-wrapper">
+        {{/* 手动模式显示切换按钮 */}}
+        {{ if eq $triggerType "manual" }}
+        <button onclick="hugoVIf.toggle('{{ $vifName }}');this.style.display = 'none';"
+            class="{{ $vifConfig.style.toggle_btn_class }}">
+            {{ $vifConfig.style.toggle_btn_text }}
+        </button>
+        {{ end }}
 
-                        {{/* 封装后半部分内容，直接生成v-if的DOM结构，支持模板变量 */}}
-                        <div id="vif-container-{{ $vifName }}"
-                            class="v-if-container {{ $vifConfig.style.hidden_content_class }}"
-                            data-vif-name="{{ $vifName }}" 
-                            data-trigger-type="{{ $triggerType }}"
-                            data-scroll-trigger="{{ $scrollTrigger }}" 
-                            data-threshold="{{ $viewportThreshold }}"
-                            data-is-lazy="true" 
-                            data-content="{{ $secondPart | base64Encode }}" 
-                            style="display: none;">
-                        </div>
-                    </div>
-                    {{ else }}
-                    {{/* 短文章直接渲染全部内容 */}}
-                    {{ $content | safeHTML }}
-                    {{ end }}
-                </div>
+        {{/* 触发器类型为自动时，显示加载动画 */}}
+        {{ if or (eq $triggerType "scroll") (eq $triggerType "viewport") }}
+        <div id="{{ $vifName }}-loading" class="{{ $vifConfig.style.loading_class }}">
+            {{ $vifConfig.style.loading_text }}
+        </div>
+        
+        <script>
+            // 目标元素（需要切换的元素）
+            const vifTarget = document.querySelector(".{{ $vifConfig.style.loading_class }}");
 
+            // 加载动画元素
+            const loadingEl = document.getElementById("{{ $vifName }}-loading");
+            // 标记是否已执行过toggle（避免重复触发）
+            let vifToggled = false;
 
-                {{ if .Page.Store.Get "hasMermaid" }}
-                {{ $mermaid := resources.Get (printf "%s/%s" ($.Scratch.Get "pathName") "js/mermaid.min.js") }}
-                {{ if hugo.IsProduction }}
-                {{ $mermaid = $mermaid | fingerprint "sha384" }}
-                {{ end }}
-                <script src="{{ $mermaid.RelPermalink }}" {{ if hugo.IsProduction
-                    }}integrity="{{ $mermaid.Data.Integrity }}" {{ end }}></script>
-                <script>
-                    const config = {
-                        startOnLoad: true,
-                        logLevel: "error",
-                        align: "center",
-                        theme: "null"
-                    };
-                    mermaid.initialize(config);
-                </script>
-                {{ end }}
+            // 核心判断逻辑：根据触发器类型判断是否满足条件
+            function checkVifTrigger() {
+                if (vifToggled) return; // 已执行过则直接返回
 
+                let shouldTrigger = false;
+                const triggerType = "{{ $triggerType }}";
 
-                {{/* 文章底部声明模板 - 调整缝隙与图标 */}}
-                <div class="custom-block tip article-bottom-tip d-flex flex-column"
-                    style="margin-top: 4rem; padding-top: 0.5rem;">
-                    <!-- 左侧图标 + 声明标题行 -->
-                    <div class="d-flex align-items-center mb-2">
-                        <p class="custom-block-title mb-0">声明</p>
-                    </div>
-                    <p class="mb-2"> 作者： <a href="https://xiaoying.org.cn" rel="noopener noreferrer"
-                            target="_blank">liyao</a></p>
-                    <p class="mb-2"> 版权：本博客所有文章除特别声明外，均采用<a href="http://www.suncai.net/PubLicense/CCBY40.html"
-                            target="_blank">CCBY-NC-SA4.O</a>许可协议。转载请注明! </p>
-                    <p class="link-row" style="margin-bottom: 0px;"> 链接： <a href="{{ .Permalink }}" class="page-url"
-                            rel="noopener noreferrer" target="_blank">{{ .Permalink }}</a></p>
-                </div>
+                if (triggerType === "scroll") {
+                    // 滚动触发：滚动到页面指定位置
+                    const scrollThreshold = "{{ $vifConfig.trigger.scroll_threshold }}";
+                    shouldTrigger = window.scrollY >= parseInt(scrollThreshold);
+                } else if (triggerType === "viewport") {
+                    // 视口触发：目标元素进入视口（或加载动画元素进入视口）
+                    if (!vifTarget) return;
+                    const rect = vifTarget.getBoundingClientRect();
+                    // 判断元素是否进入视口（上下左右有任意部分可见即可）
+                    shouldTrigger = (
+                        rect.top < window.innerHeight &&
+                        rect.bottom > 0 &&
+                        rect.left < window.innerWidth &&
+                        rect.right > 0
+                    );
+               }
 
+            // 满足条件则执行toggle并隐藏加载动画
+            if (shouldTrigger) {
+                if(window.hugoVIf){
+                    hugoVIf.show('{{ $vifName }}');
+                } else {
+                    setTimeout(() => {
+                        hugoVIf.show('{{ $vifName }}');
+                    }, 100);
+                }
+                vifToggled = true;
+                if (loadingEl) loadingEl.style.display = 'none';
+                // 移除滚动监听（优化性能）
+                window.removeEventListener('scroll', handleScroll);
+                window.removeEventListener('resize', handleScroll); // 兼容窗口缩放
+            }
+        }
 
-                {{ if and .GitInfo .Site.Params.docs.repoURL -}}
-                {{ partial (printf "%s/%s" ($.Scratch.Get "pathName") "gitinfo") . }}
-                {{ end -}}
+            // 滚动/缩放监听函数（防抖优化，避免频繁触发）
+            const handleScroll = debounce(checkVifTrigger, 100);
 
-                {{/* 文章底部版权信息 - 结束 */}}
+            // 防抖函数（可选但推荐，减少性能消耗）
+            function debounce(fn, delay) {
+                let timer = null;
+                return function () {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => fn.apply(this, arguments), delay);
+                };
+            }
 
-                {{/* 文章评论区 */}}
-                {{ if .Site.Params.feedback.enabled | default false -}}
-                {{ if or (.Site.Params.plausible.dataDomain) (.Site.Config.Services.GoogleAnalytics.ID) }}
-                {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "footer/feedback.html") . -}}
-                {{ else }}
-                {{ errorf "Either Google Analytics or Plausible Analytics must be configured before enabling the Feedback Widget." }}
-                {{ end }}
-                {{ end -}}
+            // 初始化监听
+            if (vifTarget) {
+                // 监听滚动和窗口缩放
+                window.addEventListener('scroll', handleScroll);
+                window.addEventListener('resize', handleScroll);
+                // 页面加载完成后先检查一次（避免元素已在视口但未触发）
+                window.addEventListener('load', checkVifTrigger);
+                // 兼容DOMContentLoaded（更早执行）
+                document.addEventListener('DOMContentLoaded', checkVifTrigger);
+            }
+        </script>
+        {{ end }}
 
-                {{/* 私密文章访问控制 */}}
-                {{ if .Params.private }}
-                <script>
-                    // 页面加载后，立即验证 Token
-                    async function verifyToken() {
-                        // 1. 从 localStorage 获取 Token
-                        const token = localStorage.getItem('token');
-
-                        if (!token) {
-                            localStorage.setItem('redirectUrl', window.location.href);
-                            window.location.href = '/login';
-                        }
-
-                        try {
-                            // 2. 调用后端验证接口，传递 Token
-                            const response = await fetch('/coze/verify', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ token }) // 把 Token 发给后端校验
-                            });
-                            const result = await response.json();
-
-                            // 3. 根据后端结果处理
-                            if (!result.success) {
-                                // Token 无效/过期：清除无效 Token，显示登录提示
-                                localStorage.removeItem('token'); // 删掉无效的 Token
-                                localStorage.setItem('redirectUrl', window.location.href);
-                                window.location.href = '/login';
-
-                            }
-                        } catch (err) {
-                            localStorage.removeItem('token'); // 删掉无效的 Token
-                            localStorage.setItem('redirectUrl', window.location.href);
-                            window.location.href = '/login';
-                        }
-                    }
-
-                    // 页面加载时触发验证
-                    verifyToken();
-                </script>
+        {{/* 封装后半部分内容，直接生成v-if的DOM结构，支持模板变量 */}}
+        <div id="vif-container-{{ $vifName }}"
+            class="v-if-container {{ $vifConfig.style.hidden_content_class }}"
+            data-vif-name="{{ $vifName }}" 
+            data-trigger-type="{{ $triggerType }}"
+            data-scroll-trigger="{{ $scrollTrigger }}" 
+            data-threshold="{{ $viewportThreshold }}"
+            data-is-lazy="true" 
+            data-content="{{ $secondPart | base64Encode }}" 
+            style="display: none;">
+        </div>
+    </div>
+    {{ else }}
+    {{/* 短文章直接渲染全部内容 */}}
+    {{ $content | safeHTML }}
+    {{ end }}
+</div>
 
 
-                {{ end }}
+{{ if .Page.Store.Get "hasMermaid" }}
+{{ $mermaid := resources.Get (printf "%s/%s" ($.Scratch.Get "pathName") "js/mermaid.min.js") }}
+{{ if hugo.IsProduction }}
+{{ $mermaid = $mermaid | fingerprint "sha384" }}
+{{ end }}
+<script src="{{ $mermaid.RelPermalink }}" {{ if hugo.IsProduction
+    }}integrity="{{ $mermaid.Data.Integrity }}" {{ end }}></script>
+<script>
+    const config = {
+        startOnLoad: true,
+        logLevel: "error",
+        align: "center",
+        theme: "null"
+    };
+    mermaid.initialize(config);
+</script>
+{{ end }}
 
-                {{ end }}
+
+{{/* 文章底部声明模板 - 调整缝隙与图标 */}}
+<div class="custom-block tip article-bottom-tip d-flex flex-column"
+    style="margin-top: 4rem; padding-top: 0.5rem;">
+    <!-- 左侧图标 + 声明标题行 -->
+    <div class="d-flex align-items-center mb-2">
+        <p class="custom-block-title mb-0">声明</p>
+    </div>
+    <p class="mb-2"> 作者： <a href="https://xiaoying.org.cn" rel="noopener noreferrer"
+            target="_blank">liyao</a></p>
+    <p class="mb-2"> 版权：本博客所有文章除特别声明外，均采用<a href="http://www.suncai.net/PubLicense/CCBY40.html"
+            target="_blank">CCBY-NC-SA4.O</a>许可协议。转载请注明! </p>
+    <p class="link-row" style="margin-bottom: 0px;"> 链接： <a href="{{ .Permalink }}" class="page-url"
+            rel="noopener noreferrer" target="_blank">{{ .Permalink }}</a></p>
+</div>
+
+
+{{ if and .GitInfo .Site.Params.docs.repoURL -}}
+{{ partial (printf "%s/%s" ($.Scratch.Get "pathName") "gitinfo") . }}
+{{ end -}}
+
+{{/* 文章底部版权信息 - 结束 */}}
+
+{{/* 文章评论区 */}}
+{{ if .Site.Params.feedback.enabled | default false -}}
+{{ if or (.Site.Params.plausible.dataDomain) (.Site.Config.Services.GoogleAnalytics.ID) }}
+{{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "footer/feedback.html") . -}}
+{{ else }}
+{{ errorf "Either Google Analytics or Plausible Analytics must be configured before enabling the Feedback Widget." }}
+{{ end }}
+{{ end -}}
+
+{{/* 私密文章访问控制 */}}
+{{ if .Params.private }}
+<script>
+    // 页面加载后，立即验证 Token
+    async function verifyToken() {
+        // 1. 从 localStorage 获取 Token
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            localStorage.setItem('redirectUrl', window.location.href);
+            window.location.href = '/login';
+        }
+
+        try {
+            // 2. 调用后端验证接口，传递 Token
+            const response = await fetch('/coze/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token }) // 把 Token 发给后端校验
+            });
+            const result = await response.json();
+
+            // 3. 根据后端结果处理
+            if (!result.success) {
+                // Token 无效/过期：清除无效 Token，显示登录提示
+                localStorage.removeItem('token'); // 删掉无效的 Token
+                localStorage.setItem('redirectUrl', window.location.href);
+                window.location.href = '/login';
+
+            }
+        } catch (err) {
+            localStorage.removeItem('token'); // 删掉无效的 Token
+            localStorage.setItem('redirectUrl', window.location.href);
+            window.location.href = '/login';
+        }
+    }
+
+    // 页面加载时触发验证
+    verifyToken();
+</script>
+
+
+{{ end }}
+
+{{ end }}

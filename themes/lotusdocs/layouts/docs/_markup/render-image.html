@@ -1,6 +1,6 @@
 {{ $dest := .Destination }}
 {{ $text := .PlainText }}
-{{ $url  := urls.Parse $dest }}
+{{ $url := urls.Parse $dest }}
 
 {{/* 判断是否远程图片 */}}
 {{ $isRemote := false }}
@@ -9,93 +9,133 @@
 {{/* ================= 远程图床图片 ================= */}}
 {{ if $isRemote }}
 
-  <img
-    class="post-image"
-    src="{{ $dest }}?w=1600"
-    srcset="
-      {{ $dest }}?w=480 480w,
-      {{ $dest }}?w=768 768w,
-      {{ $dest }}?w=1024 1024w,
-      {{ $dest }}?w=1600 1600w,
-      {{ $dest }}?w=2400 2400w
-    "
-    sizes="100vw"
-    alt="{{ $text }}"
-    loading="lazy"
-  >
+<img class="post-image zoomable" src="{{ $dest }}?w=1600" srcset="
+    {{ $dest }}?w=480 480w,
+    {{ $dest }}?w=768 768w,
+    {{ $dest }}?w=1024 1024w,
+    {{ $dest }}?w=1600 1600w,
+    {{ $dest }}?w=2400 2400w
+  " sizes="100vw" alt="{{ $text }}" loading="lazy">
 
 {{/* ================= 本地图片 ================= */}}
 {{ else }}
 
-  {{ with .Page.Resources.GetMatch $dest }}
+{{ with .Page.Resources.GetMatch $dest }}
 
-    {{ if eq .MediaType.SubType "svg" }}
+{{ if eq .MediaType.SubType "svg" }}
 
-      {{ .Content | safeHTML }}
+<div class="svg-container">
+  {{ .Content | safeHTML }}
+</div>
 
-    {{ else }}
+{{ else }}
 
-      {{/* 多尺寸 WebP */}}
-      {{ $w480  := .Resize "480x webp q75" }}
-      {{ $w768  := .Resize "768x webp q75" }}
-      {{ $w1024 := .Resize "1024x webp q75" }}
-      {{ $w1600 := .Resize "1600x webp q75" }}
+{{/* 多尺寸 WebP */}}
+{{ $w480 := .Resize "480x webp q75" }}
+{{ $w768 := .Resize "768x webp q75" }}
+{{ $w1024 := .Resize "1024x webp q75" }}
+{{ $w1600 := .Resize "1600x webp q75" }}
 
-      {{/* 多尺寸 AVIF */}}
-      {{ $a480  := .Resize "480x avif q60" }}
-      {{ $a768  := .Resize "768x avif q60" }}
-      {{ $a1024 := .Resize "1024x avif q60" }}
-      {{ $a1600 := .Resize "1600x avif q60" }}
+{{/* 多尺寸 AVIF */}}
+{{ $a480 := .Resize "480x avif q60" }}
+{{ $a768 := .Resize "768x avif q60" }}
+{{ $a1024 := .Resize "1024x avif q60" }}
+{{ $a1600 := .Resize "1600x avif q60" }}
 
-      <picture>
-        <source
-          type="image/avif"
-          srcset="
-            {{ $a480.RelPermalink }} 480w,
-            {{ $a768.RelPermalink }} 768w,
-            {{ $a1024.RelPermalink }} 1024w,
-            {{ $a1600.RelPermalink }} 1600w
-          "
-          sizes="100vw"
-        >
-        <source
-          type="image/webp"
-          srcset="
-            {{ $w480.RelPermalink }} 480w,
-            {{ $w768.RelPermalink }} 768w,
-            {{ $w1024.RelPermalink }} 1024w,
-            {{ $w1600.RelPermalink }} 1600w
-          "
-          sizes="100vw"
-        >
-        <img
-          class="post-image"
-          src="{{ $w1024.RelPermalink }}"
-          alt="{{ $text }}"
-          loading="lazy"
-          width="{{ .Width }}"
-          height="{{ .Height }}"
-        >
-      </picture>
+<picture class="zoomable">
+  <source type="image/avif" srcset="
+                {{ $a480.RelPermalink }} 480w,
+                {{ $a768.RelPermalink }} 768w,
+                {{ $a1024.RelPermalink }} 1024w,
+                {{ $a1600.RelPermalink }} 1600w
+              " sizes="100vw">
+  <source type="image/webp" srcset="
+                {{ $w480.RelPermalink }} 480w,
+                {{ $w768.RelPermalink }} 768w,
+                {{ $w1024.RelPermalink }} 1024w,
+                {{ $w1600.RelPermalink }} 1600w
+              " sizes="100vw">
+  <img class="post-image" src="{{ $w1024.RelPermalink }}" alt="{{ $text }}" loading="lazy" width="{{ .Width }}"
+    height="{{ .Height }}">
+</picture>
 
-    {{ end }}
-
-  {{ end }}
 {{ end }}
 
+{{ end }}
+{{ end }}
+
+
 <style>
-/* 流体内容区 */
-.post-content {
-  width: 100%;
-  margin: 0 auto;
-}
+  /* 流体内容区 */
+  .post-content {
+    width: 100%;
+    margin: 0 auto;
+  }
 
-/* 图片基础样式 */
-.post-content img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 1.5rem auto;
-}
+  /* 图片基础样式 */
+  .post-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5rem auto;
+  }
 
+  /* 可缩放图片样式 */
+  .zoomable {
+    cursor: zoom-in;
+    transition: transform 0.3s ease;
+  }
+
+  .zoomable:hover {
+    transform: scale(1.02);
+  }
+
+  /* 图片放大遮罩层 */
+  .image-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    text-align: center;
+  }
+
+  .image-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* 放大后的图片样式 */
+  .image-overlay img,
+  .image-overlay picture,
+  .image-overlay svg {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    transform: scale(1);
+    cursor: zoom-out;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    margin: 0 auto;
+    display: block;
+  }
+
+  /* SVG容器样式 */
+  .svg-container {
+    display: inline-block;
+    max-width: 100%;
+  }
+
+  .svg-container svg {
+    max-width: 100%;
+    height: auto;
+  }
 </style>

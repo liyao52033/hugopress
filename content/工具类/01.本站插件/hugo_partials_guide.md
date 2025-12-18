@@ -46,19 +46,6 @@ Partials 是 Hugo 提供的一种模板复用机制，用于将可重复的模�
     <title>{{ .Title }}</title>
 </head>
 ```
-
-**layouts/_default/baseof.html**
-
-```html
-<!DOCTYPE html>
-<html lang="zh-CN">
-{{ partial "head.html" . }}
-<body>
-    {{ block "main" . }}{{ end }}
-</body>
-</html>
-```
-
 ## 高级 Partials 技巧
 
 ### 带参数的 Partials
@@ -573,17 +560,15 @@ type: "about"
 
 ### baseof.html 动态加载 header
 
-```html
-<!DOCTYPE html>
-<html lang="zh-CN">
+```go
+
 {{ partial "head.html" . }}
-<body>
+<main>
     {{ $pageType := .Type }}
     {{ partial (printf "components/header-%s.html" $pageType) . }}
     {{ block "main" . }}{{ end }}
     {{ partial "footer.html" . }}
-</body>
-</html>
+</main>
 ```
 
 ## 注意事项

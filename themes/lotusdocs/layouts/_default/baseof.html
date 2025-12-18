@@ -44,8 +44,12 @@ If so, collect and consolidate the items config from each enabled instance
 
     <!-- Lotus Docs JS -->
     {{ $app := resources.Get "/js/app.js" }}
+    {{ $params := dict }}
+    {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
+    {{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params "treeShaking" true }}
+    {{ $app = $app | js.Build $opts }}
     {{- if not hugo.IsServer }}
-        {{- $js := (slice $app) | resources.Concat "/js/bundle.js" | minify | fingerprint "sha384" }}
+        {{- $js := (slice $app) | resources.Concat "/js/bundle.js" | fingerprint "sha384" }}
         <script type="text/javascript" src="{{ $js.Permalink }}" integrity="{{ $js.Data.Integrity }}"></script>
     {{- else }}
         {{- $js := (slice $app ) | resources.Concat "/js/bundle.js" }}
@@ -53,17 +57,15 @@ If so, collect and consolidate the items config from each enabled instance
     {{- end }}
 
     <!-- Image Compare Viewer Config -->
-    {{ if ($.Scratch.Get "image_compare_enabled") }}
-    <script>
-        const viewers = document.querySelectorAll(".image-compare");
-        let configs = [
-            {{ (delimit ($ic.Get "config") ",") | safeJS}}
-        ];
-        viewers.forEach((element, i) => {
+    {{/*  {{ if ($.Scratch.Get "image_compare_enabled") }}  */}}
+    <!--  <script>   -->
+      <!--  const viewers = document.querySelectorAll(".image-compare");  -->
+        {{/*  let configs = [ {{ (delimit ($ic.Get "config") ",") | safeJS}} ];  */}}
+        {{/*  viewers.forEach((element, i) => {
             let view = new ImageCompare(element, configs[i]).mount();
         });
-    </script>
-    {{ end }}
+    </script>  */}}
+    {{/*  {{ end }}  */}}
 
 </body>
 

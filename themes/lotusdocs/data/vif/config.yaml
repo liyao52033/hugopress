@@ -2,12 +2,12 @@
 auto_split:
   enable: true                          # 是否开启自动截断
   word_threshold: 6000                  # 触发截断的字符数阈值
-  paragraph_ratio: 0.4                 # 自动截断保留前60%段落
+  paragraph_ratio: 0.3                 # 自动截断保留前30%段落
   manual_marker: "<!--more-->"          # 手动分割标记
 
 # v-if 触发模式默认配置
 trigger:
-  default_type: "manual"              # 默认触发模式：manual/scroll/viewport
+  default_type: "viewport"              # 默认触发模式：manual/scroll/viewport
   scroll_threshold: 500                 # scroll模式默认滚动阈值（px）
   viewport_threshold: 0.1               # viewport模式默认可见比例（0-1）
 
@@ -16,3 +16,5 @@ style:
   toggle_btn_text: "展开更多内容"       # 手动模式按钮文字
   toggle_btn_class: "v-if-toggle-btn"   # 按钮CSS类名
   hidden_content_class: "v-if-hidden-content" # 隐藏内容容器类名
+  loading_class: "vif-loading"         # 加载动画容器类名
+  loading_text: "加载中..."            # 加载动画文字内容

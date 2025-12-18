@@ -1,34 +1,75 @@
-   {{/*全局通用js,css文件*/}}
-   
-   {{/*直接将js文件放在根目录static/js目录下，然后引用*/}}
-   <script defer src='{{ "/js/responsive-navbar.js" | relURL }}'></script>
+{{/*全局通用js,css文件*/}}
 
-   <!-- 不蒜子统计 -->
-   <script async src="https://busuanzi.xiaoying.org.cn/js"></script> 
-   
-   <!-- Global Bootstrap JS via basic.html -->
-   {{ $js := resources.Get "docs/js/bootstrap.js" }}
-   {{ $params := dict }}
-   {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
-   {{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params }}
-   {{ $js = $js | js.Build $opts }}
-   {{ if hugo.IsProduction }}
-     {{ $js = $js | fingerprint "sha384" }}
-   {{ end }}
-   <script src="{{ $js.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $js.Data.Integrity }}"{{ end -}} defer></script>
+<!-- 不蒜子统计 -->
+<script async src="https://busuanzi.xiaoying.org.cn/js"></script>
 
-   
+{{/*使用Hugo资源管道处理responsive-navbar.js*/}}
+{{/*  {{ $navbarJs := resources.Get "js/responsive-navbar.js" }}
+{{ $params := dict }}
+{{ $sourceMap := cond hugo.IsProduction "" "inline" }}
+{{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params "treeShaking" true
+}}
+{{ $navbarJs = $navbarJs | js.Build $opts }}
+{{ if hugo.IsProduction }}
+{{ $navbarJs = $navbarJs | fingerprint "sha384" }}
+{{ end }}
+<script src="{{ $navbarJs.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $navbarJs.Data.Integrity }}" {{ end
+  -}} defer></script>  */}}
 
-   {{/*
-   {{- $options := dict "enableSourceMap" true }}
-   {{- if hugo.IsProduction}}
-      {{- $options = dict "enableSourceMap" false "outputStyle" "compressed" }}
-   {{- end }}
-   {{- $style := resources.Get "basic/style.scss" }}
-   {{- $style = $style | resources.ExecuteAsTemplate "basic/style.scss" . | css.Sass $options }}
-   {{- if hugo.IsProduction }}
-      {{- $style = $style | minify | fingerprint "sha384" }}
-   {{- end -}}
-   <link rel="stylesheet" href="{{ $style.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $style.Data.Integrity }}"{{ end -}}
- */}}
- 
+
+<!-- Global Bootstrap JS via basic.html -->
+{{/*  {{ $js := resources.Get "docs/js/bootstrap.js" }}
+{{ $params := dict }}
+{{ $sourceMap := cond hugo.IsProduction "" "inline" }}
+{{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params "treeShaking" true }}
+{{ $js = $js | js.Build $opts -}}
+{{ if hugo.IsProduction }}
+  {{ $js = $js | fingerprint "sha384" }}
+{{ end }}
+<script src="{{ $js.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $js.Data.Integrity }}" {{ end -}}
+  defer></script>  */}}
+
+{{ $navbarJs := resources.Get "js/responsive-navbar.js" }}
+{{ $bootstrapJs := resources.Get "docs/js/bootstrap.js" }}
+
+{{/* 合并JS文件 */}}
+{{ $combinedJs := slice $navbarJs $bootstrapJs | resources.Concat "docs/js/navbar.js" -}}
+
+{{/* 统一构建配置 */}}
+{{ $params := dict }}
+{{ $sourceMap := cond hugo.IsProduction "" "inline" }}
+{{ $opts := dict 
+  "sourceMap" $sourceMap 
+  "minify" hugo.IsProduction 
+  "target" "es2018" 
+  "params" $params 
+}}
+
+{{/* 构建合并后的JS */}}
+{{ $finalJs := $combinedJs | js.Build $opts }}
+
+{{/* 生产环境添加指纹 */}}
+{{ if hugo.IsProduction }}
+  {{ $finalJs = $finalJs | fingerprint "sha384" }}
+{{ end }}
+
+{{/* 输出script标签 */}}
+<script 
+  src="{{ $finalJs.RelPermalink }}" 
+  {{ if hugo.IsProduction }}integrity="{{ $finalJs.Data.Integrity }}" {{ end -}}
+  defer
+></script>
+
+
+{{/*
+{{- $options := dict "enableSourceMap" true }}
+{{- if hugo.IsProduction}}
+{{- $options = dict "enableSourceMap" false "outputStyle" "compressed" }}
+{{- end }}
+{{- $style := resources.Get "basic/style.scss" }}
+{{- $style = $style | resources.ExecuteAsTemplate "basic/style.scss" . | css.Sass $options | css.PostCSS }}
+{{- if hugo.IsProduction }}
+{{- $style = $style | minify | fingerprint "sha384" }}
+{{- end -}}
+<link rel="stylesheet" href="{{ $style.RelPermalink }}" {{ if hugo.IsProduction
+  }}integrity="{{ $style.Data.Integrity }}" {{ end -}} */}}

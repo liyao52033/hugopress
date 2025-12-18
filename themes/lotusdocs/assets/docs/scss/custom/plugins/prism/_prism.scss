@@ -365,8 +365,8 @@ div.code-toolbar>.toolbar>.toolbar-item>button {
 }
 
 // 暗色主题下的渐变
-html.dark .code-toolbar.code-collapsed::after {
-    background: linear-gradient(to bottom, transparent, var(--prism-code-bg));
+html[data-dark-mode] .code-toolbar.code-collapsed::after {
+    background: linear-gradient(to bottom, #666, #242921db 30%);
 }
 
 div.code-toolbar>.toolbar>.toolbar-item>a,

@@ -5,46 +5,56 @@
 {{ $slice := slice $dayjs $relativeTime $app -}}
 
 {{ if and (.Site.Params.docsearch.appID) (.Site.Params.docsearch.apiKey) -}}
-    {{ $docsearch := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/docsearch.min.js") }}
-    {{ $slice = $slice | append $docsearch -}}
+{{ $docsearch := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/docsearch.min.js") }}
+{{ $slice = $slice | append $docsearch -}}
 {{ end }}
 
 {{ if site.Params.docs.toc | default true }}
-    {{ if eq .Site.Params.docs.scrollSpy true -}}
-        {{ $simplescrollspy := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/simple-scrollspy.min.js") }}
-        {{ $slice = $slice | append $simplescrollspy -}}
-    {{ end -}}
+{{ if eq .Site.Params.docs.scrollSpy true -}}
+{{ $simplescrollspy := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/simple-scrollspy.min.js") }}
+{{ $slice = $slice | append $simplescrollspy -}}
+{{ end -}}
 
-    {{ if eq .Site.Params.docs.scrollSpy true -}}
-        {{ $scrollspyScript := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/scrollspy-script.js") }}
-        {{ $scrollspyScript := $scrollspyScript | js.Build -}}
-        {{ $slice = $slice | append $scrollspyScript -}}
-    {{ end -}}
+{{ if eq .Site.Params.docs.scrollSpy true -}}
+{{ $scrollspyScript := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/scrollspy-script.js") }}
+{{ $scrollspyScript := $scrollspyScript | js.Build -}}
+{{ $slice = $slice | append $scrollspyScript -}}
+{{ end -}}
 {{ end -}}
 
 {{ if site.Params.docs.tocMobile | default true }}
-    {{ $tocmobilescrollspy := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/toc-mobile-scrollspy.js") }}
-    {{ $slice = $slice | append $tocmobilescrollspy -}}
+  {{ $tocmobilescrollspy := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/toc-mobile-scrollspy.js") }}
+  {{ $slice = $slice | append $tocmobilescrollspy -}}
 {{ end -}}
+
+<!-- 引入代码块管理器JS -->
+{{ $codeBlockManager := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/code-block-manager.js") }}
+{{ $codeBlockManager = $codeBlockManager | js.Build -}}
+{{ $slice = $slice | append $codeBlockManager -}}
 
 {{ if eq .Site.Params.docs.prism true -}}
-    {{ $prism := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/prism.js") }}
-    {{- $opts := dict
-        "params" (dict "langPath" (urls.JoinPath .Site.BaseURL "docs/js/components/"))
-    -}}
-    {{ $prism := $prism | js.Build $opts -}}
-    {{ $slice = $slice | append $prism -}}
-{{ end -}}
+  {{ $prism := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/prism.js") }}
+  {{- $opts := dict
+  "params" (dict "langPath" (urls.JoinPath .Site.BaseURL "docs/js/components/"))
+  -}}
+  {{ $prism := $prism | js.Build $opts -}}
+  {{ $slice = $slice | append $prism -}}
+{{ end -}} 
 
 
+<!-- 引入v-if核心JS（使用Hugo资源管道处理） -->
+{{ $vifCoreJs := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/v-if-core.js") }}
+{{ $vifCoreJs = $vifCoreJs | js.Build -}}
+{{ $slice = $slice | append $vifCoreJs -}}
 
 {{ $js := $slice | resources.Concat (printf "/%s/%s" ($.Scratch.Get "pathName") "js/bundle.js") -}}
 
 {{- if not hugo.IsServer }}
-    {{- $js := $js | minify | fingerprint "sha384" }}
-    <script type="text/javascript" src="{{ $js.Permalink }}" integrity="{{ $js.Data.Integrity }}" crossorigin="anonymous" defer></script>
+{{- $js := $js | minify | fingerprint "sha384" -}}
+<script type="text/javascript" src="{{ $js.Permalink }}" integrity="{{ $js.Data.Integrity }}" crossorigin="anonymous"
+  defer></script>
 {{- else }}
-    <script type="text/javascript" src="{{ $js.Permalink }}" defer></script>
+<script type="text/javascript" src="{{ $js.Permalink }}" defer></script>
 {{- end }}
 <script>
   (function () {
@@ -78,8 +88,8 @@
           var href = matched.getAttribute('data-url') || matched.getAttribute('href') || '';
 
           // 统一规范化比较，避免前缀/尾斜杠/大小写/编码差异
-          function norm(u){
-            try{
+          function norm(u) {
+            try {
               // 仅取路径部分
               var a = document.createElement('a');
               a.href = u;
@@ -87,13 +97,13 @@
               // 解码、去查询和锚点（a.pathname 已无查询锚点）
               p = decodeURI(p);
               // 统一分隔、多斜杠
-              p = p.replace(/\/{2,}/g,'/');
+              p = p.replace(/\/{2,}/g, '/');
               // 去掉 index.html 等
-              p = p.replace(/\/index\.html?$/i,'/');
+              p = p.replace(/\/index\.html?$/i, '/');
               // 统一末尾斜杠：目录页需以 / 结尾
               if (!/\/$/.test(p)) p = p + '/';
               return p;
-            }catch(e){ return (u||'').toString(); }
+            } catch (e) { return (u || '').toString(); }
           }
 
           var nHref = href ? norm(href) : '';
@@ -130,94 +140,3 @@
     }
   })();
 </script>
-
-
-<script>
-(function () {
-  const LIMIT = 400;
-  const WRAP_CLASS = 'cb-collapsible';
-  const EXPANDED = 'is-expanded';
-  const selectors = ['.highlight', '.chroma'];
-
-  // 从class中提取编程语言
-  function getLanguage(block) {
-    // 检查常见的代码块标记模式
-    const classList = Array.from(block.classList);
-    
-    // 查找类似language-xxx或lang-xxx的class
-    const langClass = classList.find(cls => 
-      cls.startsWith('language-')
-    );
-    
-    if (langClass) {
-      return langClass.replace(/^(language-|lang-)/, '');
-    }
-    
-    // 检查code标签内的语言信息
-    const codeElement = block.querySelector('code');
-    if (codeElement) {
-      const codeClasses = Array.from(codeElement.classList);
-      const codeLangClass = codeClasses.find(cls => 
-        cls.startsWith('language-')
-      );
-      if (codeLangClass) {
-        return codeLangClass.replace(/^(language-|lang-)/, '');
-      }
-    }
-    
-    // 检查chroma代码块的语言
-    if (block.classList.contains('chroma')) {
-      const langElement = block.querySelector('.lntd:first-child .ln');
-      if (langElement && langElement.textContent.trim()) {
-        return langElement.textContent.trim();
-      }
-    }
-    
-    return 'html'; // 默认值
-  }
-
-  function findBlocks() {
-    const set = new Set();
-    selectors.forEach(s => document.querySelectorAll(s).forEach(el => set.add(el)));
-    document.querySelectorAll('pre > code').forEach(code => {
-      const pre = code.parentElement;
-      if (!pre.closest(selectors.join(','))) set.add(pre);
-    });
-    return Array.from(set);
-  }
-
-  function wrapIfNeeded(block) {
-    if (block.closest('.' + WRAP_CLASS)) return;
-
-    // 创建包装器
-    const wrapper = document.createElement('div');
-    const parent = block.parentNode;
-    parent.insertBefore(wrapper, block);
-    wrapper.appendChild(block);
-    
-    // 添加语言标签
-    const langLabel = document.createElement('div');
-    const language = getLanguage(block).toUpperCase();
-    langLabel.className = 'cb-language-label';
-    langLabel.innerHTML  = `
-          <span class="cb-dot red"></span>
-          <span class="cb-dot yellow"></span>
-          <span class="cb-dot green"></span>
-          <span class="cb-lang-text">${language}</span>
-          `;
-    wrapper.appendChild(langLabel);
-  }
-
-  function init() {
-    findBlocks().forEach(wrapIfNeeded);
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-})();
-
-</script>
-    

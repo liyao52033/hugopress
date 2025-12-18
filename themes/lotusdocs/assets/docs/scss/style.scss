@@ -60,10 +60,10 @@ $code-block-padding-top: {{ if eq .Site.Params.docs.prism true -}}0{{ else }}1.2
 
 // Prism / Chroma
 {{- if eq .Site.Params.docs.prism true }}
-@import {{ printf "'%s%s'" "custom/plugins/prism/themes/" (.Site.Params.docs.prismTheme | default "lotusdocs") }}; // current prism theme
-@import "custom/plugins/prism/prism";
+   @import {{ printf "'%s%s'" "custom/plugins/prism/themes/" (.Site.Params.docs.prismTheme | default "lotusdocs") }}; // current prism theme
+   @import "custom/plugins/prism/prism";
 {{- else }}
-@import "custom/plugins/chroma/default";
+   @import "custom/plugins/chroma/default";
 {{- end -}}
 
 // FlexSearch
@@ -77,3 +77,4 @@ $code-block-padding-top: {{ if eq .Site.Params.docs.prism true -}}0{{ else }}1.2
 
 // Custom Styles
 @import "custom-styles";
+@import "vif-style";

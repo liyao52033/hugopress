@@ -9,12 +9,7 @@
     "dev:prod": "hugo server --environment production --bind 0.0.0.0",
     "build:prod": "bash build.sh",
     "clean": "hugo --cleanDestinationDir",
-    "proxy": "node scripts/proxy.js",
-    "build:js": "esbuild static/js/*.js --bundle --minify --tree-shaking=true --outdir=static/js/dist --format=esm --splitting=true",
-    "build:js:theme": "node scripts/build-theme.cjs",
-    "critical:gulp": "gulp critical-css",
-    "critical:script": "node scripts/critical-css.js",
-    "build:critical": "yarn run build && yarn run critical:script"
+    "proxy": "node scripts/proxy.js"
   },
   "keywords": [
     "hugo"
@@ -25,11 +20,12 @@
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^7.0.2",
     "autoprefixer": "^10.4.22",
-    "esbuild": "^0.27.1",
-    "glob": "^13.0.0",
     "gray-matter": "^4.0.3",
     "http-proxy": "^1.18.1",
     "postcss": "^8.5.6",
     "postcss-cli": "^11.0.1"
+  },
+  "dependencies": {
+    "echarts": "^6.0.0"
   }
 }
