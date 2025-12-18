@@ -1,8 +1,8 @@
 # 自动截断规则
 auto_split:
   enable: true                          # 是否开启自动截断
-  word_threshold: 6000                  # 触发截断的字符数阈值
-  paragraph_ratio: 0.3                 # 自动截断保留前30%段落
+  word_threshold: 8200                  # 触发截断的字符数阈值
+  paragraph_ratio: 0.5                 # 自动截断保留前50%段落
   manual_marker: "<!--more-->"          # 手动分割标记
 
 # v-if 触发模式默认配置
