@@ -30,24 +30,14 @@ class CodeBlockManager {
             this.initialized = true;
             return;
         }
-
         this.initAll();
         this.initialized = true;
     }
 
     hasCodeBlockContent() {
-        const selectors = [
-            'pre > code[class*="language-"]',
-            'code[class*="language-"]',
-            '.highlight',
-            '.chroma'
-        ];
-
-        for (const selector of selectors) {
-            if (document.querySelector(selector)) {
+        if (document.querySelector('pre>code')) {
                 return true;
             }
-        }
         return false;
     }
 

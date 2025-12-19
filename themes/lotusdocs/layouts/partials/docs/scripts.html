@@ -1,25 +1,43 @@
+<!-- 引入第三方成品脚本，无需构建压缩，以免破坏原有代码 -->
 {{ $dayjs := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/dayjs.min.js") }}
 {{ $relativeTime := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/relativeTime.min.js") }}
-{{ $app := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/app.js") -}}
-
-{{ $slice := slice $dayjs $relativeTime $app -}}
-
-{{ if and (.Site.Params.docsearch.appID) (.Site.Params.docsearch.apiKey) -}}
-{{ $docsearch := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/docsearch.min.js") }}
-{{ $slice = $slice | append $docsearch -}}
-{{ end }}
+{{ $thirdSlice := slice $dayjs $relativeTime -}}
 
 {{ if site.Params.docs.toc | default true }}
-{{ if eq .Site.Params.docs.scrollSpy true -}}
-{{ $simplescrollspy := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/simple-scrollspy.min.js") }}
-{{ $slice = $slice | append $simplescrollspy -}}
+  {{ if eq .Site.Params.docs.scrollSpy true -}}
+    {{ $simplescrollspy := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/simple-scrollspy.min.js") }}
+    {{ $thirdSlice = $thirdSlice | append $simplescrollspy -}}
+  {{ end -}}
 {{ end -}}
 
-{{ if eq .Site.Params.docs.scrollSpy true -}}
-{{ $scrollspyScript := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/scrollspy-script.js") }}
-{{ $scrollspyScript := $scrollspyScript | js.Build -}}
-{{ $slice = $slice | append $scrollspyScript -}}
+<!-- 引入 algolia DocSearch 脚本 -->
+{{ if and (.Site.Params.docsearch.appID) (.Site.Params.docsearch.apiKey) -}}
+  {{ $docsearch := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/docsearch.min.js") }}
+  {{ $thirdSlice = $thirdSlice | append $docsearch -}}
+{{ end }}
+
+{{ $thirdJS := $thirdSlice | resources.Concat (printf "/%s/%s" ($.Scratch.Get "pathName") "js/third.js") -}}
+
+<!-- 引入自定义脚本 -->
+{{ $app := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/app.js") -}}
+{{ $slice := slice $app -}}
+
+<!-- 引入图片缩放脚本 -->
+{{ $imageZoomJS := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/imageZoom.js") -}}
+{{ $slice = $slice | append $imageZoomJS -}}
+
+<!-- Dark Mode -->
+{{ if eq .Site.Params.docs.darkMode true -}}
+  {{ $darkModeInit := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/darkmode-init.js") -}}
+  {{ $slice = $slice | append $darkModeInit -}}
 {{ end -}}
+
+<!-- 引入滚动监听脚本 -->
+{{ if site.Params.docs.toc | default true }}
+  {{ if eq .Site.Params.docs.scrollSpy true -}}
+    {{ $scrollspyScript := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/scrollspy-script.js") }}
+    {{ $slice = $slice | append $scrollspyScript -}}
+  {{ end -}}
 {{ end -}}
 
 {{ if site.Params.docs.tocMobile | default true }}
@@ -29,9 +47,9 @@
 
 <!-- 引入代码块管理器JS -->
 {{ $codeBlockManager := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/code-block-manager.js") }}
-{{ $codeBlockManager = $codeBlockManager | js.Build -}}
 {{ $slice = $slice | append $codeBlockManager -}}
 
+<!-- 引入 Prism.js 代码高亮 -->
 {{ if eq .Site.Params.docs.prism true -}}
   {{ $prism := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/prism.js") }}
   {{- $opts := dict
@@ -39,23 +57,40 @@
   -}}
   {{ $prism := $prism | js.Build $opts -}}
   {{ $slice = $slice | append $prism -}}
-{{ end -}} 
-
+{{ end -}}
 
 <!-- 引入v-if核心JS（使用Hugo资源管道处理） -->
 {{ $vifCoreJs := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/v-if-core.js") }}
-{{ $vifCoreJs = $vifCoreJs | js.Build -}}
 {{ $slice = $slice | append $vifCoreJs -}}
 
-{{ $js := $slice | resources.Concat (printf "/%s/%s" ($.Scratch.Get "pathName") "js/bundle.js") -}}
+{{ $Js := $slice | resources.Concat (printf "/%s/%s" ($.Scratch.Get "pathName") "js/custom.js") -}}
 
-{{- if not hugo.IsServer }}
-{{- $js := $js | minify | fingerprint "sha384" -}}
-<script type="text/javascript" src="{{ $js.Permalink }}" integrity="{{ $js.Data.Integrity }}" crossorigin="anonymous"
-  defer></script>
-{{- else }}
-<script type="text/javascript" src="{{ $js.Permalink }}" defer></script>
-{{- end }}
+{{/* 统一构建配置 */}}
+{{ $params := dict }}
+{{ $sourceMap := cond hugo.IsProduction "" "inline" }}
+{{ $opts := dict
+"sourceMap" $sourceMap
+"minify" hugo.IsProduction
+"target" "es2018"
+"params" $params
+"treeShaking" true
+}}
+
+{{/* 构建合并后的自定义JS */}}
+{{ $customJs := $Js | js.Build $opts -}}
+
+<!-- 合并第三方成品脚本与自定义脚本 -->
+{{ $commbineJs := slice $thirdJS $customJs -}}
+{{ $finalJs := $commbineJs | resources.Concat (printf "/%s/%s" ($.Scratch.Get "pathName") "js/bundle.js") -}}
+
+{{/* 生产环境添加指纹 */}}
+{{ if hugo.IsProduction }}
+  {{ $finalJs = $finalJs | fingerprint "sha384" -}}
+{{ end }}
+
+{{/* 输出script标签 */}}
+<script src="{{ $finalJs.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $finalJs.Data.Integrity }}" {{ end -}} defer></script>
+
 <script>
   (function () {
     try {

@@ -12,51 +12,66 @@
     <meta name="website" content="https://lotusdocs.dev" />
     <meta name="Version" content="v0.1.0" />
     <meta name="algolia-site-verification" content="2870E376591D9E12" />
-    <link href="/scss/bootstrap.min.css" rel="stylesheet">
+
+    {{- $bootstrapCss := resources.Get "scss/bootstrap.min.css" -}}
+    {{- $bootstrapCss = $bootstrapCss | resources.ExecuteAsTemplate "/scss/bootstrap.min.css" . | css.PostCSS }}
+    {{/*  {{- if hugo.IsProduction }}
+        {{- $bootstrapCss = $bootstrapCss | fingerprint "sha384" }}
+    {{- end }}  */}}
+    {{/*  <link href="{{$bootstrapCss.RelPermalink}}" rel="stylesheet" {{ if hugo.IsProduction
+        }}integrity="{{ $bootstrapCss.Data.Integrity }}" {{ end -}} />  */}}
 
     <!-- 所有 CSS 均应放在 <head>，确保渲染优先 -->
     <!-- favicon -->
     {{ block "head/favicon" . }}{{ partialCached "head/favicon.html" . }}{{ end }}
     <!-- Google Fonts -->
     {{- partial "google-fonts" . }}
+
     <!-- Custom CSS -->
     {{- $options := dict "enableSourceMap" true }}
     {{- if hugo.IsProduction}}
-    {{- $options := dict "enableSourceMap" false "outputStyle" "compressed" }}
+        {{- $options := dict "enableSourceMap" false "outputStyle" "compressed" }}
     {{- end }}
     {{- $style := resources.Get "scss/style.scss" }}
     {{- $style = $style | resources.ExecuteAsTemplate "/scss/style.scss" . | css.Sass $options | css.PostCSS }}
     {{- if hugo.IsProduction }}
-    {{- $style = $style | minify | fingerprint "sha384" }}
+        {{- $style = $style | minify }}
+        {{/*  {{- $style = $style | minify | fingerprint "sha384" }}  */}}
     {{- end -}}
-    <link rel="stylesheet" href="{{ $style.RelPermalink }}" {{ if hugo.IsProduction
-        }}integrity="{{ $style.Data.Integrity }}" {{ end -}} />
+    {{- $bundle := (slice $bootstrapCss $style) | resources.Concat "/scss/bundle.css" }}
+    {{- if hugo.IsProduction }}
+        {{- $bundle = $bundle | fingerprint "sha384" }}
+    {{- end }}
+    <link rel="stylesheet" href="{{ $bundle.RelPermalink }}" {{ if hugo.IsProduction
+        }}integrity="{{ $bundle.Data.Integrity }}" {{ end -}} />
 
     <!-- Image Compare Viewer -->
     {{ if ($.Scratch.Get "image_compare_enabled") }}
-    {{ $imagecompare := resources.Get "js/image-compare-viewer.min.js" }}
-    {{ $params := dict }}
-    {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
-    {{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params "treeShaking" true }}
-    {{ $imagecompare = $imagecompare | js.Build $opts }}
-    {{- if not hugo.IsServer }}
-    {{- $js := (slice $imagecompare) | resources.Concat "/js/image-compare.js" | minify | fingerprint "sha384" }}
-    <script type="text/javascript" src="{{ $js.Permalink }}" integrity="{{ $js.Data.Integrity }}" defer></script>
-    {{- else }}
-    {{- $js := (slice $imagecompare) | resources.Concat "/js/image-compare.js" }}
-    <script type="text/javascript" src="{{ $js.Permalink }}" defer></script>
+        {{ $imagecompare := resources.Get "js/image-compare-viewer.min.js" }}
+        {{ $params := dict }}
+        {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
+        {{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params "treeShaking" true }}
+        {{ $imagecompare = $imagecompare | js.Build $opts }}
+        {{- if not hugo.IsServer }}
+            {{- $js := (slice $imagecompare) | resources.Concat "/js/image-compare.js" | minify | fingerprint "sha384" }}
+            <script type="text/javascript" src="{{ $js.Permalink }}" integrity="{{ $js.Data.Integrity }}" defer></script>
+        {{- else }}
+            {{- $js := (slice $imagecompare) | resources.Concat "/js/image-compare.js" }}
+            <script type="text/javascript" src="{{ $js.Permalink }}" defer></script>
+        {{- end }}
     {{- end }}
-    {{- end }}
+
     <!-- Plausible Analytics Config -->
     {{- if not hugo.IsServer }}
-    {{ if and (.Site.Params.plausible.scriptURL) (.Site.Params.plausible.dataDomain) -}}
-    {{- partialCached "head/plausible" . }}
+        {{ if and (.Site.Params.plausible.scriptURL) (.Site.Params.plausible.dataDomain) -}}
+        {{- partialCached "head/plausible" . }}
+        {{- end -}}
     {{- end -}}
-    {{- end -}}
+
     <!-- Google Analytics v4 Config -->
     {{- if not hugo.IsServer }}
-    {{- if .Site.Config.Services.GoogleAnalytics.ID }}
-    {{- template "_internal/google_analytics.html" . -}}
-    {{- end -}}
+        {{- if .Site.Config.Services.GoogleAnalytics.ID }}
+        {{- template "_internal/google_analytics.html" . -}}
+        {{- end -}}
     {{- end -}}
 </head>

@@ -73,6 +73,7 @@
                 {{ $wordCount := len (.Content | plainify) }}
                 {{ $readingSpeed := .Site.Params.reading_speed | default 300 }}
                 {{ $readingTime := math.Ceil (div (float $wordCount) $readingSpeed) }}
+                {{/*  <small class="text-muted">{{ $readingTime }}分钟</small>阅读  */}}
               </div>
             </div>
           </div>
@@ -80,7 +81,7 @@
         {{ end }}
       </div>
       {{ else }}
-      <div class="alert alert-warning">暂无文章。</div>
+        <div class="alert alert-warning">暂无文章。</div>
       {{ end }}
     </div>
 
@@ -141,7 +142,7 @@
           {{ end }}
 
           {{ if gt $totalTags $limit }}
-          <a href='{{ "/tags/" | relLangURL }}' class="badge bg-secondary text-decoration-none me-2 mb-2">
+          <a href='{{ "/tags/" | relLangURL }}' class="btn btn-outline-info py-2 text-decoration-none my-2 w-100">
             更多标签({{ sub $totalTags $limit }}) →
           </a>
           {{ end }}
@@ -175,13 +176,13 @@
                 {{ $days := div $hours 24 }}
 
                 {{ if ge $days 1 }}
-                {{ $days }}天前
+                  {{ $days }}天前
                 {{ else if ge $hours 1 }}
-                {{ $hours }}小时前
+                  {{ $hours }}小时前
                 {{ else if ge $minutes 1 }}
-                {{ $minutes }}分钟前
+                  {{ $minutes }}分钟前
                 {{ else }}
-                刚刚
+                  刚刚
                 {{ end }}
                 {{ else }}
                 -

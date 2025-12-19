@@ -29,8 +29,8 @@
 <!-- Footer End -->
 
 {{/*直接引用popper.min.js，不进行压缩处理*/}}
-{{ $popperJs := resources.Get "js/popper.min.js" }}
+{{/*  {{ $popperJs := resources.Get "js/popper.min.js" }}
 {{ if hugo.IsProduction }}
-    {{ $popperJs = $popperJs | fingerprint "sha384" }}
+    {{ $popperJs = $popperJs | fingerprint "sha384" -}}
 {{ end }}
-<script src="{{ $popperJs.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $popperJs.Data.Integrity }}" {{ end -}} defer></script>
+<script src="{{ $popperJs.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $popperJs.Data.Integrity }}" {{ end -}} defer></script>  */}}

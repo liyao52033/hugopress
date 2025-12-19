@@ -59,7 +59,10 @@
 				</div>
 				<div class="card-footer d-flex justify-content-between align-items-center">
 					<small class="text-muted">发表于 {{ .Date.Format "2006-01-02" }}</small>
-					<small class="text-muted">⏱️ {{ .ReadingTime }} 分钟阅读</small>
+					{{ $wordCount := len (.Content | plainify) }}
+					{{ $readingSpeed := .Site.Params.reading_speed | default 300 }}
+					{{ $readingTime := math.Ceil (div (float $wordCount) $readingSpeed) }}
+					<small class="text-muted">⏱️ {{ $readingTime }} 分钟阅读</small>
 				</div>
 				</div>
 			</div>

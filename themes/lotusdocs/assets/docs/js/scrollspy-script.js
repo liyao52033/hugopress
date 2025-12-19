@@ -1,52 +1,42 @@
-// // //ScrollSpy - via https://github.com/kimyvgy/simple-scrollspy
+//ScrollSpy - via https://github.com/kimyvgy/simple-scrollspy
 window.onload = function () {
-    scrollSpy('toc', {
-        sectionClass: 'h2,h3,h4',
-      //  menuActiveTarget: 'href',
-        offset: 100, // 与导航栏高度匹配
-        // scrollContainer: null,
-        // smooth scroll
-        smoothScroll: true,
-        // smoothScrollBehavior: function(element) {
-        //   //  console.log('run "smoothScrollBehavior"...', element)
-        //     element.scrollIntoView({ behavior: 'smooth' })
-        // }
-    });
+    // 检查 scrollSpy 函数是否已定义
+    if (typeof scrollSpy === 'undefined') {
+        console.error('scrollSpy 函数未定义，请确保 simple-scrollspy.min.js 已正确加载');
+        return;
+    }
 
-    // Update browser address bar with the current section's hash
-    const sections = document.querySelectorAll('h2, h3, h4');
-    const updateHash = () => {
-        let currentSection = null;
-        sections.forEach((section) => {
-            const rect = section.getBoundingClientRect();
-            if (rect.top <= 100 && rect.bottom > 100) {
-                currentSection = section;
+    try {
+        scrollSpy('#toc', {
+            sectionClass: 'h2,h3,h4',
+            menuActiveTarget: '#toc a', // 简化选择器
+            offset: 72,
+            smoothScroll: true,
+            smoothScrollBehavior: function (element) {
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            },
+            onActive: function (activeLink) {
+                // 确保侧边栏显示当前高亮项
+                const sidebarContainer = document.querySelector('.docs-toc');
+                if (sidebarContainer && activeLink) {
+                    const linkTop = activeLink.offsetTop;
+                    const containerHeight = sidebarContainer.clientHeight;
+                    const scrollTop = sidebarContainer.scrollTop;
+
+                    // 只在元素不可见时滚动
+                    if (linkTop < scrollTop || linkTop > scrollTop + containerHeight - 50) {
+                        sidebarContainer.scrollTo({
+                            top: linkTop - (containerHeight / 2),
+                            behavior: 'smooth'
+                        });
+                    }
+                }
             }
         });
-        if (currentSection && currentSection.id) {
-            history.replaceState(null, null, `#${currentSection.id}`);
-        }
-    };
-
-    window.addEventListener('scroll', updateHash);
-
-    // 处理新标签页直接打开锚点的场景
-    const initialHash = window.location.hash;
-    if (initialHash) {
-        const targetId = initialHash.slice(1);
-        const targetElement = document.getElementById(targetId);
-        if (targetElement) {
-            targetElement.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-            // 手动补偿导航栏高度
-            // 强制调整位置（考虑 offset）
-            setTimeout(() => {
-                const rect = targetElement.getBoundingClientRect();
-                window.scrollBy(0, rect.top - 100); // 减去 offset
-            }, 100); // 延迟确保滚动完成
-        }
+    } catch (error) {
+        console.error('初始化 scrollSpy 时出错:', error);
     }
-    
 };

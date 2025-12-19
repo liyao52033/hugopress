@@ -30,12 +30,6 @@
     <meta name="Version" content="v0.1.0" />
     <script async src="//at.alicdn.com/t/c/font_5002477_3r8q6p0a9n8.js"></script>
 
-    <!-- 引入图片缩放脚本 -->
-    {{ $imageZoomJS := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/imageZoom.js") -}}
-    {{ $slice := slice $imageZoomJS -}}
-    {{/*  {{ $imageZoom := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/imageZoom.js") | js.Build | minify | fingerprint "sha384" -}}  */}}
-    {{/*  <script type="text/javascript" src="{{ $imageZoom.Permalink }}" {{ if hugo.IsProduction }}integrity="{{ $imageZoom.Data.Integrity }}" {{ end -}} defer></script>  */}}
-
     <!-- favicon -->
     {{ block "favicon" . }}{{ partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "head/favicon.html") . }}{{ end }}
     {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "head/opengraph") . }}
@@ -45,14 +39,6 @@
     {{- with .Site.Title }}
         <link rel="alternate" type="application/atom+xml" title="Atom feed for {{ . }}" href="/index.xml" />
     {{- end }}
-
-    <!-- Dark Mode -->
-    {{ if eq .Site.Params.docs.darkMode true -}}
-        {{ $darkModeInit := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/darkmode-init.js")   -}}
-        {{ $slice = $slice | append $darkModeInit -}}
-        {{/*  {{ $darkModeInit := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/darkmode-init.js") | js.Build | minify -}}
-        <script>{{ $darkModeInit.Content | safeJS }}</script>  */}}
-    {{ end -}}
 
     <!-- FlexSearch -->
     {{ if or (not (isset .Site.Params.flexsearch "enabled")) (eq .Site.Params.flexsearch.enabled true) -}}
@@ -117,19 +103,17 @@
     {{- if .Params.katex -}}
         {{ $katex := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/katex.js") }}
         {{ $katexAutoRender := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/auto-render.js") }}
-        {{/*  {{ $params := dict }}
+        {{ $params := dict }}
         {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
         {{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params "treeShaking" true }}
         {{ $katex = $katex | js.Build $opts }}
-        {{ $katexAutoRender = $katexAutoRender | js.Build $opts }}  */}}
-        {{/*  {{ if hugo.IsProduction }}  */}}
-            {{/*  {{ $katex = $katex | fingerprint "sha384" }}
-            {{ $katexAutoRender = $katexAutoRender | fingerprint "sha384" }}  */}}
-        {{$slice = $slice | append $katex -}}
-        {{$slice = $slice | append $katexAutoRender -}}
-        {{/*  {{- end -}}  */}}
-        {{/*  <script src="{{ $katex.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $katex.Data.Integrity }}" {{ end -}} defer></script>
-        <script src="{{ $katexAutoRender.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $katexAutoRender.Data.Integrity }}" {{ end -}} defer></script>  */}}
+        {{ $katexAutoRender = $katexAutoRender | js.Build $opts }}
+        {{ if hugo.IsProduction }}
+            {{ $katex = $katex | fingerprint "sha384" }}
+            {{ $katexAutoRender = $katexAutoRender | fingerprint "sha384" }}
+        {{- end -}}
+        <script src="{{ $katex.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $katex.Data.Integrity }}" {{ end -}} defer></script>
+        <script src="{{ $katexAutoRender.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $katexAutoRender.Data.Integrity }}" {{ end -}} defer></script>
     {{ end -}}
     <!-- Katex Config -->
     {{ if .Params.katex }}
@@ -149,31 +133,4 @@
             {{- template "_internal/google_analytics.html" . -}}
         {{- end -}}
     {{- end -}}
-
-
-    {{ $Js := $slice | resources.Concat (printf "/%s/%s" ($.Scratch.Get "pathName") "js/head.js") -}}
-    
-    {{/* 统一构建配置 */}}
-    {{ $params := dict }}
-    {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
-    {{ $opts := dict
-    "sourceMap" $sourceMap
-    "minify" hugo.IsProduction
-    "target" "es2018"
-    "params" $params
-    "treeShaking" true
-    }}
-    
-    {{/* 构建合并后的JS */}}
-    {{ $finalJs := $Js | js.Build $opts }}  
-    
-    {{/* 生产环境添加指纹 */}}
-    {{ if hugo.IsProduction }}
-        {{ $finalJs = $finalJs | fingerprint "sha384" }}
-    {{ end }}
-    
-    {{/* 输出script标签 */}}
-    <script src="{{ $finalJs.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $finalJs.Data.Integrity }}" {{ end -}}
-        defer></script>
-
 </head>

@@ -47,14 +47,11 @@ If so, collect and consolidate the items config from each enabled instance
     {{ $params := dict }}
     {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
     {{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params "treeShaking" true }}
-    {{ $app = $app | js.Build $opts }}
-    {{- if not hugo.IsServer }}
-        {{- $js := (slice $app) | resources.Concat "/js/bundle.js" | fingerprint "sha384" }}
-        <script type="text/javascript" src="{{ $js.Permalink }}" integrity="{{ $js.Data.Integrity }}"></script>
-    {{- else }}
-        {{- $js := (slice $app ) | resources.Concat "/js/bundle.js" }}
-        <script type="text/javascript" src="{{ $js.Permalink }}" {{ if hugo.IsProduction }}integrity="{{ $js.Data.Integrity }}" {{ end }}></script>
-    {{- end }}
+    {{ $app = $app | js.Build $opts -}}
+    {{ if hugo.IsProduction }}
+        {{ $app = $app | fingerprint "sha384" }}
+    {{end}}
+    <script type="text/javascript" src="{{ $app.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $app.Data.Integrity }}" {{ end }}></script>
 
     <!-- Image Compare Viewer Config -->
     {{/*  {{ if ($.Scratch.Get "image_compare_enabled") }}  */}}

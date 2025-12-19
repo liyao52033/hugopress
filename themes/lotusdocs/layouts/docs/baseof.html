@@ -21,7 +21,9 @@
                         {{ else }}
                             {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "top-header.html") . .RelPermalink -}}
                         {{ end }}
-                      
+
+                        
+
                             <div class="container-fluid">
                                 <div class="layout-spacing">
                                     {{ $currentPage := . -}}
@@ -90,14 +92,13 @@
                                 </div>
                             </div>
                             {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName" ) "footer.html") . -}}
-                          
-
                     </main>
             </div>
         </div>
 
         {{/* common CSS and JS */}}
         {{- partialCached "basic.html" . -}}
+     
 
         {{ if site.Params.docs.backToTop | default true }}
         <!-- Back to top -->
@@ -111,8 +112,6 @@
             <script>{{ $darkModeSwitch.Content | safeJS }}</script>
         {{ end -}}
 
-        {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "footer/footer-scripts.html") . -}}
-
         <!-- DocSearch Config -->
         {{ if and (.Site.Params.docsearch.appID) (.Site.Params.docsearch.apiKey) -}}
             {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "footer/docsearch.html") . -}}
@@ -125,6 +124,8 @@
                 {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "footer/flexsearch.html") . -}}
             {{ end }}
         {{ end }}
+
+        {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "scripts.html") . -}}
 
      
     </body>

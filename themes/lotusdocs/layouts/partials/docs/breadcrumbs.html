@@ -53,8 +53,11 @@
         {{ if $index }}/{{ end }}{{ $cat }}
       {{ end }}
     </span>
-    <span title="本文字数" style="cursor: pointer;">📖 {{ len (.Content | plainify) }} </span>
-    <span title="阅读时长" style="cursor: pointer;">⏱ {{ .ReadingTime }}m</span>
+    {{ $wordCount := len (.Content | plainify) }}
+    {{ $readingSpeed := .Site.Params.reading_speed | default 300 }}
+    {{ $readingTime := math.Ceil (div (float $wordCount) $readingSpeed) }}
+    <span title="本文字数" style="cursor: pointer;">📖 {{ $wordCount }} </span>
+    <span title="预计阅读时长" style="cursor: pointer;">⏱ {{ $readingTime }}m</span>
     <span title="本文阅读量" style="cursor: pointer;">👁 <span id="busuanzi_page_pv"></span></span>
     <span title="本文访客数" style="cursor: pointer;">⏲ <span id="busuanzi_page_uv"></span></span> 
   </div>

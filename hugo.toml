@@ -96,7 +96,7 @@ ignoreLogs = ['warning-goldmark-raw-html']
     secondary_font  = "'Comic Sans MS', 'Microsoft YaHei', sans-serif"   
     mono_font       = "'Courier New', 'Consolas', monospace" 
 
-    reading_speed = 300                             # 这里设置你想要的每分钟字数，比如300字/分钟
+    reading_speed = 500                            # 这里设置你想要的每分钟字数，比如300字符/分钟
 
     # algolia搜索
     [params.docsearch] 
