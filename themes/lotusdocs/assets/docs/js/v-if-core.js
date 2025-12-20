@@ -298,9 +298,17 @@ class HugoVIf {
         document.addEventListener('click', (event) => {
             // 检查点击的是否是侧边栏链接
             const link = event.target.closest('#toc a');
-           
+            // 过滤：不是 #toc 下的a标签，或链接无href属性则直接返回
+            if (!link || !link.href) return;
+
+            // 阻止默认跳转行为（如需自定义滚动逻辑，可保留此句）
+            event.preventDefault();
+            
             // 获取侧边栏目标元素
             const targetId = link.getAttribute('href');
+            // 过滤无效ID（如href不是以#开头的锚点）
+            if (!targetId || targetId === '#') return;
+
             let targetElement = null;
 
             // 获取隐藏目标元素ID
@@ -310,6 +318,7 @@ class HugoVIf {
 
             // 先显示内容
             this.show(elementId);
+            // 等待内容显示后再获取目标元素
             setTimeout(() => {
                 targetElement = document.querySelector(targetId);
             }, 100);
@@ -317,7 +326,6 @@ class HugoVIf {
             // 等待DOM更新后再滚动
             setTimeout(() => {
                 const top = targetElement.getBoundingClientRect().top;
-                console.log('目标元素顶部距离:', top);
                 window.scrollTo({
                     top: top + window.scrollY - 72,
                     behavior: 'smooth'
