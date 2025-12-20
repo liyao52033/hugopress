@@ -104,7 +104,7 @@ class HugoVIf {
         if (!containers.length) return;
 
         // 添加全局点击事件监听，处理侧边栏链接点击
-     //   this.setupSidebarLinkHandler();
+        this.setupSidebarLinkHandler();
 
         containers.forEach(container => {
             const name = container.dataset.vifName;
@@ -301,9 +301,7 @@ class HugoVIf {
            
             // 获取侧边栏目标元素
             const targetId = link.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
-         
-           
+            let targetElement = null;
 
             // 获取隐藏目标元素ID
             const element = document.querySelector('.vif-loading');
@@ -312,10 +310,18 @@ class HugoVIf {
 
             // 先显示内容
             this.show(elementId);
+            setTimeout(() => {
+                targetElement = document.querySelector(targetId);
+            }, 100);
 
             // 等待DOM更新后再滚动
             setTimeout(() => {
-                window.location.href = link.href;
+                const top = targetElement.getBoundingClientRect().top;
+                console.log('目标元素顶部距离:', top);
+                window.scrollTo({
+                    top: top + window.scrollY - 72,
+                    behavior: 'smooth'
+                });
             }, 300);
 
         });

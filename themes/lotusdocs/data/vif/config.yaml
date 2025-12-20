@@ -1,7 +1,7 @@
 # 自动截断规则
 auto_split:
   enable: true                          # 是否开启自动截断
-  word_threshold: 80000000                  # 触发截断的字符数阈值
+  word_threshold: 8000                  # 触发截断的字符数阈值
   paragraph_ratio: 0.4                 # 自动截断保留前40%段落
   manual_marker: "<!--more-->"          # 手动分割标记
 
