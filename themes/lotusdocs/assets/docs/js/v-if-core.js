@@ -103,6 +103,9 @@ class HugoVIf {
         const containers = document.querySelectorAll('.v-if-container');
         if (!containers.length) return;
 
+        // 添加全局点击事件监听，处理侧边栏链接点击
+     //   this.setupSidebarLinkHandler();
+
         containers.forEach(container => {
             const name = container.dataset.vifName;
             const isLazy = container.dataset.isLazy === 'true';
@@ -288,6 +291,34 @@ class HugoVIf {
                 console.error('初始化 scrollSpy 时出错:', error);
             }
         }, 100); // 100ms 延迟
+    }
+
+    // 添加setupSidebarLinkHandler方法
+    setupSidebarLinkHandler() {
+        document.addEventListener('click', (event) => {
+            // 检查点击的是否是侧边栏链接
+            const link = event.target.closest('#toc a');
+           
+            // 获取侧边栏目标元素
+            const targetId = link.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+         
+           
+
+            // 获取隐藏目标元素ID
+            const element = document.querySelector('.vif-loading');
+            if (element.style.display === 'none') return;
+            const elementId = element.id;
+
+            // 先显示内容
+            this.show(elementId);
+
+            // 等待DOM更新后再滚动
+            setTimeout(() => {
+                window.location.href = link.href;
+            }, 300);
+
+        });
     }
     
 

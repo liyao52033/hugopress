@@ -10,7 +10,7 @@ window.onload = function () {
         scrollSpy('#toc', {
             sectionClass: 'h2,h3,h4',
             menuActiveTarget: '#toc a', // 简化选择器
-            offset: 72,
+            offset: 120,
             smoothScroll: true,
             smoothScrollBehavior: function (element) {
                 element.scrollIntoView({
@@ -39,4 +39,6 @@ window.onload = function () {
     } catch (error) {
         console.error('初始化 scrollSpy 时出错:', error);
     }
-};
+}
+
+

@@ -66,7 +66,7 @@
 
         {{/* 触发器类型为自动时，显示加载动画 */}}
         {{ if or (eq $triggerType "scroll") (eq $triggerType "viewport") }}
-        <div id="{{ $vifName }}-loading" class="{{ $vifConfig.style.loading_class }}">
+        <div id="{{ $vifName }}" class="{{ $vifConfig.style.loading_class }}">
             {{ $vifConfig.style.loading_text }}
         </div>
         
@@ -75,7 +75,7 @@
             const vifTarget = document.querySelector(".{{ $vifConfig.style.loading_class }}");
 
             // 加载动画元素
-            const loadingEl = document.getElementById("{{ $vifName }}-loading");
+            const loadingEl = document.getElementById("{{ $vifName }}");
             // 标记是否已执行过toggle（避免重复触发）
             let vifToggled = false;
 

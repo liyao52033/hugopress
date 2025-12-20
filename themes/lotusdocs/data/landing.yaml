@@ -35,15 +35,18 @@ hero:
     rounded: true # round the image corners? default 'false' (excludes .svg images)
 
   buttons:
-    - icon: rocket_launch
+    # - icon: rocket_launch
+    - icon: 
       btnText: "快速开始"
       url: "/pages/fe4521/"
       btnClass: "primary"
-    - icon: construction
+    # - icon: construction
+    - icon: 
       btnText: "组件文档"
       url: "/components/"
       btnClass: "primary"
-    - icon: account_circle
+    # - icon: account_circle
+    - icon: 
       btnText: "个人主页"
       url: "https://xiaoying.org.cn"
       btnClass: "outline-primary"
@@ -59,23 +62,23 @@ featureGrid:
 
   items:
     - title: 快速
-      icon: speed
+      # icon: speed
       description: 基于 Hugo 框架，具备极速编译、跨平台支持、强大内容管理与纯静态部署优势，配合灵活模板与多语言功能，特别适合博客、企业官网和文档站，提供高效、灵活且高可用的建站体验
 
     - title: 专注内容
-      icon: trending_up
+      # icon: trending_up
       description: 只需 Markdown 即可轻松创建美观的文档站点。
 
     - title: 前端模板
-      icon: javascript
+      # icon: javascript
       description: 封装常用组件及hooks, 快速开发前端项目
 
     - title: SpringBoot模板
-      icon: code
+      # icon: code
       description: 开箱即用常见的 SpringBoot 模板，快速开发后端项目。
 
     - title: 博客插件
-      icon: change_history
+      # icon: change_history
       description: 常见vitepress插件, 快速提供博客所需功能
 
 # Image compare

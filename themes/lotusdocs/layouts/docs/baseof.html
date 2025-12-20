@@ -10,6 +10,7 @@
 {{ end }}
 <html lang="{{ site.LanguageCode }}">
     {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "head.html") . -}}
+  
     <body>
         <div class="content">
             <div class="page-wrapper toggled">
@@ -21,9 +22,6 @@
                         {{ else }}
                             {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "top-header.html") . .RelPermalink -}}
                         {{ end }}
-
-                        
-
                             <div class="container-fluid">
                                 <div class="layout-spacing">
                                     {{ $currentPage := . -}}
@@ -98,13 +96,27 @@
 
         {{/* common CSS and JS */}}
         {{- partialCached "basic.html" . -}}
+        
      
 
         {{ if site.Params.docs.backToTop | default true }}
-        <!-- Back to top -->
-        <button onclick="topFunction()" id="back-to-top" aria-label="Back to Top Button" class="back-to-top fs-5"><svg width="24" height="24"><path d="M12,10.224l-6.3,6.3L4.32,15.152,12,7.472l7.68,7.68L18.3,16.528Z" style="fill:#fff"/></svg></button>
-        <!-- Back to top -->
+            <!-- Back to top -->
+            <button onclick="topFunction()" id="back-to-top" aria-label="Back to Top Button" class="back-to-top fs-5"><svg width="24" height="24"><path d="M12,10.224l-6.3,6.3L4.32,15.152,12,7.472l7.68,7.68L18.3,16.528Z" style="fill:#fff"/></svg></button>
+            <!-- Back to top -->
+            <script>
+                // 如果全局 topFunction 未定义，则定义它
+                if (typeof topFunction === 'undefined') {
+                    function topFunction() {
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            </script>
         {{ end }}
+
+        {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "scripts.html") . -}}
 
         <!-- Dark Mode Switch JS -->
         {{ if eq .Site.Params.docs.darkMode true -}}
@@ -125,8 +137,5 @@
             {{ end }}
         {{ end }}
 
-        {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "scripts.html") . -}}
-
-     
     </body>
 </html>

@@ -237,10 +237,10 @@ function scrollFunction() {
     }
 }
 
-function topFunction() {
-    document.body.scrollTop = 0;
-    document.documentElement.scrollTop = 0;
-}
+// function topFunction() {
+//     document.body.scrollTop = 0;
+//     document.documentElement.scrollTop = 0;
+// }
 
 // dd-menu
 if (document.getElementsByClassName("dd-menu")) {

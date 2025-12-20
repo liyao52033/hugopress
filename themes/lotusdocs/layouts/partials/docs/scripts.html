@@ -32,6 +32,20 @@
   {{ $slice = $slice | append $darkModeInit -}}
 {{ end -}}
 
+<!-- 引入代码块管理器JS -->
+{{ $codeBlockManager := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/code-block-manager.js") }}
+{{ $slice = $slice | append $codeBlockManager -}}
+
+<!-- 引入 Prism.js 代码高亮 -->
+{{ if eq .Site.Params.docs.prism true -}}
+{{ $prism := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/prism.js") }}
+{{- $opts := dict
+"params" (dict "langPath" (urls.JoinPath .Site.BaseURL "docs/js/components/"))
+-}}
+{{ $prism := $prism | js.Build $opts -}}
+{{ $slice = $slice | append $prism -}}
+{{ end -}}
+
 <!-- 引入滚动监听脚本 -->
 {{ if site.Params.docs.toc | default true }}
   {{ if eq .Site.Params.docs.scrollSpy true -}}
@@ -43,20 +57,6 @@
 {{ if site.Params.docs.tocMobile | default true }}
   {{ $tocmobilescrollspy := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/toc-mobile-scrollspy.js") }}
   {{ $slice = $slice | append $tocmobilescrollspy -}}
-{{ end -}}
-
-<!-- 引入代码块管理器JS -->
-{{ $codeBlockManager := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/code-block-manager.js") }}
-{{ $slice = $slice | append $codeBlockManager -}}
-
-<!-- 引入 Prism.js 代码高亮 -->
-{{ if eq .Site.Params.docs.prism true -}}
-  {{ $prism := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/prism.js") }}
-  {{- $opts := dict
-  "params" (dict "langPath" (urls.JoinPath .Site.BaseURL "docs/js/components/"))
-  -}}
-  {{ $prism := $prism | js.Build $opts -}}
-  {{ $slice = $slice | append $prism -}}
 {{ end -}}
 
 <!-- 引入v-if核心JS（使用Hugo资源管道处理） -->
