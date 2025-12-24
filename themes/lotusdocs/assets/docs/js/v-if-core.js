@@ -163,30 +163,41 @@ class HugoVIf {
         } else {
             parent.appendChild(container);
         }
+
         container.style.display = 'block';
         // 更新状态
         this.conditions.set(name, true);
         this.cache.delete(name);
 
-        // 初始化代码块行号和语言标签
-        if (window.codeBlockManager) {
-            window.codeBlockManager.reinit();
-            window.Prism.highlightAll();
-        }
+        // 使用requestAnimationFrame确保DOM完全渲染后再执行后续操作
+        requestAnimationFrame(() => {
+            // 初始化代码块行号和语言标签
+            if (window.codeBlockManager) {
+                window.codeBlockManager.reinit();
+                window.Prism.highlightAll();
+            }
 
-        // 处理图片
-        if (window.ImageHandler) {
-            window.ImageHandler.processImages(container);
-        }
+            // 处理图片
+            if (window.ImageHandler) {
+                window.ImageHandler.processImages(container);
+            }
 
-        // 初始化KaTeX数学公式
-        this.initKaTeX();
+            // 初始化KaTeX数学公式
+            this.initKaTeX();
 
-        // 初始化Mermaid图表
-        this.initMermaid();
+            // 初始化Mermaid图表
+            this.initMermaid();
 
-        // 初始化ScrollSpy
-        this.initScrollSpy();
+            // 延迟刷新ScrollSpy，确保DOM完全稳定
+            setTimeout(() => {
+                this.refreshScrollSpyAfterUpdate();
+                // 确保加载状态被正确隐藏
+                const loadingIndicator = document.querySelector('.v-if-loading');
+                if (loadingIndicator) {
+                    loadingIndicator.style.display = 'none';
+                }
+            }, 100);
+        });
     }
 
     // 隐藏内容：移除DOM并缓存（保持不变）
@@ -235,75 +246,30 @@ class HugoVIf {
     }
 
 
-    // 初始化ScrollSpy
-    initScrollSpy() {
-        // 使用防抖，避免频繁重新初始化
-        if (this.scrollSpyTimeout) {
-            clearTimeout(this.scrollSpyTimeout);
+    // 内容更新后刷新ScrollSpy
+    refreshScrollSpyAfterUpdate() {
+        // 移动端刷新ScrollSpy - 使用增强的重置功能
+        if (window.bootstrapScrollSpyInstance && window.forceResetMobileScrollSpy) {
+            window.forceResetMobileScrollSpy();
+        } 
+
+        // 桌面端刷新 ScrollSpy
+        if (typeof window.refreshScrollSpy === 'function') {
+            window.refreshScrollSpy();
         }
-        
-        this.scrollSpyTimeout = setTimeout(() => {
-            // 检查 scrollSpy 函数是否已定义
-            if (typeof scrollSpy === 'undefined') {
-                console.error('scrollSpy 函数未定义，请确保 simple-scrollspy.min.js 已正确加载');
-                return;
-            }
-
-            try {
-                // 如果已经存在 scrollSpy 实例，先销毁它
-                if (window.scrollSpyInstance) {
-                    window.scrollSpyInstance = null;
-                }
-
-                // 等待DOM更新完成后再初始化
-                requestAnimationFrame(() => {
-                    window.scrollSpyInstance = scrollSpy('#toc', {
-                        sectionClass: 'h2,h3,h4',
-                        menuActiveTarget: '#toc a',
-                        offset: 72,
-                        smoothScroll: true,
-                        smoothScrollBehavior: function (element) {
-                            element.scrollIntoView({
-                                behavior: 'smooth',
-                                block: 'start'
-                            });
-                        },
-                        onActive: function (activeLink) {
-                            // 确保侧边栏显示当前高亮项
-                            const sidebarContainer = document.querySelector('.docs-toc');
-                            if (sidebarContainer && activeLink) {
-                                const linkTop = activeLink.offsetTop;
-                                const containerHeight = sidebarContainer.clientHeight;
-                                const scrollTop = sidebarContainer.scrollTop;
-
-                                // 只在元素不可见时滚动
-                                if (linkTop < scrollTop || linkTop > scrollTop + containerHeight - 50) {
-                                    sidebarContainer.scrollTo({
-                                        top: linkTop - (containerHeight / 2),
-                                        behavior: 'smooth'
-                                    });
-                                }
-                            }
-                        }
-                    });
-                });
-            } catch (error) {
-                console.error('初始化 scrollSpy 时出错:', error);
-            }
-        }, 100); // 100ms 延迟
     }
 
     // 添加setupSidebarLinkHandler方法
     setupSidebarLinkHandler() {
         document.addEventListener('click', (event) => {
             // 检查点击的是否是侧边栏链接
-            const link = event.target.closest('#toc a');
+            const link = event.target.closest('#toc a, #toc-mobile a');
             // 过滤：不是 #toc 下的a标签，或链接无href属性则直接返回
             if (!link || !link.href) return;
 
             // 阻止默认跳转行为（如需自定义滚动逻辑，可保留此句）
             event.preventDefault();
-            
+
             // 获取侧边栏目标元素
             const targetId = link.getAttribute('href');
             // 过滤无效ID（如href不是以#开头的锚点）
@@ -330,11 +296,16 @@ class HugoVIf {
                     top: top + window.scrollY - 72,
                     behavior: 'smooth'
                 });
+
+                // 滚动后再次刷新ScrollSpy，确保高亮正确
+                setTimeout(() => {
+                    this.refreshScrollSpyAfterUpdate();
+                }, 100);
             }, 300);
 
         });
     }
-    
+
 
 
     // 防抖工具函数（保持不变）

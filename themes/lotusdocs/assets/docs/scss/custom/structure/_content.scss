@@ -41,6 +41,7 @@
     order: 1;
 }
 
+
 // Links
 .docs-content .main-content a {
     font-weight: 600;
@@ -278,4 +279,11 @@ i {
 
 .docs-content figcaption {
     font-size: small;
+}
+
+
+@media (max-width: 996px) {
+    .docs-content .main-content {
+        scroll-margin-top: 120px;
+    }
 }

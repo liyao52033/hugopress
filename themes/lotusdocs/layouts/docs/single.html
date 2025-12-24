@@ -55,7 +55,7 @@
     {{ $viewportThreshold := .Params.vif_viewport_threshold | default
     $vifConfig.trigger.viewport_threshold }}
 
-    <div class="v-if-toggle-wrapper">
+    {{/*  <div class="v-if-toggle-wrapper">  */}}
         {{/* 手动模式显示切换按钮 */}}
         {{ if eq $triggerType "manual" }}
         <button onclick="hugoVIf.toggle('{{ $vifName }}');this.style.display = 'none';"
@@ -156,7 +156,7 @@
             data-content="{{ $secondPart | base64Encode }}" 
             style="display: none;">
         </div>
-    </div>
+    {{/*  </div>  */}}
     {{ else }}
     {{/* 短文章直接渲染全部内容 */}}
     {{ $content | safeHTML }}

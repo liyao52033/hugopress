@@ -18,11 +18,10 @@
 
 .docs-toc-mobile {
     position: sticky;
-    // top: 71px; // important (must be set)
-    top: 85px; // important (must be set)
+    top: 72px; // important (must be set)
     padding-left: calc(var(--bs-gutter-x) * 1.05);
     padding-right: calc(var(--bs-gutter-x) * 1.05);
-    z-index: 20;
+    z-index: 30;
 
     // &.toc-pinned {
     //     padding: 0;
@@ -44,10 +43,10 @@
 
     .dropdown-toggle {
         margin-bottom: 16px;
-        background: var(--toc-mobile-btn-bg-color);
-        color: var(--text-default);
+     //   background: var(--toc-mobile-btn-bg-color);
+    //    color: var(--text-default);
         padding: 4px;
-        border: 1px solid var(--alert-border-color);
+    //    border: 1px solid var(--alert-border-color);
         border-radius: 4px;
         width: calc(100% + 2px);
         white-space: normal;
@@ -61,7 +60,7 @@
         border-top: none;
         border-radius: 0 0 4px 4px;
         width: calc(100% - (var(--bs-gutter-x)*2));
-        max-height: 40vh;
+        max-height: 70vh;
         overflow-y: auto;
         scrollbar-width: thin;
         li {

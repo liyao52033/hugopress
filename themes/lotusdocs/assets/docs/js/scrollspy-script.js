@@ -6,8 +6,18 @@ window.onload = function () {
         return;
     }
 
+    // 初始化 ScrollSpy
+    initScrollSpy();
+
+    // 添加全局刷新函数，供外部调用
+    window.refreshScrollSpy = refreshScrollSpy;
+}
+
+// 初始化 ScrollSpy 函数
+function initScrollSpy() {
     try {
-        scrollSpy('#toc', {
+        // 将初始scrollSpy实例保存到window.scrollSpyInstance中，以便后续可以正确销毁
+        window.scrollSpyInstance = scrollSpy('#toc', {
             sectionClass: 'h2,h3,h4',
             menuActiveTarget: '#toc a', // 简化选择器
             offset: 120,
@@ -38,6 +48,32 @@ window.onload = function () {
         });
     } catch (error) {
         console.error('初始化 scrollSpy 时出错:', error);
+    }
+}
+
+// 刷新 ScrollSpy 函数，用于 DOM 变化后更新
+function refreshScrollSpy() {
+    try {
+        // 如果没有 scrollSpy 实例，则初始化一个新的
+        if (!window.scrollSpyInstance) {
+            initScrollSpy();
+            return;
+        }
+
+        // 移除所有菜单项的active类，避免多个高亮
+        document.querySelectorAll('#toc a.active').forEach(link => {
+            link.classList.remove('active');
+        });
+
+        // 销毁旧实例
+        window.scrollSpyInstance = null;
+
+        // 等待DOM更新完成后再初始化
+        requestAnimationFrame(() => {
+            initScrollSpy();
+        });
+    } catch (error) {
+        console.error('刷新 scrollSpy 时出错:', error);
     }
 }
 
