@@ -3,15 +3,32 @@
   position: absolute;
   top: 0;
   left: 0;
-  display: flex; /* 让圆点和文字横向排列 */
-  align-items: center; /* 垂直居中 */
+  display: flex;
+  /* 让圆点和文字横向排列 */
+  align-items: center;
+  /* 垂直居中 */
   padding: 0.25em 0.5em;
   font-size: 18px;
   font-weight: 700;
   color: #00BCD4;
-  background: transparent; /* 浅色背景，可根据主题调整 */
-  border-bottom-right-radius: 4px; /* 右下角圆角 */
-  z-index: 1; /* 确保在代码块上层 */
+  background: transparent;
+  /* 浅色背景，可根据主题调整 */
+  border-bottom-right-radius: 4px;
+  /* 右下角圆角 */
+  z-index: 1;
+  /* 确保在代码块上层 */
+}
+
+/* 确保在code-toolbar容器中正确定位 */
+.code-toolbar {
+  position: relative;
+}
+
+.code-toolbar>.cb-language-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
 }
 
 /* 彩色圆点通用样式 */
@@ -19,25 +36,31 @@
   display: inline-block;
   width: 13px;
   height: 13px;
-  border-radius: 50%; /* 圆形 */
-  margin-right: 5px; /* 圆点之间的间距 */
+  border-radius: 50%;
+  /* 圆形 */
+  margin-right: 5px;
+  /* 圆点之间的间距 */
 }
 
 /* 各圆点颜色（模拟 macOS 窗口圆点） */
 .cb-dot.red {
   background-color: #ff5f56;
 }
+
 .cb-dot.yellow {
   background-color: #ffbd2e;
 }
+
 .cb-dot.green {
   background-color: #27c93f;
 }
 
 /* 语言文字样式（如 JS） */
 .cb-lang-text {
-  margin-left: 5px; /* 与圆点的间距 */
-  font-weight: bold; /* 可选：加粗文字 */
+  margin-left: 5px;
+  /* 与圆点的间距 */
+  font-weight: bold;
+  /* 可选：加粗文字 */
 }
 
 /* 按钮样式 */
@@ -52,10 +75,10 @@
   line-height: 1;
   padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
-  border: 1px solid var(--border, rgba(0,0,0,0.1));
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.1));
   background: var(--surface, #fff);
   color: inherit;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   cursor: pointer;
 
   &[aria-expanded="true"] {
@@ -70,29 +93,29 @@
 
 /* 暗色主题样式 */
 html.dark .cb-collapsible.collapsible::after {
-  background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.8));
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8));
 }
 
 html[data-dark-mode] .cb-toggle-btn {
   background: var(--surface, #121212);
-  border-color: rgba(255,255,255,0.16);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
 .docs-content .main-content pre code {
-    font-size: 0.8rem;
-    display: block;
-    margin-top: 1rem;
-    border: none;
-    overflow-x: auto;
-    line-height: 1.5;
-    padding: 0 2.5rem 1.25rem 1rem;
-    tab-size: 4;
-    scrollbar-width: none;
-    /* Firefox */
-     -ms-overflow-style: none;
-    /* IE and Edge */
-   // scrollbar-width: thin;
+  font-size: 0.8rem;
+  display: block;
+  margin-top: 1rem;
+  border: none;
+  overflow-x: auto;
+  line-height: 1.5;
+  padding: 0 2.5rem 1.25rem 1rem;
+  tab-size: 4;
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  // scrollbar-width: thin;
 }
 
 /* 隐藏 Webkit 浏览器的滚动条 */
@@ -115,7 +138,7 @@ html[data-dark-mode] .cb-toggle-btn {
   line-height: 1.5;
 }
 
-.prism-codeblock code[class*="language-"], 
+.prism-codeblock code[class*="language-"],
 .prism-codeblock pre[class*="language-"] {
   // white-space: pre-wrap !important;   
   // word-wrap: break-word;   
@@ -140,7 +163,7 @@ html[data-dark-mode] .cb-toggle-btn {
   flex-direction: column;
 }
 
-.wrap-line-numbers-rows > span {
+.wrap-line-numbers-rows>span {
   display: block;
   counter-increment: linenumber;
   cursor: pointer;
@@ -150,12 +173,12 @@ html[data-dark-mode] .cb-toggle-btn {
   min-height: 1.5em;
 }
 
-.wrap-line-numbers-rows > span:before {
+.wrap-line-numbers-rows>span:before {
   width: fit-content;
   content: counter(linenumber);
 }
 
-.wrap-line-numbers-rows > span:hover {
+.wrap-line-numbers-rows>span:hover {
   background-color: rgba(255, 229, 100, 0.2);
 }
 
@@ -175,6 +198,7 @@ html[data-dark-mode] .cb-toggle-btn {
 }
 
 .line-highlight-overlay::before {
-  color: #d48806;  /* 高亮行号颜色 */
+  color: #d48806;
+  /* 高亮行号颜色 */
   font-weight: bold;
 }

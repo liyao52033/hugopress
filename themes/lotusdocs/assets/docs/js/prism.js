@@ -3733,9 +3733,27 @@ Prism.languages.js = Prism.languages.javascript;
 		var callback;
 
 		if (typeof opts === 'function') {
-			callback = opts;
+			callback = function (env) {
+				// 检查是否已经存在相同类型的按钮
+				var existingButton = env.element.parentNode.querySelector('.toolbar button[data-button-type="' + key + '"]');
+				if (existingButton) {
+					return null; // 返回null表示不创建新按钮
+				}
+
+				var element = opts(env);
+				if (element) {
+					element.setAttribute('data-button-type', key); // 添加按钮类型标识
+				}
+				return element;
+			};
 		} else {
 			callback = function (env) {
+				// 检查是否已经存在相同类型的按钮
+				var existingButton = env.element.parentNode.querySelector('.toolbar button[data-button-type="' + key + '"], .toolbar a[data-button-type="' + key + '"], .toolbar span[data-button-type="' + key + '"]');
+				if (existingButton) {
+					return null; // 返回null表示不创建新按钮
+				}
+
 				var element;
 
 				if (typeof opts.onClick === 'function') {
@@ -3756,6 +3774,7 @@ Prism.languages.js = Prism.languages.javascript;
 				}
 
 				element.textContent = opts.text;
+				element.setAttribute('data-button-type', key); // 添加按钮类型标识
 
 				return element;
 			};
@@ -3804,7 +3823,11 @@ Prism.languages.js = Prism.languages.javascript;
 
 		// Autoloader rehighlights, so only do this once.
 		if (pre.parentNode.classList.contains('code-toolbar')) {
-			return;
+			// 检查是否已经有工具栏，如果有则不再创建新的按钮
+			var existingToolbar = pre.parentNode.querySelector('.toolbar');
+			if (existingToolbar) {
+				return;
+			}
 		}
 
 		// Create wrapper for <pre> to prevent scrolling toolbar with content
@@ -3997,18 +4020,43 @@ Prism.languages.js = Prism.languages.javascript;
 		return settings;
 	}
 
+	// 在代码高亮前预先判断是否需要折叠并设置状态
+	Prism.hooks.add('before-highlight', function (env) {
+		var element = env.element;
+		var pre = element.parentNode;
+
+		// 安全检查
+		if (!pre || !/pre/i.test(pre.nodeName)) {
+			return;
+		}
+
+		var codeBlock = pre.parentNode;
+		if (!codeBlock) {
+			return;
+		}
+
+		// 预先判断是否需要折叠
+		const LIMIT = 400;
+		let need = false;
+
+		//使用代码行数来判断是否需要折叠
+		const codeLines = env.code.split('\n').length;
+		// 假设每行20px，计算近似高度
+		need = codeLines * 20 > LIMIT;
+
+		// 如果需要折叠，预先设置折叠状态
+		if (need) {
+			codeBlock.classList.add('code-collapsed');
+			// 设置pre元素的初始样式，确保折叠状态生效
+			pre.style.overflow = 'hidden';
+			pre.style.maxHeight = '400px';
+		}
+	});
+
 	// 注册折叠按钮
 	Prism.plugins.toolbar.registerButton('collapse-code', function (env) {
 		var element = env.element;
 		var pre = element.parentNode;
-
-		// 处理虚拟滚动元素
-		if (element.classList.contains('prism-virtual-element')) {
-			// 对于虚拟滚动元素，使用存储的原始pre元素
-			if (element._originalPreElement) {
-				pre = element._originalPreElement;
-			}
-		}
 
 		// 安全检查
 		if (!pre || !/pre/i.test(pre.nodeName)) {
@@ -4038,70 +4086,46 @@ Prism.languages.js = Prism.languages.javascript;
 		// btn.setAttribute('data-collapse-state', 'collapsed');
 		btn.textContent = '展开';
 
-		// 检查代码块高度，只有超过400px的才显示折叠按钮
-		// 使用setTimeout确保DOM已经渲染完成
-		setTimeout(function () {
-			const LIMIT = 400;
-			let need = false;
+		// 预先判断是否需要折叠
+		const LIMIT = 400;
+		let need = false;
 
-			// 对于虚拟滚动元素，使用代码行数来判断是否需要折叠
-			if (element.classList.contains('prism-virtual-element') && element._prismVirtualScroll) {
-				const lineCount = element._prismVirtualScroll.lineCount;
-				// 假设每行20px，计算近似高度
-				need = lineCount * 20 > LIMIT;
-			} else {
-				// 对于普通元素，使用实际高度
-				need = pre.scrollHeight > LIMIT;
-			}
+		// 使用代码行数来判断是否需要折叠
+		const codeLines = env.code.split('\n').length;		// 假设每行20px，计算近似高度
+		need = codeLines * 20 > LIMIT;
+		
+		if (need) {
+			// 立即添加折叠按钮和展开按钮
+			codeBlock.appendChild(btn);
 
-			if (need) {
-				codeBlock.appendChild(btn);
+			// 立即应用折叠状态，避免视觉闪烁
+			codeBlock.classList.add('code-collapsed');
 
-				btn.addEventListener('click', function () {
-					codeBlock.classList.remove('code-collapsed');
-					collapseBtn.setAttribute('data-collapse-state', 'expanded');
+			btn.addEventListener('click', function () {
+				codeBlock.classList.remove('code-collapsed');
+				collapseBtn.setAttribute('data-collapse-state', 'expanded');
 
-					btn.style.display = 'none';
+				btn.style.display = 'none';
 
-					// 展开时完整高亮代码块
-					var codeElement = codeBlock.querySelector('code[class*="language-"]');
-					if (codeElement) {
-						// 恢复原始内容并完整高亮
-						// if (codeElement.dataset.originalContent) {
-						// 	codeElement.innerHTML = codeElement.dataset.originalContent;
-						// }
-						// // 使用同步高亮确保立即生效
-						// Prism.highlightElement(codeElement, false);
-						// codeElement.dataset.highlighted = 'true';
+				// 展开时完整高亮代码块
+				var codeElement = codeBlock.querySelector('code[class*="language-"]');
+				if (codeElement) {
 
-						// 确保pre元素和代码元素不启用内部滚动，让代码块跟随页面滚动
-						var preElement = codeElement.parentElement;
-						if (preElement && preElement.tagName.toLowerCase() === 'pre') {
-							preElement.style.overflow = 'auto';
-							preElement.style.maxHeight = 'none';
-						}
-						//	确保代码元素不启用内部滚动
-						codeElement.style.overflow = 'auto';
-
-						//如果是虚拟滚动元素，重新应用虚拟滚动
-						// if (codeElement._prismVirtualScroll) {
-						// 	// 确保容器不启用内部滚动
-						// 	codeElement._prismVirtualScroll.container.style.overflow = 'auto';
-						// 	codeElement._prismVirtualScroll.container.style.maxHeight = 'none';
-						// 	Prism.util.virtualScroll.applyVirtualRendering(codeElement);
-						// }
-
+					// 确保pre元素和代码元素不启用内部滚动，让代码块跟随页面滚动
+					var preElement = codeElement.parentElement;
+					if (preElement && preElement.tagName.toLowerCase() === 'pre') {
+						preElement.style.overflow = 'auto';
+						preElement.style.maxHeight = 'none';
 					}
-				});
+					//	确保代码元素不启用内部滚动
+					codeElement.style.overflow = 'auto';
 
-				// 初始化为折叠状态
-				codeBlock.classList.add('code-collapsed');
-			} else {
-				// 如果不需要折叠，隐藏折叠按钮
-				collapseBtn.style.display = 'none';
-			}
-
-		}, 100);
+				}
+			});
+		} else {
+			// 如果不需要折叠，隐藏折叠按钮
+			collapseBtn.style.display = 'none';
+		}
 
 		collapseBtn.addEventListener('click', function () {
 			var isCollapsed = collapseBtn.getAttribute('data-collapse-state') === 'collapsed';
@@ -4115,24 +4139,14 @@ Prism.languages.js = Prism.languages.javascript;
 				// 展开时完整高亮代码块
 				var codeElement = codeBlock.querySelector('code[class*="language-"]');
 				if (codeElement) {
-					// 恢复原始内容并完整高亮
-					if (codeElement.dataset.originalContent) {
-						codeElement.innerHTML = codeElement.dataset.originalContent;
-					}
-					// 使用同步高亮确保立即生效
-					Prism.highlightElement(codeElement, false);
-					codeElement.dataset.highlighted = 'true';
-
 					// 确保pre元素和代码元素不启用内部滚动，让代码块跟随页面滚动
 					var preElement = codeElement.parentElement;
 					if (preElement && preElement.tagName.toLowerCase() === 'pre') {
-						//	 preElement.style.overflow = 'auto';
+						preElement.style.overflow = 'auto';
 						preElement.style.maxHeight = 'none';
 					}
 					// 确保代码元素不启用内部滚动
-					// codeElement.style.overflow = 'auto';
-
-
+					codeElement.style.overflow = 'auto';
 				}
 			} else {
 				// 折叠
@@ -4146,6 +4160,7 @@ Prism.languages.js = Prism.languages.javascript;
 					var preElement = codeElement.parentElement;
 					if (preElement && preElement.tagName.toLowerCase() === 'pre') {
 						preElement.style.overflow = 'hidden';
+						preElement.style.maxHeight = '400px';
 					}
 				}
 			}
@@ -4170,11 +4185,6 @@ Prism.languages.js = Prism.languages.javascript;
 
 		registerClipboard(linkCopy, {
 			getText: function () {
-				// 对于虚拟滚动元素，确保获取完整的代码内容
-				if (element.classList.contains('prism-virtual-element') && element._originalPreElement) {
-					// 对于虚拟滚动元素，使用原始的pre元素或env.code（源代码）
-					return env.code || element._originalPreElement.textContent || element.textContent;
-				}
 				// 对于普通元素，直接返回textContent
 				return element.textContent;
 			},

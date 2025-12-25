@@ -36,8 +36,8 @@ class CodeBlockManager {
 
     hasCodeBlockContent() {
         if (document.querySelector('pre>code')) {
-                return true;
-            }
+            return true;
+        }
         return false;
     }
 
@@ -88,6 +88,13 @@ class CodeBlockManager {
                 return;
             }
 
+            // 检查是否已经被Prism.js处理过，避免重复创建
+            if (block.parentElement && block.parentElement.classList.contains('code-toolbar')) {
+                // 如果已经被Prism.js处理过，只添加语言标签到工具栏
+                addLanguageLabelToToolbar(block);
+                return;
+            }
+
             const wrapper = document.createElement('div');
             const parent = block.parentNode;
             parent.insertBefore(wrapper, block);
@@ -103,6 +110,33 @@ class CodeBlockManager {
           <span class="cb-lang-text">${language}</span>
           `;
             wrapper.appendChild(langLabel);
+        }
+
+        // 添加语言标签到已存在的Prism工具栏
+        function addLanguageLabelToToolbar(block) {
+            // 检查是否已经添加过语言标签
+            const existingLabel = block.parentElement.querySelector('.cb-language-label');
+            if (existingLabel) {
+                return;
+            }
+
+            const toolbar = block.parentElement.querySelector('.toolbar');
+            if (!toolbar) {
+                return;
+            }
+
+            const language = getLanguage(block).toUpperCase();
+            const langLabel = document.createElement('div');
+            langLabel.className = 'cb-language-label';
+            langLabel.innerHTML = `
+          <span class="cb-dot red"></span>
+          <span class="cb-dot yellow"></span>
+          <span class="cb-dot green"></span>
+          <span class="cb-lang-text">${language}</span>
+          `;
+
+            // 将语言标签插入到工具栏前面
+            toolbar.parentElement.insertBefore(langLabel, toolbar);
         }
 
         findBlocks().forEach(wrapIfNeeded);
@@ -139,7 +173,7 @@ class CodeBlockManager {
             return;
         }
 
-      //  console.log(`处理第${Math.floor(globalIndex / this.maxCodeBlocks) + 1}批代码块，包含${currentBatch.length}个代码块`);
+        //  console.log(`处理第${Math.floor(globalIndex / this.maxCodeBlocks) + 1}批代码块，包含${currentBatch.length}个代码块`);
 
         // 处理当前批次
         this.processBatch(currentBatch, 0, () => {
@@ -151,7 +185,7 @@ class CodeBlockManager {
                 setTimeout(() => {
                     this.processAllBatches(allCodeBlocks, nextIndex);
                 }, this.batchDelay);
-            } 
+            }
         });
     }
 

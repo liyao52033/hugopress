@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "server": "node scripts/add-frontmatter.js && hugo server --disableFastRender -D -F",
+    "dev": "node scripts/add-frontmatter.js && hugo server --disableFastRender -D -F",
     "server:prod": "bash start.sh",
     "build": "hugo -D -F",
     "build:prod": "bash build.sh",

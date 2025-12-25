@@ -171,9 +171,13 @@ class HugoVIf {
 
         // 使用requestAnimationFrame确保DOM完全渲染后再执行后续操作
         requestAnimationFrame(() => {
+          
             // 初始化代码块行号和语言标签
             if (window.codeBlockManager) {
                 window.codeBlockManager.reinit();
+            }
+
+            if (window.Prism) {
                 window.Prism.highlightAll();
             }
 
@@ -192,7 +196,7 @@ class HugoVIf {
             setTimeout(() => {
                 this.refreshScrollSpyAfterUpdate();
                 // 确保加载状态被正确隐藏
-                const loadingIndicator = document.querySelector('.v-if-loading');
+                const loadingIndicator = document.querySelector('.vif-loading');
                 if (loadingIndicator) {
                     loadingIndicator.style.display = 'none';
                 }
@@ -293,7 +297,7 @@ class HugoVIf {
             setTimeout(() => {
                 const top = targetElement.getBoundingClientRect().top;
                 window.scrollTo({
-                    top: top + window.scrollY - 72,
+                    top: top + window.scrollY - 120,
                     behavior: 'smooth'
                 });
 

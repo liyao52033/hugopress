@@ -16,6 +16,15 @@
   {{ $thirdSlice = $thirdSlice | append $docsearch -}}
 {{ end }}
 
+<!-- FlexSearch -->
+{{ if or (not (isset .Site.Params.flexsearch "enabled")) (eq .Site.Params.flexsearch.enabled true) -}}
+    {{ if and (.Site.Params.docsearch.appID) (.Site.Params.docsearch.apiKey) -}}
+    {{ else }}
+        {{ $flexSearch := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/flexsearch.bundle.js") }}
+        {{ $thirdSlice = $thirdSlice | append $flexSearch }}
+    {{ end }}
+{{ end }}
+
 {{ $thirdJS := $thirdSlice | resources.Concat (printf "/%s/%s" ($.Scratch.Get "pathName") "js/third.js") -}}
 
 <!-- 引入自定义脚本 -->

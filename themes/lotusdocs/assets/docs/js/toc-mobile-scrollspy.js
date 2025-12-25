@@ -26,6 +26,14 @@ tocBtn.addEventListener('hidden.bs.dropdown', event => {
     tocBtn.style.borderRadius = '4px';
 });
 
+function debounce(fn, delay = 100) {
+    let timer = 0;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+}
+
 // 增强的ScrollSpy重置功能（用于v-if内容更新后）
 window.forceResetMobileScrollSpy = function () {
     // 完全销毁现有实例
@@ -59,7 +67,7 @@ window.forceResetMobileScrollSpy = function () {
                     const rect = targetElement.getBoundingClientRect();
                     // 计算元素顶部与视口顶部的距离，取绝对值，选择最近的
                     const distance = Math.abs(rect.top);
-                    if (distance < minDistance) {
+                    if (rect.top < 0 && distance < minDistance) {
                         minDistance = distance;
                         activeLink = link;
                     }
@@ -73,7 +81,7 @@ window.forceResetMobileScrollSpy = function () {
                 tocBtn.innerHTML = activeLink.innerHTML;
             }
         };
-        window.addEventListener("scroll", window.scrollHandler);
+        window.addEventListener("scroll", debounce(window.scrollHandler));
 
     }, 50);
 }

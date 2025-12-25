@@ -40,24 +40,6 @@
         <link rel="alternate" type="application/atom+xml" title="Atom feed for {{ . }}" href="/index.xml" />
     {{- end }}
 
-    <!-- FlexSearch -->
-    {{ if or (not (isset .Site.Params.flexsearch "enabled")) (eq .Site.Params.flexsearch.enabled true) -}}
-        {{ if and (.Site.Params.docsearch.appID) (.Site.Params.docsearch.apiKey) -}}
-        {{ else }}
-            {{ $flexSearch := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/flexsearch.bundle.js") }}
-            {{ $params := dict }}
-            {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
-            {{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params "treeShaking" true }}
-            {{ $flexSearch = $flexSearch | js.Build $opts }}
-            {{- if not hugo.IsServer }}
-                {{ $flexSearch = $flexSearch | fingerprint "sha384" }}
-                <script type="text/javascript" src="{{ $flexSearch.Permalink }}" integrity="{{ $flexSearch.Data.Integrity }}" crossorigin="anonymous" async></script>
-            {{ else }}
-                <script type="text/javascript" src="{{ $flexSearch.Permalink }}" async></script>
-            {{ end }}
-        {{ end }}
-    {{ end }}
-
     <!-- Google Fonts -->
     {{- partialCached "google-fonts" . }}
     <!-- Font Variables -->

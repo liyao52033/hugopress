@@ -106,7 +106,13 @@ ignoreLogs = ['warning-goldmark-raw-html']
 
     # 浏览器模糊搜索
     [params.flexsearch]
-      enabled = false
+      enabled = true
+      tokenize            = "full"
+      optimize            = true
+      cache               = 100
+      minQueryChar        = 1 # default is 0 (disabled)
+      maxResult           = 10 # default is 5
+      searchSectionsIndex = "ALL"
     
     [params.docs]
         darkMode = true    
