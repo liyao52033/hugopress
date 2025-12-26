@@ -1,81 +1,132 @@
+{{/* Hugo模板逻辑：准备页面数据 */}}
+{{ $list := slice }}
+{{- if and (isset .Site.Params.flexsearch "searchSectionsIndex") (not (eq (len .Site.Params.flexsearch.searchSectionsIndex) 0)) }}
+    {{- if eq .Site.Params.flexsearch.searchSectionsIndex "ALL" }}
+        {{ $list = .Site.RegularPages }}
+    {{- else }}
+        {{ $list = (where .Site.RegularPages "Type" "in" .Site.Params.flexsearch.searchSectionsIndex) }}
+        {{- if (in .Site.Params.flexsearch.searchSectionsIndex "HomePage") }}
+            {{ $list = $list | append .Site.Home }}
+        {{- end }}
+    {{- end }}
+{{- else }}
+    {{ $list = (where .Site.RegularPages "Section" ($.Scratch.Get "pathName")) }}
+{{- end }}
+
+{{ $len := (len $list) }}
+{{ $maxResult := .Site.Params.flexsearch.maxResult | default 5 }}
+{{ $minlength := .Site.Params.flexsearch.minQueryChar | default 0 }}
+{{ $tokenize := .Site.Params.flexsearch.tokenize | default "forward" }}
+{{ $cache := .Site.Params.flexsearch.cache | default 100 }}
+{{ $optimize := .Site.Params.flexsearch.optimize | default true }}
+
+{{/* 准备页面数据为JSON格式 */}}
+{{ $pagesData := slice }}
+{{- range $index, $element := $list }}
+    {{- if not $element.IsHome }}
+        {{ $pageData := dict "id" $index "href" $element.RelPermalink "title" $element.Title }}
+        {{- if $element.Description }}
+            {{ $pageData = merge $pageData (dict "description" $element.Description) }}
+        {{- else }}
+            {{ $pageData = merge $pageData (dict "description" ($element.Summary | htmlUnescape | plainify)) }}
+        {{- end }}
+        {{ $pageData = merge $pageData (dict "content" ($element.Content | htmlUnescape | plainify)) }}
+        {{ $pagesData = $pagesData | append $pageData }}
+    {{- end }}
+{{- end }}
+
 <script type="module">
-    var suggestions = document.getElementById('suggestions');
-    var search = document.getElementById('flexsearch');
-
+    // 1. 元素获取集中化，使用const声明非重新赋值的变量
+    const suggestions = document.getElementById('suggestions');
+    const search = document.getElementById('flexsearch');
     const flexsearchContainer = document.getElementById('FlexSearchCollapse');
-
     const hideFlexsearchBtn = document.getElementById('hideFlexsearch');
+    const topHeader = document.getElementById("top-header"); // 提前获取，避免重复查询DOM
 
-    const configObject = { toggle: false }
-    const flexsearchContainerCollapse = new Collapse(flexsearchContainer, configObject) // initialized with no keyboard
+    // 2. 配置对象优化，添加注释，格式化缩进
+    const collapseConfig = {
+        toggle: false // 初始化时不启用键盘控制
+    };
+    const flexsearchContainerCollapse = new Collapse(flexsearchContainer, collapseConfig);
 
-    if (search !== null) {
-        document.addEventListener('keydown', inputFocus);
-        flexsearchContainer.addEventListener('shown.bs.collapse', function () {
-            search.focus();
-        });
-        // hide search collapse containder by clicking outside (except top header)
-        var topHeader = document.getElementById("top-header");
-        document.addEventListener('click', function(elem) {
-            if (!flexsearchContainer.contains(elem.target) && !topHeader.contains(elem.target))
-                flexsearchContainerCollapse.hide();
-        });
-    }
-
-    hideFlexsearchBtn.addEventListener('click', () =>{
-        flexsearchContainerCollapse.hide()
-    })
-
-    function inputFocus(e) {
+    // 3. 事件处理函数提前声明，避免提升问题
+    function handleInputFocus(e) {
+        // 快捷键 Ctrl+/ 切换搜索框显示/隐藏
         if (e.ctrlKey && e.key === '/') {
             e.preventDefault();
             flexsearchContainerCollapse.toggle();
         }
-        if (e.key === 'Escape' ) {
-            search.blur();
-            // suggestions.classList.add('d-none');
+        // ESC键隐藏搜索框并失焦
+        if (e.key === 'Escape') {
+            if (search) search.blur();
             flexsearchContainerCollapse.hide();
+            if (suggestions) suggestions.classList.add('d-none');
         }
-    };
-
-    document.addEventListener('click', function(event) {
-
-    var isClickInsideElement = suggestions.contains(event.target);
-
-    if (!isClickInsideElement) {
-        suggestions.classList.add('d-none');
     }
 
-    });
+    function handleClickOutside(e) {
+        // 点击搜索容器和顶部导航外的区域，隐藏搜索框
+        if (
+            flexsearchContainer && !flexsearchContainer.contains(e.target) &&
+            topHeader && !topHeader.contains(e.target)
+        ) {
+            flexsearchContainerCollapse.hide();
+        }
+
+        // 点击建议框外部，隐藏建议列表（合并两个click事件，减少DOM监听）
+        if (suggestions && !suggestions.contains(e.target)) {
+            suggestions.classList.add('d-none');
+        }
+    }
+
+    function handleSuggestionFocus(e) {
+        // 建议框隐藏时直接返回，避免无效执行
+        if (!suggestions || suggestions.classList.contains('d-none')) return;
+
+        // 获取可聚焦的建议链接，转换为数组
+        const focusableSuggestions = [...suggestions.querySelectorAll('a')];
+        if (focusableSuggestions.length === 0) return;
+
+        const currentIndex = focusableSuggestions.indexOf(document.activeElement);
+
+        // 上箭头键：聚焦上一个选项，边界处理（不小于0）
+        if (e.key === "ArrowUp") {
+            e.preventDefault();
+            const targetIndex = currentIndex > 0 ? currentIndex - 1 : 0;
+            focusableSuggestions[targetIndex].focus();
+        }
+        // 下箭头键：聚焦下一个选项，边界处理（不超过数组长度）
+        else if (e.key === "ArrowDown") {
+            e.preventDefault();
+            const targetIndex = currentIndex + 1 < focusableSuggestions.length ? currentIndex + 1 : currentIndex;
+            focusableSuggestions[targetIndex].focus();
+        }
+    }
+
+    // 4. 条件判断优化：仅当search存在时绑定相关事件
+    if (search !== null) {
+        document.addEventListener('keydown', handleInputFocus);
+
+        // 搜索框展开后自动聚焦
+        flexsearchContainer.addEventListener('shown.bs.collapse', () => {
+            search.focus();
+        });
+
+        // 隐藏搜索框按钮点击事件
+        hideFlexsearchBtn?.addEventListener('click', () => {
+            flexsearchContainerCollapse.hide();
+        });
+    }
+
+    // 5. 合并重复的document.click事件监听（原两个click监听合并为一个，减少性能开销）
+    document.addEventListener('click', handleClickOutside);
+    // 建议框焦点控制事件
+    document.addEventListener('keydown', handleSuggestionFocus);
 
     /*
     Source:
     - https://dev.to/shubhamprakash/trap-focus-using-javascript-6a3
     */
-
-    document.addEventListener('keydown',suggestionFocus);
-
-    function suggestionFocus(e) {
-    const suggestionsHidden = suggestions.classList.contains('d-none');
-    if (suggestionsHidden) return;
-
-    const focusableSuggestions= [...suggestions.querySelectorAll('a')];
-    if (focusableSuggestions.length === 0) return;
-
-    const index = focusableSuggestions.indexOf(document.activeElement);
-
-    if (e.key === "ArrowUp") {
-        e.preventDefault();
-        const nextIndex = index > 0 ? index - 1 : 0;
-        focusableSuggestions[nextIndex].focus();
-    }
-    else if (e.key === "ArrowDown") {
-        e.preventDefault();
-        const nextIndex= index + 1 < focusableSuggestions.length ? index + 1 : index;
-        focusableSuggestions[nextIndex].focus();
-    }
-
-    }
 
     /*
     Source:
@@ -83,133 +134,213 @@
     - https://raw.githack.com/nextapps-de/flexsearch/master/demo/autocomplete.html
     */
 
-    (function(){
+    // 6. 等待FlexSearch库加载完成（优化函数命名，添加注释）
+    function waitForFlexSearch(callback, maxAttempts = 50) {
+        let attempts = 0;
 
-    var index = new FlexSearch.Document({
-        // charset: "latin:default",
-        tokenize: {{ .Site.Params.flexsearch.tokenize | default "forward" }},
-        minlength: {{ .Site.Params.flexsearch.minQueryChar | default 0}},
-        cache: {{ .Site.Params.flexsearch.cache | default 100 }},
-        optimize: {{ .Site.Params.flexsearch.optimize | default true }},
-        document: {
-        id: 'id',
-        store: [
-            "href", "title", "description"
-        ],
-        index: ["title", "description", "content"]
+        function checkFlexSearchAvailability() {
+            attempts++;
+
+            // 库已加载，执行回调
+            if (typeof FlexSearch !== 'undefined') {
+                callback();
+            }
+            // 未超时，继续轮询
+            else if (attempts < maxAttempts) {
+                setTimeout(checkFlexSearchAvailability, 100);
+            }
+            // 超时报错
+            else {
+                console.error('FlexSearch 库加载失败或超时，超出最大尝试次数');
+            }
+        }
+
+        checkFlexSearchAvailability();
+    }
+
+    // 7. FlexSearch初始化与搜索逻辑
+    waitForFlexSearch(function () {
+        console.log("FlexSearch库已加载，开始初始化搜索索引");
+
+        // 初始化FlexSearch文档索引，格式化缩进，添加注释
+        const index = new FlexSearch.Document({
+            // charset: "latin:default",
+            tokenize: "{{ $tokenize }}",
+            minlength: '{{ $minlength }}',
+            cache: '{{ $cache }}',
+            optimize: '{{ $optimize }}',
+            document: {
+                id: 'id',
+                store: [
+                    "href", "title", "description"
+                ],
+                index: ["title", "description", "content"]
+            }
+        });
+
+    console.log("FlexSearch索引初始化完成");
+
+    // 8. 页面数据（由Hugo模板预处理）
+    const pagesDataStr = '{{ $pagesData | jsonify }}';
+    const pagesData = JSON.parse(pagesDataStr);
+    console.log("将要索引的页面数量:", pagesData.length);
+
+    // 9. 添加文档到索引，使用预处理的数据
+    pagesData.forEach(page => {
+        try {
+            index.add(page);
+        } catch (e) {
+            console.error("索引页面时出错:", page.title, e);
         }
     });
 
+    console.log("索引构建完成，总共索引了", pagesData.length, "个页面");
 
-    // Not yet supported: https://github.com/nextapps-de/flexsearch#complex-documents
+    // 10. 搜索输入事件监听，触发结果展示
+    search.addEventListener('input', showSearchResults, true);
 
+    console.log("FlexSearch搜索功能已激活");
 
-    // var docs = [
-    //     {{ range $index, $page := (where .Site.Pages "Section" "docs") -}}
-    //     {
-    //         id: {{ $index }},
-    //         href: {{ .Permalink }},
-    //         title: {{ .Title }},
-    //         description: {{ .Params.description }},
-    //         content: {{ .Content }}
-    //     },
-    //     {{ end -}}
-    // ];
+    function sanitizeHTML(str) {
+        // 若输入为空，直接返回空字符串
+        if (!str) return '';
+        // 创建临时DOM元素，利用textContent转义HTML特殊字符，避免XSS
+        const tempElement = document.createElement('div');
+        tempElement.textContent = str;
+        // 返回转义后的纯文本
+        return tempElement.innerHTML;
+    }
 
+    // 高亮搜索词的函数
+    function highlightSearchTerm(text, searchTerm) {
+        if (!searchTerm || !text) return text;
 
-    // https://discourse.gohugo.io/t/range-length-or-last-element/3803/2
+        // 转义搜索词中的特殊正则字符
+        const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(escapedTerm, 'gi');
 
-    {{ $list := slice }}
-    {{- if and (isset .Site.Params.flexsearch "searchsectionsindex") (not (eq (len .Site.Params.flexsearch.searchSectionsIndex) 0)) }}
-        {{- if eq .Site.Params.flexsearch.searchSectionsIndex "ALL" }}
-            {{- $list = .Site.Pages }}
-        {{- else }}
-            {{- $list = (where .Site.Pages "Type" "in" .Site.Params.flexsearch.searchSectionsIndex) }}
-        {{- if (in .Site.Params.flexsearch.searchSectionsIndex "HomePage") }}
-            {{ $list = $list | append .Site.Home }}
-        {{- end }}
-        {{- end }}
-    {{- else }}
-        {{- $list = (where .Site.Pages "Section" ($.Scratch.Get "pathName")) }}
-    {{- end }}
+        // 使用HTML标记高亮匹配的文本
+        return text.replace(regex, match => `<mark>${match}</mark>`);
+    }
 
-    {{ $len := (len $list) -}}
+    // 截取文本并保留搜索词上下文
+    function getContextualText(text, searchTerm, maxLength = 150) {
+        if (!text || !searchTerm) return text;
 
-    {{ range $index, $element := $list -}}
-        index.add(
-            {
-                id: {{ $index }},
-                href: "{{ .RelPermalink }}",
-                title: {{ .Title }},
-                {{ with .Description -}}
-                    description: {{ . }},
-                {{ else -}}
-                description: {{ .Summary | htmlUnescape | plainify }},
-                {{ end -}}
-                content: {{ .Content | htmlUnescape | plainify }}
-            }
-        );
-    {{ end -}}
+        const lowerText = text.toLowerCase();
+        const lowerSearchTerm = searchTerm.toLowerCase();
+        const index = lowerText.indexOf(lowerSearchTerm);
 
-    search.addEventListener('input', show_results, true);
+        if (index === -1) return text.substring(0, maxLength) + (text.length > maxLength ? '...' : '');
 
-    function show_results(){
-        const maxResult = {{ .Site.Params.flexsearch.maxResult | default 5}};
-        const minlength = {{ .Site.Params.flexsearch.minQueryChar | default 0}};
-        var searchQuery = sanitizeHTML(this.value);
-        var results = index.search(searchQuery, {limit: maxResult, enrich: true});
+        // 计算开始和结束位置，确保搜索词在中间
+        const start = Math.max(0, index - 50);
+        const end = Math.min(text.length, index + searchTerm.length + 50);
 
-        // flatten results since index.search() returns results for each indexed field
-        const flatResults = new Map(); // keyed by href to dedupe results
-        for (const result of results.flatMap(r => r.result)) {
-        if (flatResults.has(result.doc.href)) continue;
-        flatResults.set(result.doc.href, result.doc);
+        let result = text.substring(start, end);
+
+        // 如果不是从开头开始，添加省略号
+        if (start > 0) result = '...' + result;
+
+        // 如果不是到结尾结束，添加省略号
+        if (end < text.length) result = result + '...';
+
+        return result;
+    }
+
+    // 11. 搜索结果展示函数（优化命名，格式化逻辑，修复语法错误）
+    function showSearchResults() {
+        const maxResult = parseInt('{{ $maxResult }}');
+        const minlength = parseInt('{{ $minlength }}');
+        const searchQuery = sanitizeHTML(this.value);
+
+        // 如果搜索查询为空，隐藏建议框
+        if (!searchQuery) {
+            suggestions.classList.add('d-none');
+            return;
         }
 
+        // 执行搜索，限制结果数量并返回完整文档
+        const results = index.search(searchQuery, { limit: maxResult, enrich: true });
+
+        // 扁平化结果并去重（通过href去重，避免重复展示）
+        const flatResults = new Map();
+        for (const result of results.flatMap(r => r.result)) {
+            if (flatResults.has(result.doc.href)) continue;
+            flatResults.set(result.doc.href, result.doc);
+        }
+
+        // 清空原有建议，显示建议框
         suggestions.innerHTML = "";
         suggestions.classList.remove('d-none');
 
-        // inform user of search query minimum character requirement
+        // 提示用户输入最小字符数
         if (searchQuery.length < minlength) {
-            const minCharMessage = document.createElement('div')
-            minCharMessage.innerHTML = `Please type at least <strong>${minlength}</strong> characters`
+            const minCharMessage = document.createElement('div');
+            minCharMessage.innerHTML = `请至少输入 <strong>${minlength}</strong> 个字符`;
             minCharMessage.classList.add("suggestion__no-results");
             suggestions.appendChild(minCharMessage);
             return;
-        } else {
-            // inform user that no results were found
-            if (flatResults.size === 0 && searchQuery) {
-                const noResultsMessage = document.createElement('div')
-                noResultsMessage.innerHTML = {{ i18n "search_no_results" | default "No results for" }} + ` "<strong>${searchQuery}</strong>"`
-                noResultsMessage.classList.add("suggestion__no-results");
-                suggestions.appendChild(noResultsMessage);
-                return;
-            }
+        }
+        // 无搜索结果提示
+        else if (flatResults.size === 0) {
+            const noResultsMessage = document.createElement('div');
+            noResultsMessage.innerHTML = `没有找到包含 "<strong>${searchQuery}</strong>" 的结果`;
+            noResultsMessage.classList.add("suggestion__no-results");
+            suggestions.appendChild(noResultsMessage);
+            return;
         }
 
-        // construct a list of suggestions
-        for(const [href, doc] of flatResults) {
+        // 构建搜索建议列表
+        let resultCount = 0;
+        for (const [href, doc] of flatResults) {
+            // 避免超出最大结果数
+            if (resultCount >= maxResult) break;
+
             const entry = document.createElement('div');
-            suggestions.appendChild(entry);
-
             const a = document.createElement('a');
-            a.href = href;
-            entry.appendChild(a);
-
             const title = document.createElement('span');
-            title.textContent = doc.title;
-            title.classList.add("suggestion__title");
-            a.appendChild(title);
-
             const description = document.createElement('span');
-            description.textContent = doc.description;
+
+            // 设置链接属性
+            a.href = href;
+
+            // 设置标题样式与内容，高亮搜索词
+            title.innerHTML = highlightSearchTerm(doc.title || '无标题', searchQuery);
+            title.classList.add("suggestion__title");
+
+            // 只从全文内容中提取包含搜索词的上下文，忽略摘要
+            let descriptionText = '';
+            if (doc.content) {
+                // 尝试从内容中提取包含搜索词的上下文
+                const lowerContent = doc.content.toLowerCase();
+                const lowerSearchTerm = searchQuery.toLowerCase();
+                
+                if (lowerContent.includes(lowerSearchTerm)) {
+                    // 如果内容中包含搜索词，提取上下文
+                    descriptionText = getContextualText(doc.content, searchQuery);
+                } else {
+                    // 如果内容中没有完全匹配的搜索词，显示内容的前150个字符
+                    descriptionText = doc.content.substring(0, 150) + (doc.content.length > 150 ? '...' : '');
+                }
+            }
+
+            // 设置描述样式与内容，高亮搜索词
+            description.innerHTML = highlightSearchTerm(descriptionText, searchQuery);
             description.classList.add("suggestion__description");
+
+            // 组装DOM结构（修复原代码重复appendChild的问题）
+            a.appendChild(title);
             a.appendChild(description);
-
+            entry.appendChild(a);
             suggestions.appendChild(entry);
-
-            if(suggestions.childElementCount == maxResult) break;
+            resultCount++;
         }
     }
-    }());
+
+    // 12. 搜索输入事件监听，触发结果展示
+    search.addEventListener('input', showSearchResults, true);
+
+    console.log("FlexSearch搜索功能已激活");
+    });
 </script>

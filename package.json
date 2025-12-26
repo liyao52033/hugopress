@@ -8,7 +8,8 @@
     "build": "hugo -D -F",
     "build:prod": "bash build.sh",
     "clean": "hugo --cleanDestinationDir",
-    "proxy": "node scripts/proxy.js"
+    "proxy": "node scripts/proxy.js",
+    "deploy": "yarn run build:prod && edgeone pages deploy ./dist -n hugo-teek"
   },
   "keywords": [
     "hugo"

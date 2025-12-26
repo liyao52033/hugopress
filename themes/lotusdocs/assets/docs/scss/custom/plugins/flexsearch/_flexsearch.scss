@@ -234,6 +234,18 @@
     color: var(--flexsearch-suggestion-desc-color);
 }
 
+/* 修改高亮样式的高度 */
+#suggestions mark {
+    display: inline;
+    padding: 0 2px;
+    margin: 0;
+    line-height: 1.2;
+    background-color: #fff3cd;
+    border-radius: 2px;
+    font-weight: normal;
+    height: fit-content;
+}
+
 @media (min-width: 992px) {
     #suggestions {
         width: 500px;
