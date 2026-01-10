@@ -149,10 +149,7 @@
             else if (attempts < maxAttempts) {
                 setTimeout(checkFlexSearchAvailability, 100);
             }
-            // 超时报错
-            else {
-                console.error('FlexSearch 库加载失败或超时，超出最大尝试次数');
-            }
+           
         }
 
         checkFlexSearchAvailability();
@@ -160,8 +157,6 @@
 
     // 7. FlexSearch初始化与搜索逻辑
     waitForFlexSearch(function () {
-        console.log("FlexSearch库已加载，开始初始化搜索索引");
-
         // 初始化FlexSearch文档索引，格式化缩进，添加注释
         const index = new FlexSearch.Document({
             // charset: "latin:default",
@@ -178,28 +173,22 @@
             }
         });
 
-    console.log("FlexSearch索引初始化完成");
 
     // 8. 页面数据（由Hugo模板预处理）
     const pagesDataStr = '{{ $pagesData | jsonify }}';
     const pagesData = JSON.parse(pagesDataStr);
-    console.log("将要索引的页面数量:", pagesData.length);
 
     // 9. 添加文档到索引，使用预处理的数据
     pagesData.forEach(page => {
         try {
             index.add(page);
         } catch (e) {
-            console.error("索引页面时出错:", page.title, e);
         }
     });
 
-    console.log("索引构建完成，总共索引了", pagesData.length, "个页面");
 
     // 10. 搜索输入事件监听，触发结果展示
     search.addEventListener('input', showSearchResults, true);
-
-    console.log("FlexSearch搜索功能已激活");
 
     function sanitizeHTML(str) {
         // 若输入为空，直接返回空字符串
@@ -341,6 +330,6 @@
     // 12. 搜索输入事件监听，触发结果展示
     search.addEventListener('input', showSearchResults, true);
 
-    console.log("FlexSearch搜索功能已激活");
+   
     });
 </script>

@@ -169,11 +169,8 @@ class CodeBlockManager {
         const currentBatch = allCodeBlocks.slice(globalIndex, globalIndex + this.maxCodeBlocks);
 
         if (currentBatch.length === 0) {
-            console.log('所有代码块处理完成');
             return;
         }
-
-        //  console.log(`处理第${Math.floor(globalIndex / this.maxCodeBlocks) + 1}批代码块，包含${currentBatch.length}个代码块`);
 
         // 处理当前批次
         this.processBatch(currentBatch, 0, () => {

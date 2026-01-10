@@ -15671,9 +15671,9 @@ defineMacro("\\providecommand", function (context) {
 defineMacro("\\message", function (context) {
   var arg = context.consumeArgs(1)[0]; // eslint-disable-next-line no-console
 
-  console.log(arg.reverse().map(function (token) {
-    return token.text;
-  }).join(""));
+  // console.log(arg.reverse().map(function (token) {
+  //   return token.text;
+  // }).join(""));
   return '';
 });
 defineMacro("\\errmessage", function (context) {
@@ -15688,7 +15688,7 @@ defineMacro("\\show", function (context) {
   var tok = context.popToken();
   var name = tok.text; // eslint-disable-next-line no-console
 
-  console.log(tok, context.macros.get(name), src_functions[name], src_symbols.math[name], src_symbols.text[name]);
+//  console.log(tok, context.macros.get(name), src_functions[name], src_symbols.math[name], src_symbols.text[name]);
   return '';
 }); //////////////////////////////////////////////////////////////////////
 // Grouping

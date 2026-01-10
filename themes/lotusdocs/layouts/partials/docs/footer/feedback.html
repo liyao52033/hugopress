@@ -103,7 +103,7 @@
             {{ end -}}
             {{ end -}}
         } catch (err) {
-            console.log(err);
+         //   console.log(err);
             feedbackEmojiCta.remove();
             sendArea.remove();
             result.innerHTML = '{{ .Site.Params.feedback.errorMsg | default "Sorry! There was an error while attempting to submit your feedback!" }}';
@@ -306,7 +306,7 @@
                 {{ end -}}
             }
         } catch (err) {
-            console.log(err);
+         //   console.log(err);
             form.remove();
             feedbackSubmitContainer.remove();
             result.innerHTML = '{{ .Site.Params.feedback.errorMsg | default "Sorry! There was an error while attempting to submit your feedback!" }}';
