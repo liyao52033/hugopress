@@ -92,9 +92,9 @@ ignoreLogs = ['warning-goldmark-raw-html']
     # mono_font = "'Cascadia Code', 'Consolas', monospace"
 
     # 选项5：斜体字
-    sans_serif_font = "'Comic Sans MS', 'Microsoft YaHei', sans-serif"    
-    secondary_font  = "'Comic Sans MS', 'Microsoft YaHei', sans-serif"   
-    mono_font       = "'Courier New', 'Consolas', monospace" 
+    # sans_serif_font = "'Comic Sans MS', 'Microsoft YaHei', sans-serif"    
+    # secondary_font  = "'Comic Sans MS', 'Microsoft YaHei', sans-serif"   
+    # mono_font       = "'Courier New', 'Consolas', monospace" 
 
     reading_speed = 500                            # 这里设置你想要的每分钟字数，比如300字符/分钟
 
