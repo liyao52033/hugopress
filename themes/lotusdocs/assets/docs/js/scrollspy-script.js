@@ -27,6 +27,12 @@ function initScrollSpy() {
                     behavior: 'smooth',
                     block: 'start'
                 });
+
+                // 点击侧边栏链接后更新 URL 锚点
+                const id = element.getAttribute('id');
+                if (id) {
+                    window.history.pushState({}, '', `#${id}`);
+                }
             },
             onActive: function (activeLink) {
                 // 确保侧边栏显示当前高亮项
@@ -42,6 +48,13 @@ function initScrollSpy() {
                             top: linkTop - (containerHeight / 2),
                             behavior: 'smooth'
                         });
+                    }
+
+                    // 更新 URL 锚点
+                    const href = activeLink.getAttribute('href');
+                    if (href && href.startsWith('#')) {
+                        // 使用 replaceState 避免页面重新加载
+                        window.history.replaceState({}, '', href);
                     }
                 }
             }
