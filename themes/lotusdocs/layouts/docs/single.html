@@ -3,13 +3,33 @@
 {{ $rawContent := .RawContent }}
 
 
-{{/* 替换:::格式为alert短代码 */}}
-{{/* $pattern := `(?ms)::: *(info|warning|danger|success|primary|default)\s*\n(.*?)\n:::` */}}
-{{/* $replacement := `{{< alert type="$1">}}$2{{< /alert>}}` */}}
+{{/* 替换:::格式为alert短代码，但忽略代码块内的::: */}}
+{{/* 1. 先将代码块内容替换为临时占位符 */}}
+{{ $codeBlockPattern := "(?m)(```[\\s\\S]*?```)" }}
+{{ $codeBlocks := slice }}
+{{ $tempContent := $rawContent }}
+{{ $i := 0 }}
+{{ range $matches := findRESubmatch $codeBlockPattern $tempContent }}
+    {{ $codeBlock := index $matches 1 }}
+    {{ $placeholder := printf "__CODE_BLOCK_%d__" $i }}
+    {{ $codeBlocks = $codeBlocks | append $codeBlock }}
+    {{ $tempContent = replace $tempContent $codeBlock $placeholder }}
+    {{ $i = add $i 1 }}
+{{ end }}
 
-{{ $pattern := `(?ms)::: *(info|warning|danger|success|primary|default)(?:\s+([^\n]+))?\n(.*?)\n:::` }}
+{{/* 2. 处理非代码块内的::: */}}
+{{ $pattern := `(?m)::: *(info|warning|danger|success|primary|default)(?:\s+([^\n]+))?\n(.*?)\n:::` }}
 {{ $replacement := `{{< alert type="$1" title="$2">}}$3{{< /alert>}}` }}
-    {{ $content := replaceRE $pattern $replacement $rawContent | .Page.RenderString }}
+{{ $tempContent = replaceRE $pattern $replacement $tempContent }}
+
+{{/* 3. 还原代码块内容 */}}
+{{ $content := $tempContent }}
+{{ range $i, $codeBlock := $codeBlocks }}
+    {{ $placeholder := printf "__CODE_BLOCK_%d__" $i }}
+    {{ $content = replace $content $placeholder $codeBlock }}
+{{ end }}
+
+{{ $content := $content | .Page.RenderString }}
 
 <!-- override Prism's default copy messages to 'empty'. Required by CSS styling.
     see: https://prismjs.com/plugins/copy-to-clipboard/#styling -->

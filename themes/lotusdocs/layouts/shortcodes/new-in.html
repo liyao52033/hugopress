@@ -14,9 +14,9 @@ button will be hidden if any of the following conditions is true:
 
 @param {string} 0 The semantic version string, with or without a leading v.
 
-@example  {{< new-in 0.100.0 />}}
+@example  {{< new-in 0.150.0 />}}
 
-@example  {{{< new-in 0.100.0 >}}
+@example  {{< new-in 0.150.0 >}}
           Some descriptive text here.
           {{< /new-in >}}
 */ -}}
@@ -40,7 +40,7 @@ button will be hidden if any of the following conditions is true:
       {{ partial "docs/alert.html" (dict
         "color" "green"
         "icon" "lightbulb"
-        "title" (printf "New in v%s" $version)
+        "title" (printf "提示")
         "text" $text
         )
       }}
