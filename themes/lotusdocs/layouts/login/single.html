@@ -28,8 +28,11 @@
       background: url('/assets/bg.png') center/cover no-repeat;
       border-radius: 12px;
       margin-right: 40px;
-      height: 500px;
-      /* 固定高度使布局更稳定 */
+      display: none;
+      @media (min-width: 768px) {
+        display: block;
+        height: 500px;
+      }
     }
 
     /* 右侧登录表单区域 */
@@ -40,6 +43,10 @@
       padding: 40px;
       border-radius: 12px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      @media (max-width: 768px) {
+        padding: 0;
+        box-shadow: none;
+      }
     }
 
     /* 标题栏（含图标 + 文字） */
@@ -352,6 +359,7 @@
         // 调用后端登录接口
         const response = await fetch('https://ssl.xiaoying.org.cn/login', {
           method: 'POST',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json'
           },
@@ -367,10 +375,6 @@
 
         // 处理响应结果
         if (response.ok && result.session) {
-
-          // 可以在这里保存token到localStorage或sessionStorage
-          localStorage.setItem('token', result.session.access_token);
-          showMessage('登录成功！');
 
           // 获取之前保存的跳转URL，没有则跳转到首页
           const redirectUrl = localStorage.getItem('redirectUrl') || '/';
