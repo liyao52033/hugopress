@@ -1,4 +1,4 @@
-baseURL = 'https://vp.xiaoying.org.cn/'
+baseURL = 'https://hugo.xiaoying.org.cn/'
 languageCode = "zh-CN"
 title = '组件库文档'
 publishDir = "dist"
@@ -100,9 +100,12 @@ ignoreLogs = ['warning-goldmark-raw-html']
 
     # algolia搜索
     [params.docsearch] 
-        appID = ""  
-        apiKey = "" 
-        indexName = "hugopress"                   
+      appID = ""
+      apiKey = ""
+      indexName = ""
+      [params.docsearch.askAi]
+        indexName = ""
+        assistantId = ""
 
     # 浏览器模糊搜索
     [params.flexsearch]

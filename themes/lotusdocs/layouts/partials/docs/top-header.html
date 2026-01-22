@@ -19,9 +19,9 @@
                 <span class="material-icons size-20 menu-icon align-middle">menu</span>
             </button>
             {{ if and (.Site.Params.docsearch.appID) (.Site.Params.docsearch.apiKey) -}}
-            <span>
-                <div id="docsearch"></div>
-            </span>
+                <span>
+                    <div id="docsearch"></div>
+                </span>
             {{ end }}
             {{ if or (not (isset .Site.Params.flexsearch "enabled")) (eq .Site.Params.flexsearch.enabled true) -}}
             {{ if and (.Site.Params.docsearch.appID) (.Site.Params.docsearch.apiKey) -}}

@@ -9,7 +9,7 @@
     "build:prod": "bash build.sh",
     "clean": "hugo --cleanDestinationDir",
     "proxy": "node scripts/proxy.js",
-    "deploy": "yarn run build:prod && edgeone pages deploy ./dist -n hugo-teek"
+    "deploy": "yarn run build:prod && edgeone pages deploy ./dist -n hugopress"
   },
   "keywords": [
     "hugo"
