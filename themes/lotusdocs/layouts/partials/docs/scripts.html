@@ -98,7 +98,7 @@
 {{ end }}
 
 {{/* 输出script标签 */}}
-<script src="{{ $finalJs.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $finalJs.Data.Integrity }}" {{ end -}} defer></script>
+<script src="{{ $finalJs.RelPermalink }}" blocking="render" {{ if hugo.IsProduction }}integrity="{{ $finalJs.Data.Integrity }}" {{ end -}} defer></script>
 
 <script>
   (function () {

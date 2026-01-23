@@ -42,11 +42,11 @@
     {{- if hugo.IsProduction }}
         {{- $bundle = $bundle | fingerprint "sha384" }}
     {{- end }}
-    <link rel="stylesheet" href="{{ $bundle.RelPermalink }}" {{ if hugo.IsProduction
+    <link rel="stylesheet" blocking="render" href="{{ $bundle.RelPermalink }}" {{ if hugo.IsProduction
         }}integrity="{{ $bundle.Data.Integrity }}" {{ end -}} />
 
     <!-- Image Compare Viewer -->
-    {{ if ($.Scratch.Get "image_compare_enabled") }}
+    {{/*  {{ if ($.Scratch.Get "image_compare_enabled") }}
         {{ $imagecompare := resources.Get "js/image-compare-viewer.min.js" }}
         {{ $params := dict }}
         {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
@@ -59,7 +59,7 @@
             {{- $js := (slice $imagecompare) | resources.Concat "/js/image-compare.js" }}
             <script type="text/javascript" src="{{ $js.Permalink }}" defer></script>
         {{- end }}
-    {{- end }}
+    {{- end }}  */}}
 
     <!-- Plausible Analytics Config -->
     {{- if not hugo.IsServer }}

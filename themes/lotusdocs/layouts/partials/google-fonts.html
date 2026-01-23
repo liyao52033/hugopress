@@ -11,6 +11,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
 <!-- 优化字体加载，使用 font-display: swap -->
 <link {{ printf "href=\" https://fonts.googleapis.com/css?family=%s%s\"" $url_part "&display=swap" | safeHTMLAttr }}
-    rel="stylesheet">
+    rel="stylesheet" as="font" type="font/woff2" crossorigin="anonymous" />
 {{ else}}
 {{ end }}

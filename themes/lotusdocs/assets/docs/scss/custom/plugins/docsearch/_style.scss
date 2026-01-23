@@ -224,9 +224,10 @@ html[data-theme=dark] {
   box-shadow: var(--docsearch-modal-shadow);
   display: flex;
   flex-direction: column;
-  margin: 60px auto auto;
+  margin: 6.5rem auto auto;
   max-width: var(--docsearch-modal-width);
-  position: relative
+  position: relative;
+  left: 2rem;
 }
 
 .DocSearch-SearchBar {

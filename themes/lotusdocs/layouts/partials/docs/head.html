@@ -94,8 +94,8 @@
             {{ $katex = $katex | fingerprint "sha384" }}
             {{ $katexAutoRender = $katexAutoRender | fingerprint "sha384" }}
         {{- end -}}
-        <script src="{{ $katex.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $katex.Data.Integrity }}" {{ end -}} defer></script>
-        <script src="{{ $katexAutoRender.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $katexAutoRender.Data.Integrity }}" {{ end -}} defer></script>
+        <script src="{{ $katex.RelPermalink }}" blocking="render" {{ if hugo.IsProduction }}integrity="{{ $katex.Data.Integrity }}" {{ end -}} defer></script>
+        <script src="{{ $katexAutoRender.RelPermalink }}" blocking="render" {{ if hugo.IsProduction }}integrity="{{ $katexAutoRender.Data.Integrity }}" {{ end -}} defer></script>
     {{ end -}}
     <!-- Katex Config -->
     {{ if .Params.katex }}

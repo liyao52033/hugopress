@@ -12,7 +12,7 @@
 Is an image_compare landing page template enabled?
 If so, collect and consolidate the items config from each enabled instance
 -->
-{{ $ic := newScratch }}
+{{/*  {{ $ic := newScratch }}
 {{ range $value := .Site.Data.landing }}
     {{ $template := string (replaceRE `( |-{1,})` "_" $value.template) }}
     {{ if eq $template "image_compare" }}
@@ -25,7 +25,7 @@ If so, collect and consolidate the items config from each enabled instance
     {{- end }}
 {{ end }}
 
-{{ $.Scratch.Set "image_compare_enabled" (in ($ic.Get "enabled") true) }}
+{{ $.Scratch.Set "image_compare_enabled" (in ($ic.Get "enabled") true) }}  */}}
 
 <html lang="{{ site.LanguageCode }}" dir="ltr">
 {{- partial "head.html" . -}}
@@ -51,7 +51,7 @@ If so, collect and consolidate the items config from each enabled instance
     {{ if hugo.IsProduction }}
         {{ $app = $app | fingerprint "sha384" }}
     {{end}}
-    <script type="text/javascript" src="{{ $app.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $app.Data.Integrity }}" {{ end }}></script>
+    <script type="text/javascript" blocking="render" src="{{ $app.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $app.Data.Integrity }}" {{ end }} async></script>
 
     <!-- Image Compare Viewer Config -->
     {{/*  {{ if ($.Scratch.Get "image_compare_enabled") }}  */}}
