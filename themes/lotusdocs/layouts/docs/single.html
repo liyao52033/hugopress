@@ -2,7 +2,6 @@
 
     {{ $rawContent := .RawContent }}
 
-
     {{/* 替换:::格式为alert短代码，但忽略代码块内的::: */}}
     {{/* 1. 先将代码块内容替换为临时占位符 */}}
     {{ $codeBlockPattern := "(?m)(```[\\s\\S]*?```)" }}
@@ -236,59 +235,7 @@
 
     {{/* 私密文章访问控制 */}}
     {{ if .Params.private }}
-    <script>
-        // 页面加载后，立即验证 Token
-        async function verifyToken() {
-
-            try {
-                // 2. 调用后端验证接口，传递 Token
-                const response = await fetch('https://ssl.xiaoying.org.cn/getUser', {
-                    method: 'GET',
-                    credentials: 'include'
-                });
-                const result = await response.json();
-
-                // 3. 根据后端结果处理
-                if (!response.ok) {
-                    const refreshRes = await fetch('https://ssl.xiaoying.org.cn/refresh', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        credentials: 'include', 
-                    });
-                    const refreshData = await refreshRes.json();
-
-                    if (refreshRes.ok && refreshData?.token) {
-                        // 刷新成功，重试getUser接口
-                        const retryRes = await fetch('https://ssl.xiaoying.org.cn/getUser', {
-                            method: 'GET',
-                            credentials: 'include'
-                        });
-
-                        if (retryRes.ok) {
-                            // Token 有效，允许访问
-                            return;
-                        } else {
-                            // 刷新后仍然无效，跳转登录
-                            localStorage.setItem('redirectUrl', window.location.href);
-                            window.location.href = '/login';
-                        }
-                    }
-                    else {
-                        // Token 无效，跳转登录
-                        localStorage.setItem('redirectUrl', window.location.href);
-                        window.location.href = '/login';
-                    }
-                } 
-            } catch (err) {
-                localStorage.setItem('redirectUrl', window.location.href);
-                window.location.href = '/login';
-            }
-        }
-
-        // 页面加载时触发验证
-        verifyToken();
-    </script>
-
+        {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "login.html") . -}}
     {{ end }}
 
-{{ end }}
+{{ end -}}

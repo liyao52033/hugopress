@@ -1,0 +1,158 @@
+{{/* 1. 全局阻塞容器：默认覆盖整个页面，冻结所有交互 */}}
+<style>
+    /* 全屏遮罩基础样式 */
+    #route-guard-mask {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(255, 255, 255, 0.9); /* 半透明白底，更柔和 */
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    /* 加载内容容器（图标+文字） */
+    .loading-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px; /* 图标和文字的间距 */
+        font-size: 16px;
+        color: #4E5969; /* 中性灰，更美观 */
+    }
+
+    /* 旋转加载图标（纯CSS实现，无需图片） */
+    .spinner {
+        width: 24px;
+        height: 24px;
+        border: 3px solid #E2E8F0; /* 浅灰边框 */
+        border-top-color: #4299E1; /* 蓝色顶部边框（旋转时的高亮） */
+        border-radius: 50%;
+        animation: spin 1s linear infinite; /* 旋转动画 */
+    }
+
+    /* 旋转动画关键帧 */
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* 冻结页面滚动+交互 */
+    body.route-guarding {
+        overflow: hidden;
+        pointer-events: none;
+    }
+</style>
+
+{{/* 2. 带加载动画的遮罩（替换原来单调的文本） */}}
+<div id="route-guard-mask">
+    <div class="loading-wrapper">
+        <div class="spinner"></div>
+        <span class="loading-text">身份验证中...请稍候</span>
+    </div>
+</div>
+
+<script>
+    let authCompleted = false;
+    let isVerifying = false;
+
+    // ========== 模拟 Vue Router beforeEach 守卫（含 Cookie 前置判断） ==========
+    async function beforeEachGuard() {
+        if (isVerifying || authCompleted) return;
+        isVerifying = true;
+        document.body.classList.add('route-guarding');
+
+        try {
+
+            const authResult = await verifyUserToken();
+            if (authResult.valid) {
+                // 验证成功：放行
+                authCompleted = true;
+                document.body.classList.remove('route-guarding');
+                document.getElementById('route-guard-mask').remove();
+            } else {
+                window.location.href = '/login'
+                localStorage.setItem('redirectUrl', window.location.href);
+            }
+        } catch (error) {
+            // 验证失败: 跳转登录
+            authCompleted = true;
+            window.history.replaceState(null, '', window.location.href);
+            localStorage.setItem('redirectUrl', window.location.href);
+            setTimeout(() => window.location.href = '/login', 50);
+        } finally {
+            isVerifying = false;
+        }
+    }
+
+    // ========== 身份验证逻辑 ==========
+    async function verifyUserToken() {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        try {
+            // 1. 请求用户信息接口
+            const userRes = await fetch('https://ssl.xiaoying.org.cn/getUser', {
+                method: 'GET',
+                credentials: 'include',
+                signal: controller.signal
+            });
+
+            if (userRes.ok) {
+                const userResult = await userRes.json();
+
+                const isUserValid = userResult.user;
+                if (isUserValid) {
+                    clearTimeout(timeoutId);
+                    return { valid: true };
+                }
+            }
+          
+            // 2. 刷新Token
+            const refreshRes = await fetch('https://ssl.xiaoying.org.cn/refresh', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                signal: controller.signal
+            });
+            if (!refreshRes.ok) return { valid: false };
+            const refreshResult = await refreshRes.json();
+
+            // 3. 重试用户信息接口
+            if (refreshResult && refreshResult.token) {
+                const retryRes = await fetch('https://ssl.xiaoying.org.cn/getUser', {
+                    method: 'GET',
+                    credentials: 'include',
+                    signal: controller.signal
+                });
+                const retryResult = await retryRes.json();
+                const isRetryValid = retryResult.user;
+                
+                clearTimeout(timeoutId);
+                return { valid: isRetryValid };
+            }
+
+            clearTimeout(timeoutId);
+        } catch (error) {
+            clearTimeout(timeoutId);
+            return { valid: false };
+        }
+    }
+
+    // ========== 防回退兜底 ==========
+    function guardPopState() {
+        if (!authCompleted) beforeEachGuard();
+    }
+
+    // ========== 初始化 ==========
+    document.addEventListener('DOMContentLoaded', () => {
+        beforeEachGuard();
+        window.addEventListener('popstate', guardPopState);
+    });
+    window.addEventListener('beforeunload', () => {
+        window.removeEventListener('popstate', guardPopState);
+    });
+</script>

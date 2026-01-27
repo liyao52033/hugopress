@@ -224,14 +224,11 @@ html[data-theme=dark] {
   box-shadow: var(--docsearch-modal-shadow);
   display: flex;
   flex-direction: column;
-  margin: 3.5rem auto auto;
+  margin: 4rem auto auto;
   max-width: var(--docsearch-modal-width);
-  position: relative;
-  left: 2rem;
 
   @media (max-width: 768px) {
     margin: 0;
-    left: 0;
   }
 
 }

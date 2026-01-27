@@ -13,11 +13,7 @@
         position: fixed;
         top: 0;
         left: -300px;
-        z-index: 999;
-
-        @media (min-width: 1025px) {
-            z-index: 1000;
-        }
+        z-index: 110;
 
         @media  (max-width: 1024px) {
             left: 0;
@@ -285,11 +281,11 @@
             }
         }
 
-        .sidebar-header,
-        .sidebar-menu {
-            // border-top: 1px solid var(--sidebar-border-color);
-            // border-right: 1px solid var(--sidebar-border-color);
-        }
+        // .sidebar-header,
+        // .sidebar-menu {
+        //     // border-top: 1px solid var(--sidebar-border-color);
+        //     // border-right: 1px solid var(--sidebar-border-color);
+        // }
         .sidebar-header .user-info .user-role,
         .sidebar-header .user-info .user-status,
         .sidebar-brand > a,
