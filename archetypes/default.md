@@ -1,4 +1,4 @@
----
+<!-- ---
 title: "{{ replace .Name "-" " " | title }}"
 date: "{{ time.Now.Format "2006-01-02 15:04:05" }}"
 description: ""
@@ -15,4 +15,4 @@ weight: 999
 type: docs
 ---
 
-
+ -->
