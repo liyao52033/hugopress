@@ -20,3 +20,4 @@ static/js/dist
 static/js/theme
 _vendor
 /hugo_stats.json
+/.trae/rules/project_rules.md
