@@ -8,16 +8,17 @@
     --content-icon-color: var(--primary);
     --content-icon-bg: var(--sidebar-icon-bg);
     --content-icon-border: var(--sidebar-icon-bg);
-    --content-link-color: var(--primary);
+    --content-link-color: var(--link-color);
 
     --ordered-list-bg: var(--gray-300);
     --ordered-list-color: var(--gray-800);
     --blockquote-border-color: var(--gray-300);
 
-    --code-block-bg: #212d63;
+    --code-block-bg: #1e293b;
     --inline-code-bg: var(--gray-100);
     --inline-code-border: 1px solid var(--gray-400);
 
+    --code-block-text: #e2e8f0;
 }
 
 [data-dark-mode] {
@@ -25,16 +26,17 @@
     --content-icon-color: var(--primary-200);
     --content-icon-bg: hsl(var(--primary-hsl), 0.15);
     --content-icon-border: var(--primary-800);
-    --content-link-color: var(--primary-300);
+    --content-link-color: var(--link-color);
 
     --ordered-list-bg: var(--gray-700);
     --ordered-list-color: var(--gray-200);
     --blockquote-border-color: var(--primary-200);
 
-    --code-block-bg: var(--gray-900);
+    --code-block-bg: #0f172a;
     --inline-code-bg: var(--gray-800);
     --inline-code-border: 1px solid var(--gray-600);
 
+    --code-block-text: #f1f5f9;
 }
 
 .docs-content {
@@ -46,11 +48,13 @@
 .docs-content .main-content a {
     font-weight: 600;
     color: var(--content-link-color);
+
     &:hover {
-        text-decoration: underline 2px var(--primary-200);
+        text-decoration: underline 2px var(--link-hover-color, var(--primary-200));
         text-underline-offset: 2.5px !important;
         transition: 0s !important;
     }
+
     // &.anchor i {
     //     transform: rotate(-45deg);
     // }
@@ -60,6 +64,7 @@
 }
 
 .docs-content .main-content {
+
     #edit-this-page a,
     #list-item a {
         &:hover {
@@ -137,11 +142,13 @@ i {
 
 // Images
 .docs-content .main-content {
+
     img,
     svg {
         max-width: 100%;
         height: auto;
     }
+
     // External link icon
     a svg {
         vertical-align: middle;
@@ -154,13 +161,13 @@ i {
 .docs-content .main-content ul {
     padding-left: 0;
 
-    > li {
+    >li {
         position: relative;
         padding-left: 32px;
         // margin-bottom: 5px;
     }
 
-    > li::before {
+    >li::before {
         content: "";
         position: absolute;
         width: 6px;
@@ -175,13 +182,14 @@ i {
 // Ordered List Styling
 .docs-content .main-content ol {
     counter-reset: listitem;
-    > li {
+
+    >li {
         counter-increment: listitem;
         position: relative;
         padding-left: 32px;
     }
 
-    > li::before {
+    >li::before {
         content: counter(listitem);
         background: var(--ordered-list-bg);
         color: var(--ordered-list-color);
@@ -220,6 +228,8 @@ i {
     padding: $code-block-padding-top;
     background: var(--code-block-bg);
     border-radius: 4px;
+    color: var(--code-block-text, var(--text-default));
+
     pre {
         padding: 0;
     }

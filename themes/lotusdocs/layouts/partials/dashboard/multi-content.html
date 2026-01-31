@@ -1,0 +1,152 @@
+<div class="multi-content">
+    <div class="content-tabs">
+        <button class="tab-btn active" data-tab="latest">最新发布</button>
+        <button class="tab-btn" data-tab="popular">热门排行</button>
+        <button class="tab-btn" data-tab="featured">精选推荐</button>
+    </div>
+
+    {{ $allPages := where .Site.RegularPages "Type" "docs" }}
+
+    {{ $topPages := where $allPages "Params.top" "!=" nil }}
+    {{ $topPages := $topPages.ByParam "top" }}
+
+    {{ $fixPages := where $allPages "Params.fix" "!=" nil }}
+    {{ $fixPages := $fixPages.ByParam "fix" }}
+
+    {{ $normalPages := where $allPages "Params.fix" "eq" nil }}
+    {{ $normalPages := $normalPages.ByDate.Reverse }}
+
+    {{ $sortedLatest := $fixPages }}
+    {{ range $normalPages }}
+        {{ $sortedLatest = $sortedLatest | append . }}
+    {{ end }}
+
+    <div class="content-panel active" id="panel-latest">
+        <div class="skeleton-wrapper loading" id="skeleton-latest">
+            {{ range first 6 (seq 1 6) }}
+            {{ partial "dashboard/skeleton.html" }}
+            {{ end }}
+        </div>
+        <div class="article-grid" id="article-grid-latest" style="display: none;" data-page="1" data-per-page="12" data-total="{{ len $sortedLatest }}">
+            {{ range $index, $page := $sortedLatest }}
+            <div class="article-card" data-url="{{ $page.Permalink }}" data-page="{{ add (div $index 12) 1 }}"{{ if lt $index 12 }} style="display: block;"{{ else }} style="display: none;"{{ end }}>
+                <div class="article-cover">
+                    {{ with $page.Params.cover }}
+                        {{ $coverImage := . }}
+                        {{ $isExternal := or (hasPrefix $coverImage "http://") (hasPrefix $coverImage "https://") }}
+                        {{ if $isExternal }}
+                            <img data-src="{{ $coverImage }}" srcset="{{ $coverImage }} 320w, {{ $coverImage }} 640w, {{ $coverImage }} 960w" sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, 960px" alt="{{ $page.Title }}" class="cover-image" loading="lazy" width="640" height="360" >
+                        {{ else }}
+                            <img data-src="{{ $coverImage }}" srcset="{{ $coverImage }} 320w, {{ $coverImage }} 640w, {{ $coverImage }} 960w" sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, 960px" alt="{{ $page.Title }}" class="cover-image" loading="lazy" width="640" height="360" >
+                        {{ end }}
+                    {{ else with $page.Params.images }}
+                        {{ range first 1 (shuffle .) }}
+                            {{ $coverImage := . }}
+                            {{ $isExternal := or (hasPrefix $coverImage "http://") (hasPrefix $coverImage "https://") }}
+                            {{ if $isExternal }}
+                                <img data-src="{{ $coverImage }}" srcset="{{ $coverImage }} 320w, {{ $coverImage }} 640w, {{ $coverImage }} 960w" sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, 960px" alt="{{ $page.Title }}" class="cover-image" loading="lazy" width="640" height="360" >
+                            {{ else }}
+                                <img data-src="{{ $coverImage }}" srcset="{{ $coverImage }} 320w, {{ $coverImage }} 640w, {{ $coverImage }} 960w" sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, 960px" alt="{{ $page.Title }}" class="cover-image" loading="lazy" width="640" height="360" >
+                            {{ end }}
+                        {{ end }}
+                    {{ else }}
+                        <div class="cover-placeholder">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 1024 1024" class="placeholder-icon">
+                                <path d="M880 112H144c-17.7 0-32 14.3-32 32v736c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V144c0-17.7-14.3-32-32-32zm-40 728H184V184h656v656zM304 280a56 56 0 1 1 112 0 56 56 0 0 1 1-112 0zm376 280H304c-4.4 0-8-3.6-8-8v-48c0-4.4 3.6-8 8-8h376c4.4 0 8 3.6 8 8v48c0 4.4-3.6 8-8 8zm-200 144H304c-4.4 0-8-3.6-8-8v-48c0-4.4 3.6-8 8-8h176c4.4 0 8 3.6 8 8v48c0 4.4-3.6 8-8 8z"/>
+                            </svg>
+                        </div>
+                    {{ end }}
+                </div>
+                <div class="article-header">
+                    {{ if $page.Params.fix }}
+                    <span class="article-badge badge-featured">置顶</span>
+                    {{ end }}
+                    {{ with $page.Params.categories }}
+                    {{ range first 1 . }}
+                    <span class="article-badge badge-category">{{ . }}</span>
+                    {{ end }}
+                    {{ end }}
+                </div>
+                <h3 class="article-title">
+                    <a href="{{ $page.Permalink }}">{{ $page.Title }}</a>
+                </h3>
+                <p class="article-excerpt">
+                    {{ if $page.Description }}
+                    {{ $page.Description | truncate 120 }}
+                    {{ else }}
+                    {{ $page.Content | plainify | truncate 120 }}
+                    {{ end }}
+                </p>
+                <div class="article-meta">
+                    <span class="meta-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 1024 1024">
+                            <path fill="currentColor" d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"/>
+                            <path fill="currentColor" d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"/>
+                        </svg>
+                        {{ $page.Date.Format "2006-01-02" }}
+                    </span>
+                    {{ if $page.Params.tags }}
+                    <span class="meta-item tags">
+                        {{ range first 3 $page.Params.tags }}
+                        <span class="tag">{{ . }}</span>
+                        {{ end }}
+                    </span>
+                    {{ end }}
+                </div>
+            </div>
+            {{ end }}
+        </div>
+        <div class="load-more" id="load-more-container" style="display: none;">
+            <button id="load-more-btn" class="btn-load-more">加载更多</button>
+            <div id="load-more-loading" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 1024 1024">
+                    <path fill="currentColor" d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z">
+                        <animateTransform attributeName="transform" type="rotate" from="0 512 512" to="360 512 512" dur="1s" repeatCount="indefinite"/>
+                    </svg>
+                </div>
+        </div>
+    </div>
+
+    <div class="content-panel" id="panel-popular">
+        <div class="article-list">
+            {{ $sorted := slice }}
+            {{ range $index, $page := $normalPages }}
+                {{ $daysSinceUpdate := now.Sub $page.Lastmod }}
+                {{ $daysSinceUpdateInt := (div (int $daysSinceUpdate.Hours) 24) }}
+                {{ $wordCount := len ($page.Content | plainify) }}
+                {{ $popularityScore := sub (float $wordCount) (mul (float $daysSinceUpdateInt) 5) }}
+                {{ $pageWithScore := (dict "page" $page "score" $popularityScore) }}
+                {{ $sorted = $sorted | append $pageWithScore }}
+            {{ end }}
+            {{ $sorted := sort $sorted "score" "desc" }}
+            {{ range $index, $item := first 12 $sorted }}
+            {{ $page := $item.page }}
+            {{ partial "list-item.html" (dict "page" $page "showRank" true "rank" (add $index 1)) }}
+            {{ end }}
+        </div>
+    </div>
+
+    <div class="content-panel" id="panel-featured">
+        <div class="featured-grid">
+            {{ if $topPages }}
+                {{ range first 12 $topPages }}
+                <div class="featured-card" data-url="{{ .Permalink }}">
+                    <div class="featured-content">
+                        <h3 class="featured-title">
+                            <a href="{{ .Permalink }}">{{ .Title }}</a>
+                        </h3>
+                        <p class="featured-excerpt">
+                            {{ if .Description }}
+                            {{ .Description | truncate 150 }}
+                            {{ else }}
+                            {{ .Content | plainify | truncate 150 }}
+                            {{ end }}
+                        </p>
+                        <a href="{{ .Permalink }}" class="featured-link">阅读全文 →</a>
+                    </div>
+                </div>
+            {{ end }}
+            {{ end }}
+        </div>
+    </div>
+</div>

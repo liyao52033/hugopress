@@ -14,7 +14,9 @@ author:
   link: https://xiaoying.org.cn
 icon: menu
 tags: []
+cover: https://cnb.xiaoying.org.cn?random=/pages/f3b474
 ---
+
 
 
 

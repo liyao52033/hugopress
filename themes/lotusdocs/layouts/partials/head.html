@@ -45,6 +45,43 @@
     <link rel="stylesheet" blocking="render" href="{{ $bundle.RelPermalink }}" {{ if hugo.IsProduction
         }}integrity="{{ $bundle.Data.Integrity }}" {{ end -}} />
 
+
+    <!-- Custom JS -->
+    {{/*  {{ $echartsJs := resources.Get "js/echarts.min.js" }}
+    {{if hugo.IsProduction}}
+        {{ $echartsJs = $echartsJs | fingerprint "sha384" }}
+    {{ end }}
+    <script src="{{ $echartsJs.RelPermalink }}" {{ with $echartsJs.Data.Integrity }}integrity="{{ . }}"{{ end }} defer></script>  */}}
+    
+    {{ $app := resources.Get "js/app.js" }}
+    {{ $slice := slice $app -}}
+
+    {{ $dashboardJs := resources.Get "js/dashboard.js" }}
+    {{ $slice = $slice | append $dashboardJs -}}
+
+    {{ $Js := $slice | resources.Concat (printf "/%s" "js/bundle.js") -}}
+
+    {{/* 统一构建配置 */}}
+    {{ $params := dict }}
+    {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
+    {{ $opts := dict
+    "sourceMap" $sourceMap
+    "minify" hugo.IsProduction
+    "target" "es2018"
+    "params" $params
+    "treeShaking" true
+    }}
+
+    {{ $Js = $Js | js.Build $opts -}}
+
+    {{/* 生产环境添加指纹 */}}
+    {{ if hugo.IsProduction }}
+        {{  $Js = $Js | fingerprint "sha384" -}}
+    {{ end }}
+
+    <script blocking="render" src="{{ $Js.RelPermalink }}" {{ with $Js.Data.Integrity }}integrity="{{ . }}"{{ end }} ></script>
+
+
     <!-- Image Compare Viewer -->
     {{/*  {{ if ($.Scratch.Get "image_compare_enabled") }}
         {{ $imagecompare := resources.Get "js/image-compare-viewer.min.js" }}

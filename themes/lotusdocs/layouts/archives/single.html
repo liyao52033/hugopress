@@ -42,20 +42,11 @@
 
             <div class="month-card mb-4">
               <h3 class="mb-3 text-lg font-semibold text-gray-700">{{ $monthName }}</h3>
-              <ul class="article-list list-unstyled">
+              <div class="article-list">
                 {{ range $monthPosts }}
-                  <li class="article-item mb-2">
-                    <a href="{{ .RelPermalink }}" class="d-block">
-                      <div class="article-card card p-3 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-                        <div class="card-body p-0">
-                          <span class="text-gray-800">{{ .Title }}</span>
-                          <span class="text-gray-500 small float-end">{{ .Date.Format "02日" }}</span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
+                  {{ partial "list-item.html" (dict "page" . "showRank" false) }}
                 {{ end }}
-              </ul>
+              </div>
             </div>
           {{ end }}
         </div>
@@ -71,88 +62,28 @@
   </div>
 </div>
 
-<style>
- .card-header.text-white {
-    --bs-text-opacity: 1;
-    color: rgb(35 132 143) !important;
-  }
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const listItems = document.querySelectorAll('.list-item');
   
-  /* ====== 基础归档样式 ====== */
-  .archive-list {
-    max-width: 80%;
-    margin: 0 auto;
-  }
+  listItems.forEach(item => {
+    item.addEventListener('click', function(e) {
+      const url = this.getAttribute('data-url');
+      if (url && !e.target.closest('a')) {
+        window.location.href = url;
+      }
+    });
 
-  /* 年份卡片 */
-  .year-card {
-    border-radius: 0.75rem;
-    overflow: hidden;
-    transition: box-shadow 0.3s ease;
-    margin-bottom: 1.5rem;
-  }
-
-  .year-card .card-header {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #fff;
-    transition: background-color 0.3s ease;
-  }
-
-  /* 月份标题 */
-  .month-card h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #374151;
-    border-left: 4px solid #0d6efd;
-    padding-left: 0.5rem;
-  }
-
-  /* 文章卡片 */
-  .article-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    background-color: #fff;
-  }
-
-  /* 文章卡片正文 */
-  .article-item .card-body {
-    padding: 0.5rem 1rem;
-  }
-
-  .article-item a {
-    text-decoration: none;
-  }
-  .article-item a:hover {
-    text-decoration: underline;
-  }
-
-  /* ====== 桌面端悬浮效果 ====== */
-  @media (min-width: 768px) {
-    .article-card:hover {
-      transform: translateY(-6px) scale(1.02);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-      background-color: #0d6efd;
-      color: #fff;
-    }
-
-    .year-card:hover {
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    }
-  }
-
-  /* ====== 移动端效果（不放大，仅阴影） ====== */
-  @media (max-width: 767px) {
-    .archive-list {
-      max-width: 100%; 
-      margin: 0 auto;
-   }
-    .article-card {
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    }
-    .year-card {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-  }
-</style>
+    item.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const url = this.getAttribute('data-url');
+        if (url) {
+          window.location.href = url;
+        }
+      }
+    });
+  });
+});
+</script>
 {{ end }}

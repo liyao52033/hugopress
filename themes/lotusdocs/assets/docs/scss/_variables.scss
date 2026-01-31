@@ -1,9 +1,9 @@
 // Prefix for :root CSS variables
 
-$prefix:                      bs-;
+$prefix: bs-;
 
-$btn-link-color:              var(--#{$prefix}link-color);
-$btn-link-hover-color:        var(--#{$prefix}link-hover-color);
+$btn-link-color: var(--#{$prefix}link-color);
+$btn-link-hover-color: var(--#{$prefix}link-hover-color);
 
 :root {
 
@@ -224,11 +224,11 @@ $btn-link-hover-color:        var(--#{$prefix}link-hover-color);
     //
     // Style anchor elements.
 
-    --link-color:                              var(--primary);
-    --link-decoration:                         underline;
-    --link-shade-percentage:                   20%;
+    --link-color: var(--primary);
+    --link-decoration: underline;
+    --link-shade-percentage: 20%;
     // $link-hover-color:                        shift-color($link-color, $link-shade-percentage);
-    --link-hover-decoration:                   null;
+    --link-hover-decoration: null;
 
     // Buttons
 
@@ -245,6 +245,10 @@ $btn-link-hover-color:        var(--#{$prefix}link-hover-color);
     // Text
     --text-dark: #3C4257;
     --text-light: #dee2e6;
+
+    // Headings
+    --heading-1-color: #1a202c;
+    --heading-2-color: #2d3748;
 
     // Fonts
     --fw-medium: 600;
@@ -277,8 +281,8 @@ $btn-link-hover-color:        var(--#{$prefix}link-hover-color);
 
     // Buttons
     --btn-soft-color: var(--primary);
-    --btn-soft-bg: transparent;
-    --btn-soft-border: var(--gray-200);
+    --btn-soft-bg: var(--gray-100);
+    --btn-soft-border: var(--gray-300);
 
     --btn-primary-color: var(--white);
     --btn-primary-bg: var(--primary);
@@ -287,7 +291,7 @@ $btn-link-hover-color:        var(--#{$prefix}link-hover-color);
     --btn-default-color: var(--text-default);
     --btn-default-hover-color: var(--primary);
     --btn-default-bg: transparent;
-    --btn-default-border: transparent;
+    --btn-default-border: var(--gray-300);
 
     // Icons
     --icon-color: var(--primary);
@@ -299,13 +303,13 @@ $btn-link-hover-color:        var(--#{$prefix}link-hover-color);
 
     // Cards
     --card-bg: var(--white);
-    --card-border-color: var(--gray-400);
+    --card-border-color: var(--gray-300);
     --card-border-hover-color: var(--primary);
 
     // Sidebar
     --sidebar-primary: var(--primary);
     --sidebar-bg: var(--white);
-    --top-header-bg: hsla(255,100%,100%,0.8);
+    --top-header-bg: hsla(255, 100%, 100%, 0.8);
     --sidebar-text-color: #606770;
     --sidebar-border-color: var(--gray-200);
     --sidebar-dropdown-hover-bg: #eff1f4;
@@ -323,36 +327,44 @@ $btn-link-hover-color:        var(--#{$prefix}link-hover-color);
     --body-bg: var(--dark);
     --text-default: var(--text-light);
     --text-default-inv: var(--text-dark);
-    --text-muted: #b6b9be;
-    --#{$prefix}secondary-color: #6c757d;
+    --text-muted: #d1d5db;
+    --#{$prefix}secondary-color: #9ca3af;
+
+    // Links
+    --link-color: var(--primary-300);
+    --link-hover-color: var(--primary-200);
+
+    // Headings
+    --heading-1-color: #f7fafc;
+    --heading-2-color: #e2e8f0;
 
     // Buttons
-    --btn-soft-color: var(--gray-400);
-    --btn-soft-bg: none;
-    --btn-soft-border: var(--gray-800);
+    --btn-soft-color: var(--text-default);
+    --btn-soft-bg: var(--gray-800);
+    --btn-soft-border: var(--gray-600);
 
     --btn-primary-color: var(--primary-200);
-    --btn-primary-bg: none;
+    --btn-primary-bg: var(--primary-600);
     --btn-primary-border: var(--gray-700);
 
     --btn-default-color: var(--text-default);
     --btn-default-hover-color: var(--primary-300);
     --btn-default-bg: transparent;
-    --btn-default-border: transparent;
+    --btn-default-border: var(--gray-600);
 
     // Icons
-    --icon-color: #b6bbc9;
+    --icon-color: #d1d5db;
 
     // Cards
-    --card-bg: none;
-    --card-border-color: var(--gray-800);
+    --card-bg: #1e293b;
+    --card-border-color: var(--gray-700);
     --card-border-hover-color: var(--primary-200);
 
     // sidebar
     --sidebar-primary: var(--primary-300);
     --sidebar-bg: var(--dark);
-    --top-header-bg: hsla(233,16%,11%,0.8);
-    --sidebar-text-color: #b6bbc9;
+    --top-header-bg: hsla(233, 16%, 11%, 0.8);
+    --sidebar-text-color: #e5e7eb;
     --sidebar-border-color: var(--gray-900);
     --sidebar-dropdown-hover-bg: #2b303b;
     --sidebar-menu-active-bg: #2b303b;

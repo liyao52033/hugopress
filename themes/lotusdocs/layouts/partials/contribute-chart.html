@@ -1,6 +1,6 @@
 <!-- 引入 ECharts（改用ESM入口 + 开启tree-shaking） -->
 {{/* 指向按需导入的ESM入口文件，而非直接处理echarts.min.js */}}
-{{ $echartsJs := resources.Get "js/echarts-entry.js" }}
+{{ $echartsJs := resources.Get "js/echarts-archives.js" }}
 {{ $params := dict }}
 {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
 {{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params "treeShaking" true

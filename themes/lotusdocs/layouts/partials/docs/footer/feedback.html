@@ -103,13 +103,13 @@
             {{ end -}}
             {{ end -}}
         } catch (err) {
-         //   console.log(err);
+       
             feedbackEmojiCta.remove();
             sendArea.remove();
             result.innerHTML = '{{ .Site.Params.feedback.errorMsg | default "Sorry! There was an error while attempting to submit your feedback!" }}';
             result.classList.add("is-visible");
         }
-        // console.log("feedback submitted")
+        
     });
 </script>
 
@@ -234,7 +234,7 @@
             }
             addOn.innerHTML +='<textarea id="textarea" cols="55" maxlength="500" rows="3" placeholder="(Optional) Try to be as specific and detailed as possible!" type="text" class="feedback-textarea p-2 mb-2"></textarea>';
             feedbackSubmitBtn.removeAttribute("disabled");
-            // console.log(radioID);
+          
         });
     });
 
@@ -306,13 +306,13 @@
                 {{ end -}}
             }
         } catch (err) {
-         //   console.log(err);
+       
             form.remove();
             feedbackSubmitContainer.remove();
             result.innerHTML = '{{ .Site.Params.feedback.errorMsg | default "Sorry! There was an error while attempting to submit your feedback!" }}';
             result.classList.add("is-visible");
         }
-        // console.log("feedback submitted")
+       
     });
 
 </script>

@@ -416,6 +416,7 @@ const writeFrontmatterToFile = (filePaths, option) => {
         url: createPermalink(permalinkPrefix),
         type: "docs",
         description: "",
+        cover: `https://cnb.xiaoying.org.cn?random=${createPermalink(permalinkPrefix)}`,
         weight: calculateWeight(filePath, {
           weightStep: option.weightStep || 10,
           defaultWeight: option.defaultWeight || 9999,
@@ -427,6 +428,7 @@ const writeFrontmatterToFile = (filePaths, option) => {
           name: "liyao",
           link: "https://xiaoying.org.cn",
         },
+      
       };
 
       // 先复制已有 frontmatter

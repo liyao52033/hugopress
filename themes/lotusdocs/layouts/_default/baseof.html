@@ -42,17 +42,6 @@ If so, collect and consolidate the items config from each enabled instance
     {{/* common CSS and JS */}}
     {{- partialCached "basic.html" . -}}
 
-    <!-- Lotus Docs JS -->
-    {{ $app := resources.Get "/js/app.js" }}
-    {{ $params := dict }}
-    {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
-    {{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params "treeShaking" true }}
-    {{ $app = $app | js.Build $opts -}}
-    {{ if hugo.IsProduction }}
-        {{ $app = $app | fingerprint "sha384" }}
-    {{end}}
-    <script type="text/javascript" blocking="render" src="{{ $app.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $app.Data.Integrity }}" {{ end }} async></script>
-
     <!-- Image Compare Viewer Config -->
     {{/*  {{ if ($.Scratch.Get "image_compare_enabled") }}  */}}
     <!--  <script>   -->

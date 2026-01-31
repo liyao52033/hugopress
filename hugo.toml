@@ -28,6 +28,20 @@ ignoreLogs = ['warning-goldmark-raw-html']
     source = 'assets/.*\.(.*)$'
     target = '$1'
 
+[caches]
+  [caches.getjson]
+    dir = ':cacheDir/:project'
+    maxAge = "10m"
+  [caches.getresource]
+    dir = ':cacheDir/:project'
+    maxAge = "10m"
+  [caches.images]
+    dir = ':resourceDir/_gen'
+    maxAge = "720h"
+  [caches.assets]
+    dir = ':resourceDir/_gen'
+    maxAge = "720h"
+
 # Hugo 会根据以下顺序查找 lastmod 的值：
 # 1、Front Matter 中的 lastmod 字段：如果存在，优先使用。
 # 2、文件的最后修改时间：如果没有在 Front Matter 中指定，且启用了 enableGitInfo，则使用文件的最后修改时间。

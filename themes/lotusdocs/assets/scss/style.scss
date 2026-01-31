@@ -22,7 +22,7 @@ $font-family-monospace: var(--font-family-monospace);
 @import "bootstrap/bootstrap";
 
 // Plugins
-@import "custom/plugins/icons/google-material";
+// @import "custom/plugins/icons/google-material";
 
 // Structure
 @import "custom/structure/general";
@@ -34,7 +34,7 @@ $font-family-monospace: var(--font-family-monospace);
 @import "custom/structure/footer";
 
 // // Components
-@import "custom/components/buttons";
+// @import "custom/components/buttons";
 @import "custom/components/badge";
 @import "custom/components/backgrounds";
 @import "custom/components/responsive-navbar";
@@ -53,3 +53,6 @@ $font-family-monospace: var(--font-family-monospace);
 
 // 关于页相关
 @import "custom/pages/about";
+
+// 归档页相关
+@import "custom/pages/archives";
