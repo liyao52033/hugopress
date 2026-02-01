@@ -103,11 +103,11 @@ function activateMenu() {
 function activateSidebarMenu() {
     var currentPath = location.pathname;
     var currentFile = currentPath.substring(currentPath.lastIndexOf('/') + 1);
-    
+
     if (document.getElementById("sidebar")) {
         var menuItems = document.querySelectorAll('#sidebar button[href]');
         var foundMatch = false;
-        
+
         // 首先尝试匹配完整路径（frontmatter.url）
         for (var i = 0, len = menuItems.length; i < len; i++) {
             var href = menuItems[i].getAttribute("href");
@@ -117,7 +117,7 @@ function activateSidebarMenu() {
                 break;
             }
         }
-        
+
         // 如果没有找到完整路径匹配，尝试匹配文件名
         if (!foundMatch && currentFile !== "") {
             for (var i = 0, len = menuItems.length; i < len; i++) {
@@ -147,7 +147,7 @@ if (document.getElementById("close-sidebar")) {
     });
 }
 
- // Close Sidebar (mobile)
+// Close Sidebar (mobile)
 if (!window.matchMedia('(min-width: 1024px)').matches) {
     if (document.getElementById("close-sidebar")) {
         const closeSidebar = document.getElementById("close-sidebar");
@@ -155,7 +155,7 @@ if (!window.matchMedia('(min-width: 1024px)').matches) {
         // 仅在初始为移动端时选择链接集合
         const sidebarMenuLinks = Array.from(document.querySelectorAll(".sidebar-root-link,.sidebar-nested-link"));
         // 点击空白区域关闭（仅移动端）
-        document.addEventListener('click', function(elem) {
+        document.addEventListener('click', function (elem) {
             if (!closeSidebar.contains(elem.target) && !sidebar.contains(elem.target)) {
                 document.getElementsByClassName("page-wrapper")[0].classList.add("toggled");
             }
@@ -221,26 +221,7 @@ window.addEventListener('scroll', (ev) => {
     windowScroll();
 })
 
-// back-to-top
-var mybutton = document.getElementById("back-to-top");
-window.onscroll = function () {
-    scrollFunction();
-};
 
-function scrollFunction() {
-    if (mybutton != null) {
-        if (document.body.scrollTop > 500 || document.documentElement.scrollTop > 500) {
-            mybutton.style.display = "block";
-        } else {
-            mybutton.style.display = "none";
-        }
-    }
-}
-
-// function topFunction() {
-//     document.body.scrollTop = 0;
-//     document.documentElement.scrollTop = 0;
-// }
 
 // dd-menu
 if (document.getElementsByClassName("dd-menu")) {
@@ -274,7 +255,7 @@ const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new Tooltip(
  * @return {String} str  The sanitized string
  */
 var sanitizeHTML = function (str) {
-	return str.replace(/[^\w. ]/gi, function (c) {
-		return '&#' + c.charCodeAt(0) + ';';
-	});
+    return str.replace(/[^\w. ]/gi, function (c) {
+        return '&#' + c.charCodeAt(0) + ';';
+    });
 };

@@ -49,12 +49,14 @@ $code-block-padding-top: {{ if eq .Site.Params.docs.prism true -}}0{{ else }}1.2
 @import "custom/components/table";
 @import "custom/components/tabs";
 @import "custom/components/tooltip";
-@import "custom/components/responsive-navbar";
+// @import "custom/components/responsive-navbar";
 @import "custom/components/codeBlock";
 
 // Pages
 @import "custom/pages/features";
 @import "custom/pages/helper";
+@import "custom/pages/custom-styles";
+@import "custom/pages/vif-style";
 
 // Plugins
 
@@ -70,11 +72,8 @@ $code-block-padding-top: {{ if eq .Site.Params.docs.prism true -}}0{{ else }}1.2
 {{ if or (not (isset .Site.Params.flexsearch "enabled")) (eq .Site.Params.flexsearch.enabled true) -}}@import "custom/plugins/flexsearch/flexsearch";{{ end }}
 
 // Feedback Widget
-{{ if .Site.Params.feedback.enabled | default false -}}@import "custom/plugins/feedback/feedback";{{ end}}
+// {{ if .Site.Params.feedback.enabled | default false -}}@import "custom/plugins/feedback/feedback";{{ end}}
 
 // Mermaid
 @import "custom/plugins/mermaid/mermaid";
 
-// Custom Styles
-@import "custom-styles";
-@import "vif-style";

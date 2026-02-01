@@ -9,7 +9,7 @@
     top: 0;
     left: 0;
     right: 0;
-    z-index: 1030;
+    z-index: 200;
     background-color: #fff;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -120,6 +120,7 @@
 
     // Navigation items styling
     .navbar-nav {
+        margin-right: 2rem;
         .nav-link {
             font-weight: 600;
             color: #3C4257;

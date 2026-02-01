@@ -6,7 +6,6 @@
         initLayoutToggle();
         initRuntimeUpdate();
         initSmartRecommend();
-        initThemeToggle();
         initLazyLoading();
         initSkeletonLoading();
         initLoadMore();
@@ -328,34 +327,6 @@
         }
     }
 
-    function initThemeToggle() {
-        const themeToggle = document.getElementById('theme-toggle');
-        if (!themeToggle) return;
-
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-
-        themeToggle.addEventListener('click', function () {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-        });
-
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            if (!localStorage.getItem('theme')) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
-        }
-
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
-            if (!localStorage.getItem('theme')) {
-                document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
-            }
-        });
-    }
-
     function initLoadMore() {
         const loadMoreBtn = document.getElementById('load-more-btn');
         const loadMoreContainer = document.getElementById('load-more-container');
@@ -406,7 +377,7 @@
                 loadMoreLoading.style.display = 'none';
 
                 updateLoadMoreButton();
-            }, 500);
+            }, 50);
         });
 
         showPage(1);

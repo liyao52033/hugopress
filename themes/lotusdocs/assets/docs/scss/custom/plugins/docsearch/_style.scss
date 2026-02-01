@@ -51,7 +51,7 @@
   --docsearch-dropdown-menu-item-hover-background: var(--docsearch-modal-background)
 }
 
-html[data-theme=dark] {
+html[data-theme] {
   --docsearch-text-color: #c4c7dc;
   --docsearch-secondary-text-color: #b6b7d5;
   --docsearch-subtle-color: #212139;
@@ -100,6 +100,11 @@ html[data-theme=dark] {
   justify-content: space-between;
   padding: 0 8px;
   user-select: none
+}
+
+html[data-dark-mode] .DocSearch-Button {
+  background-color: transparent;
+  border: none;
 }
 
 .DocSearch-Button-Container {
@@ -151,6 +156,12 @@ html[data-theme=dark] {
   transition-timing-function: cubic-bezier(.4, 0, .2, 1);
   width: 24px
 }
+
+html[data-dark-mode] .DocSearch-Button-Key {
+  background-color: transparent;
+}
+
+
 
 .DocSearch-Button-Key--ctrl {
   width: 33px

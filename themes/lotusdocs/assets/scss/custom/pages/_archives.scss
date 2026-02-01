@@ -19,7 +19,7 @@
   background: linear-gradient(135deg, #0891B2 0%, #22D3EE 100%);
 }
 
-[data-theme="dark"] .year-card .card-header {
+html[data-theme] .year-card .card-header {
   background: linear-gradient(135deg, #22D3EE 0%, #0891B2 100%);
 }
 

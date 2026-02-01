@@ -10,3 +10,11 @@
       url('../fonts/material-symbols-outlined.woff2') format('woff2'), /* Super Modern Browsers */
       // url('../fonts/material-symbols-outlined.woff') format('woff'); /* Modern Browsers */
   }
+
+  
+  .theme-toggle svg {
+    width: 24px;
+    height: 24px;
+    color: #0F766E;;
+    transition: color 0.3s ease;
+  }

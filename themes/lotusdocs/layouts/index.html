@@ -21,14 +21,7 @@
         {{ partial $path $.Page }}
     {{ end }}
 
-    <button class="theme-toggle" id="theme-toggle" aria-label="切换主题">
-        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 1024 1024">
-            <path fill="currentColor" d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372zm0-640c35.3 0 69.3 6.7 99.2 18.8l46.1-46.1c6.2-6.2 6.2-16.4 0-22.6l-22.6-22.6c-6.2-6.2-16.4-6.2-22.6 0l-46.1 46.1c-29.9-12.1-63.9-18.8-99.2-18.8-141.4 0-256 114.6-256 256s114.6 256 256 256c35.3 0 69.3-6.7 99.2-18.8l46.1-46.1c6.2-6.2 6.2-16.4 0-22.6l-22.6-22.6c-6.2-6.2-16.4-6.2-22.6 0l-46.1 46.1c-29.9 12.1-63.9 18.8-99.2 18.8z"/>
-        </svg>
-        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 1024 1024">
-            <path fill="currentColor" d="M512 128c-212.1 0-384 171.9-384 384s171.9 384 384 384 384-171.9 384-384-171.9-384-384-384zm0 704c-176.7 0-320-143.3-320-320s143.3-320 320-320 320 143.3 320 320-143.3 320-320 320zm64-320c0 35.3-28.7 64-64 64s-64-28.7-64-64 28.7-64 64-64 64 28.7 64 64z"/>
-        </svg>
-    </button>
+   
 
     <div class="dashboard-container">
         <div class="dashboard-header">
@@ -45,9 +38,11 @@
             </div>
 
             <div class="dashboard-sidebar">
+                {{ partial "dashboard/blogger.html" . }}
                 {{ partial "dashboard/smart-recommend.html" . }}
                 {{ partial "dashboard/tag-cloud.html" . }}
                 {{ partial "dashboard/activity-timeline.html" . }}
+                {{ partial "dashboard/friend-links.html" . }}
             </div>
         </div>
     </div>

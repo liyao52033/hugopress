@@ -51,18 +51,15 @@
 
 .btn-default {
     background-color: var(--btn-default-bg) !important;
-    border: 1px solid var(--btn-default-border) !important;
     color: var(--btn-default-color) !important;
-    // box-shadow: 0 3px 5px 0 hsl(var(--primary-hsl), 0.1);
 
     &:hover,
     // &:focus,
     &:active,
     &.active,
     &.focus {
-        // background-color: var(--primary) !important;
         background: var(--btn-default-bg);
-        border-color: var(--btn-default-border) !important;
+    //    border-color: var(--btn-default-border) !important;
         color: var(--btn-default-hover-color) !important;
     }
 }

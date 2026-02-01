@@ -74,8 +74,8 @@
         {{- if hugo.IsProduction}}
             {{- $options := dict "enableSourceMap" false "outputStyle" "compressed" }}
         {{- end -}}
-        {{- $katexCSS := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/katex.scss") }}
-        {{- $katexCSS = $katexCSS | resources.ExecuteAsTemplate (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/katex.scss") . | css.Sass $options }}
+        {{- $katexCSS := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/custom/pages/katex.scss") }}
+        {{- $katexCSS = $katexCSS | resources.ExecuteAsTemplate (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/custom/pages/katex.scss") . | css.Sass $options }}
         {{- if hugo.IsProduction }}
             {{- $katexCSS = $katexCSS | minify | fingerprint "sha384" }}
         {{- end -}}

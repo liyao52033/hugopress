@@ -1,0 +1,68 @@
+{{ $limit := .Site.Params.friendLink.limit | default 5 }}
+{{ $interval := .Site.Params.friendLink.interval | default 5000 }}
+<div class="tk-widget-card tk-friend-links-card" data-carousel data-auto-play data-interval="{{ $interval }}" data-items-per-page="{{ $limit }}">
+  <div class="tk-widget-header">
+    <h3 class="tk-widget-title">
+      <svg class="tk-widget-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+      </svg>
+      友情链接
+    </h3>
+    <!-- 右上角轮播控制按钮 -->
+    <div class="tk-carousel-controls">
+      <button class="tk-carousel-btn tk-carousel-prev" aria-label="上一页" title="上一页">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="tk-carousel-btn tk-carousel-next" aria-label="下一页" title="下一页">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="tk-carousel-container">
+    <div class="tk-carousel-wrapper" style="--items-per-page: {{ $limit }};">
+      {{ if .Site.Data.friendLinks }}
+        {{ $groups := .Site.Params.friendLink.groups }}
+        {{ $showAll := or (not $groups) (eq (len $groups) 0) }}
+        {{ range .Site.Data.friendLinks.links }}
+          {{ if or $showAll (in $groups .title) }}
+            {{ range .list }}
+            <a href="{{ .url }}" class="tk-friend-link-item" target="_blank" rel="noopener noreferrer" title="{{ .name }} - {{ .description }}">
+              <div class="tk-friend-avatar">
+                {{ $avatar := .avatar }}
+                {{/* 友链头像优化：缩小到 100x100 (2x 显示为 50x50) */}}
+                {{ if in $avatar "img.xxdevops.cn" }}
+                  {{ $baseUrl := $avatar }}
+                  {{ if in $avatar "?" }}
+                    {{ $baseUrl = index (split $avatar "?") 0 }}
+                  {{ end }}
+                  {{ $avatar = printf "%s?w=100&h=100&fit=crop&fm=webp&q=85" $baseUrl }}
+                {{ end }}
+                <img src="{{ $avatar }}"
+                     alt="{{ .name }}"
+                     width="50"
+                     height="50"
+                     loading="lazy">
+              </div>
+              <div class="tk-friend-info">
+                <div class="tk-friend-name">{{ .name }}</div>
+                <div class="tk-friend-desc">{{ .description | truncate 20 "..." }}</div>
+              </div>
+            </a>
+            {{ end }}
+          {{ end }}
+        {{ end }}
+        {{ if not .Site.Data.friendLinks.links }}
+        <div class="tk-friend-empty">暂无友链</div>
+        {{ end }}
+      {{ else }}
+        <div class="tk-friend-empty">暂无友链</div>
+      {{ end }}
+    </div>
+  </div>
+</div>

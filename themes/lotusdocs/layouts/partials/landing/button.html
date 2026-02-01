@@ -33,9 +33,9 @@
         rel="noopener noreferrer"
       {{ end }}
     >
-      {{ with .icon }}
+      {{ if and .icon (ne .icon "") }}
         {{/* 图标稳定对齐：固定尺寸 + 垂直对齐 */}}
-        <span class="material-icons align-middle d-inline-block" style="font-size: 1.2rem; margin-right: 0.4rem; vertical-align: middle;">{{ . }}</span>
+        <span class="material-icons align-middle d-inline-block" style="font-size: 1.2rem; margin-right: 0.4rem; vertical-align: middle;">{{ .icon }}</span>
       {{ end }}
       {{ with .btnText }}
         <span style="vertical-align: middle;">{{ . }}</span>

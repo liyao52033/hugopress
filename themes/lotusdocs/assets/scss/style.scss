@@ -34,10 +34,10 @@ $font-family-monospace: var(--font-family-monospace);
 @import "custom/structure/footer";
 
 // // Components
-// @import "custom/components/buttons";
+@import "custom/components/buttons";
 @import "custom/components/badge";
 @import "custom/components/backgrounds";
-@import "custom/components/responsive-navbar";
+// @import "custom/components/responsive-navbar";
 // @import "custom/components/alerts";
 // @import "custom/components/card";
 
@@ -48,7 +48,8 @@ $font-family-monospace: var(--font-family-monospace);
 @import "custom/pages/features";
 @import "custom/pages/helper";
 @import "custom/pages/hero";
-// @import "custom/pages/image-compare-viewer";
+@import "custom/pages/blogger"; 
+@import "custom/pages/friend";
 @import "custom/pages/homepage";
 
 // 关于页相关

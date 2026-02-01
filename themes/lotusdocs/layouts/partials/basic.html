@@ -3,37 +3,36 @@
 <!-- 不蒜子统计 -->
 <script async src="https://busuanzi.xiaoying.org.cn/js"></script>
 
-{{/*使用Hugo资源管道处理responsive-navbar.js*/}}
-{{/*  {{ $navbarJs := resources.Get "js/responsive-navbar.js" }}
-{{ $params := dict }}
-{{ $sourceMap := cond hugo.IsProduction "" "inline" }}
-{{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params "treeShaking" true
-}}
-{{ $navbarJs = $navbarJs | js.Build $opts }}
-{{ if hugo.IsProduction }}
-{{ $navbarJs = $navbarJs | fingerprint "sha384" }}
+{{ if site.Params.docs.backToTop | default true }}
+    <button id="back-to-top" aria-label="Back to Top Button" class="back-to-top fs-5"><svg width="24" height="24"><path d="M12,10.224l-6.3,6.3L4.32,15.152,12,7.472l7.68,7.68L18.3,16.528Z" style="fill:#fff"/></svg></button>
 {{ end }}
-<script src="{{ $navbarJs.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $navbarJs.Data.Integrity }}" {{ end
-  -}} defer></script>  */}}
 
 
-<!-- Global Bootstrap JS via basic.html -->
-{{/*  {{ $js := resources.Get "docs/js/bootstrap.js" }}
-{{ $params := dict }}
-{{ $sourceMap := cond hugo.IsProduction "" "inline" }}
-{{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params "treeShaking" true }}
-{{ $js = $js | js.Build $opts -}}
-{{ if hugo.IsProduction }}
-  {{ $js = $js | fingerprint "sha384" }}
+{{/* 处理CSS */}}
+{{ $backToTopScss := resources.Get "basic/style.scss" }}
+{{ $options := dict "enableSourceMap" true }}
+{{ if hugo.IsProduction}}
+  {{ $options = dict "enableSourceMap" false "outputStyle" "compressed" }}
 {{ end }}
-<script src="{{ $js.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $js.Data.Integrity }}" {{ end -}}
-  defer></script>  */}}
+{{ $backToTopCss := $backToTopScss | css.Sass $options | css.PostCSS }}
+{{ if hugo.IsProduction }}
+  {{ $backToTopCss = $backToTopCss | minify | fingerprint "sha384" }}
+{{ end }}
 
+<link rel="stylesheet" href="{{ $backToTopCss.RelPermalink }}" {{ if hugo.IsProduction }}
+integrity="{{ $backToTopCss.Data.Integrity }}" {{ end -}}>
+
+{{/* 处理JS */}}
 {{ $navbarJs := resources.Get "js/responsive-navbar.js" }}
-{{ $bootstrapJs := resources.Get "docs/js/bootstrap.js" }}
+{{ $slice := slice $navbarJs -}}
 
-{{/* 合并JS文件 */}}
-{{ $combinedJs := slice $navbarJs $bootstrapJs | resources.Concat "docs/js/navbar.js" -}}
+{{ $backToTopJs := resources.Get "basic/js/back-to-top.js" }}
+{{ $slice = $slice | append $backToTopJs -}}
+
+{{ $bootstrapJs := resources.Get "docs/js/bootstrap.js" }}
+{{ $slice = $slice | append $bootstrapJs -}}
+
+{{ $basicJs := $slice | resources.Concat "navbar.js" -}}
 
 {{/* 统一构建配置 */}}
 {{ $params := dict }}
@@ -45,31 +44,16 @@
   "params" $params 
 }}
 
-{{/* 构建合并后的JS */}}
-{{ $finalJs := $combinedJs | js.Build $opts }}
+{{ $basicJs  := $basicJs | js.Build $opts -}}
 
 {{/* 生产环境添加指纹 */}}
 {{ if hugo.IsProduction }}
-  {{ $finalJs = $finalJs | fingerprint "sha384" }}
+  {{ $basicJs = $basicJs | fingerprint "sha384" -}}
 {{ end }}
 
 {{/* 输出script标签 */}}
 <script 
-  src="{{ $finalJs.RelPermalink }}" 
-  {{ if hugo.IsProduction }}integrity="{{ $finalJs.Data.Integrity }}" {{ end -}}
+  src="{{ $basicJs.RelPermalink }}" 
+  {{ if hugo.IsProduction }}integrity="{{ $basicJs.Data.Integrity }}" {{ end -}}
   defer
 ></script>
-
-
-{{/*
-{{- $options := dict "enableSourceMap" true }}
-{{- if hugo.IsProduction}}
-{{- $options = dict "enableSourceMap" false "outputStyle" "compressed" }}
-{{- end }}
-{{- $style := resources.Get "basic/style.scss" }}
-{{- $style = $style | resources.ExecuteAsTemplate "basic/style.scss" . | css.Sass $options | css.PostCSS }}
-{{- if hugo.IsProduction }}
-{{- $style = $style | minify | fingerprint "sha384" }}
-{{- end -}}
-<link rel="stylesheet" href="{{ $style.RelPermalink }}" {{ if hugo.IsProduction
-  }}integrity="{{ $style.Data.Integrity }}" {{ end -}} */}}

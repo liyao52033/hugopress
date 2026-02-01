@@ -1,6 +1,5 @@
-@import {{ printf "'%s%s'" "colors/" (.Site.Params.docs.themeColor | default "blue") }};
-@import "variables";
-
+@import "scss/back-to-top.scss";
+@import "scss/responsive-navbar";
 
 
 

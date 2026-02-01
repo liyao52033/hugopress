@@ -190,6 +190,49 @@ ignoreLogs = ['warning-goldmark-raw-html']
     [params.social]
         github = "liyao52033/hugopress"        
         rss = true                    # show rss icon with link     
+
+    [params.blogger]
+      avatar = "https://img.xiaoying.org.cn/img/20250725164502996.png?w=150&h=150&fit=crop&fm=webp&q=80"
+      backgroundImage = "https://img.xxdevops.cn/blog/wallpaper/bg14.avif"  # 博主卡片背景图（可选，留空则使用纯色背景）
+      circleBgImg = "https://img.xiaoying.org.cn/img/20250725164502996.png?w=300&h=300&fit=crop&fm=webp&q=80"
+      circleBgMask = false
+      name = "liyao"
+      shape = "circle-rotate"
+      slogan = "分享技术，交流经验，共同成长"
+      [params.blogger.status]
+        icon = "😪"
+        size = 18.0  # 右下角表情图标大小（像素）
+        title = "困"
+      # 社交链接配置（显示在名字下方，slogan上方）
+      [[params.blogger.social]]
+        name = "GitHub"
+        icon = "github"  # GitHub 图标
+        url = "https://github.com/liyao52033/hugopress"  # 你的 GitHub 地址
+      [[params.blogger.social]]
+            name = "CNB"
+            icon = "cnb"  #
+            url = "https://cnb.cool/liyao52033"  
+      [[params.blogger.social]]
+            name = "RSS"
+            icon = "rss"  # RSS 图标
+            url = "/index.xml"  # RSS 链接
+      [[params.blogger.social]]
+            name = "脚本工具箱"
+            icon = "twitter"  
+            url = "https://kejilion.sh/index-zh-CN.html"  
+
+    # ========================================
+    # 友链配置 (Friend Links)
+    # ========================================
+    [params.friendLink]
+        limit = 6
+        interval = 5000
+        # 指定首页友链卡片显示哪些分组（title）的友链
+        # 留空或注释掉表示显示所有分组
+        # 可以指定一个或多个分组，例如：
+        # groups = ["Teek道友"]  # 只显示 Teek道友 分组
+        # groups = ["Teek道友", "VitePress"]  # 显示多个分组
+        # groups = ["Teek道友"]  # 空数组表示显示所有分组（默认行为）
     
 [menu]
     [[menu.primary]]
