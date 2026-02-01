@@ -63,10 +63,11 @@
     {{- end }}
     {{- $style := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/style.scss") }}
     {{- $style = $style | resources.ExecuteAsTemplate (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/style.scss") . | css.Sass $options }}
+    {{- $bundle := (slice $style) | resources.Concat (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/bundle.css")  }}
     {{- if hugo.IsProduction }}
-        {{- $style = $style | minify | fingerprint "sha384" }}
+        {{- $bundle = $bundle | minify | fingerprint "sha384" }}
     {{- end -}}
-    <link rel="stylesheet" href="{{ $style.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $style.Data.Integrity }}" {{ end -}} crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ $bundle.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $bundle.Data.Integrity }}" {{ end -}} crossorigin="anonymous">
 
     <!-- Katex CSS -->
     {{- if .Params.katex -}}
