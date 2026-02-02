@@ -92,7 +92,7 @@
     } */
 </style>
 
-
+{{/* 只在PC端加载JavaScript代码 */}}
 {{ $echartsJs := resources.Get "js/echarts-home.js" }}
 {{ $params := dict }}
 {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
@@ -101,37 +101,27 @@
 {{ if hugo.IsProduction }}
     {{ $echartsJs = $echartsJs | fingerprint "sha384" }}
 {{ end }}
-{{/*  <script src="{{ $echartsJs.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $echartsJs.Data.Integrity }}" {{ end -}} defer></script>  */}}
-{{/* 核心：preload预加载 + media大屏匹配，小屏不发起请求 */}}
-<link
-  rel="preload"
-  href="{{ $echartsJs.RelPermalink }}"
-  as="script"
-  media="(min-width: 768px)" 
-  {{ if hugo.IsProduction }}integrity="{{ $echartsJs.Data.Integrity }}" {{ end }}
-  crossorigin="anonymous" 
-  onload="
-    // 预加载完成后，创建script标签执行JS
-    const script = document.createElement('script');
-    script.src = this.href;
-    script.defer = true;
-    {{ if hugo.IsProduction }}
-    script.integrity = this.integrity;
-    script.crossOrigin = 'anonymous';
-    {{ end }}
-    document.body.appendChild(script);
-    // 执行后移除preload标签（可选，优化DOM）
-    this.remove();
-  "
-/>
-
 
 <script>
-
-    const isPC = window.innerWidth > 768;
-    if (isPC) {
+    // 检查是否为PC端
+    if (window.innerWidth > 768) {
+        // 动态创建script标签加载echarts库
+        const script = document.createElement('script');
+        script.src = '{{ $echartsJs.RelPermalink }}';
+        script.defer = true;
+        {{ if hugo.IsProduction }}
+        script.integrity = '{{ $echartsJs.Data.Integrity }}';
+        script.crossOrigin = 'anonymous';
+        {{ end }}
         
-    document.addEventListener('DOMContentLoaded', function() {
+        // echarts库加载完成后初始化图表
+        script.onload = function() {
+            initChart();
+        };
+        
+        document.head.appendChild(script);
+
+        // 初始化图表
         function initChart() {
             const pages = [
                 {{ range where .Site.RegularPages "Type" "docs" }}
@@ -376,11 +366,7 @@
                 myChart.resize();
             });
         }
-
-        initChart();
-    })
- }
-
+    }
 </script>
 
 
