@@ -1,7 +1,8 @@
 {{/*全局通用js,css文件*/}}
 
-<!-- 不蒜子统计 -->
-<script async src="https://busuanzi.xiaoying.org.cn/js"></script>
+<!-- 不蒜子统计  -->
+<link rel="preconnect" href="https://busuanzi.xiaoying.org.cn">
+<script src="https://busuanzi.xiaoying.org.cn/js"></script>
 
 {{ if site.Params.docs.backToTop | default true }}
     <button id="back-to-top" aria-label="Back to Top Button" class="back-to-top fs-5"><svg width="24" height="24"><path d="M12,10.224l-6.3,6.3L4.32,15.152,12,7.472l7.68,7.68L18.3,16.528Z" style="fill:#fff"/></svg></button>
@@ -19,8 +20,15 @@
   {{ $backToTopCss = $backToTopCss | minify | fingerprint "sha384" }}
 {{ end }}
 
-<link rel="stylesheet" href="{{ $backToTopCss.RelPermalink }}" {{ if hugo.IsProduction }}
-integrity="{{ $backToTopCss.Data.Integrity }}" {{ end -}}>
+<!-- CSS预加载：补充crossorigin（生产环境指纹需要），as=style必须正确 -->
+<link rel="preload" as="style" href="{{ $backToTopCss.RelPermalink }}" 
+  {{ if hugo.IsProduction }}integrity="{{ $backToTopCss.Data.Integrity }}" {{ end -}}
+  crossorigin
+>
+<link rel="stylesheet" href="{{ $backToTopCss.RelPermalink }}" 
+  {{ if hugo.IsProduction }}integrity="{{ $backToTopCss.Data.Integrity }}" {{ end -}}
+  crossorigin
+>
 
 {{/* 处理JS */}}
 {{ $navbarJs := resources.Get "js/responsive-navbar.js" }}
@@ -51,9 +59,11 @@ integrity="{{ $backToTopCss.Data.Integrity }}" {{ end -}}>
   {{ $basicJs = $basicJs | fingerprint "sha384" -}}
 {{ end }}
 
-{{/* 输出script标签 */}}
-<script 
-  src="{{ $basicJs.RelPermalink }}" 
+
+<link rel="preload" as="script" 
+  href="{{ $basicJs.RelPermalink }}" 
   {{ if hugo.IsProduction }}integrity="{{ $basicJs.Data.Integrity }}" {{ end -}}
-  defer
-></script>
+  crossorigin
+>
+
+<script src="{{ $basicJs.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $basicJs.Data.Integrity }}" {{ end -}} defer></script>

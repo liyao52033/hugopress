@@ -190,7 +190,7 @@ ignoreLogs = ['warning-goldmark-raw-html']
     [params.social]
         github = "liyao52033/hugopress"        
         rss = true                    # show rss icon with link     
-
+        
     [params.blogger]
       avatar = "https://img.xiaoying.org.cn/img/20250725164502996.png?w=150&h=150&fit=crop&fm=webp&q=80"
       backgroundImage = "https://img.xxdevops.cn/blog/wallpaper/bg14.avif"  # 博主卡片背景图（可选，留空则使用纯色背景）

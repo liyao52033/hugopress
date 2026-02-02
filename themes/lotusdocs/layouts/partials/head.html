@@ -42,17 +42,17 @@
     {{- if hugo.IsProduction }}
         {{- $bundle = $bundle | fingerprint "sha384" }}
     {{- end }}
-    <link rel="stylesheet" blocking="render" href="{{ $bundle.RelPermalink }}" {{ if hugo.IsProduction
-        }}integrity="{{ $bundle.Data.Integrity }}" {{ end -}} />
+
+    <link rel="preload" as="style" href="{{ $bundle.RelPermalink }}" 
+    {{ if hugo.IsProduction }}integrity="{{ $bundle.Data.Integrity }}" {{ end -}}
+    crossorigin
+    >
+    <link rel="stylesheet" href="{{ $bundle.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $bundle.Data.Integrity }}" {{ end -}}  
+        crossorigin
+    />
 
 
     <!-- Custom JS -->
-    {{/*  {{ $echartsJs := resources.Get "js/echarts.min.js" }}
-    {{if hugo.IsProduction}}
-        {{ $echartsJs = $echartsJs | fingerprint "sha384" }}
-    {{ end }}
-    <script src="{{ $echartsJs.RelPermalink }}" {{ with $echartsJs.Data.Integrity }}integrity="{{ . }}"{{ end }} defer></script>  */}}
-    
     {{ $app := resources.Get "js/app.js" }}
     {{ $slice := slice $app -}}
 
@@ -82,7 +82,11 @@
         {{  $Js = $Js | fingerprint "sha384" -}}
     {{ end }}
 
-    <script blocking="render" src="{{ $Js.RelPermalink }}" {{ with $Js.Data.Integrity }}integrity="{{ . }}"{{ end }} ></script>
+    <link rel="preload" as="script" href="{{ $Js.RelPermalink }}" 
+    {{ if hugo.IsProduction }}integrity="{{ $Js.Data.Integrity }}" {{ end -}}
+    crossorigin
+    >
+    <script src="{{ $Js.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $Js.Data.Integrity }}" {{ end }} defer></script>
 
 
     <!-- Image Compare Viewer -->
