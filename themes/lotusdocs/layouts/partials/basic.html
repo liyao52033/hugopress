@@ -1,8 +1,15 @@
 {{/*全局通用js,css文件*/}}
 
 <!-- 不蒜子统计  -->
-<link rel="preconnect" href="https://busuanzi.xiaoying.org.cn">
-<script src="https://busuanzi.xiaoying.org.cn/js"></script>
+{{/*  <link rel="preconnect" href="https://busuanzi.xiaoying.org.cn">
+<script src="https://busuanzi.xiaoying.org.cn/js"></script>  */}}
+
+<!-- 预连接：加crossorigin=anonymous 适配后续/api的跨域XHR请求，强制复用 -->
+<link rel="preconnect" href="https://busuanzi.xiaoying.org.cn" crossorigin="anonymous">
+<!-- 内联原/js脚本内容，省掉远程加载请求，保留所有原自定义属性支持 -->
+<script>
+!function(){let t=["site_pv","site_uv","page_pv","page_uv","today_pv","today_uv","yesterday_pv","yesterday_uv","month_pv","month_uv"],e=document.currentScript,a=e.hasAttribute("pjax"),n=e.getAttribute("data-api")||"https://busuanzi.xiaoying.org.cn/api",r=e.getAttribute("data-prefix")||"busuanzi",i=e.getAttribute("data-style")||"default",o="bsz-id",s=()=>{let e=new XMLHttpRequest;e.open("POST",n,!0);let a=localStorage.getItem(o);null!=a&&e.setRequestHeader("Authorization","Bearer "+a),e.setRequestHeader("x-bsz-referer",window.location.href),e.onreadystatechange=function(){if(4===e.readyState&&200===e.status){let a=JSON.parse(e.responseText);if(!0===a.success){t.map((t=>{let e=document.getElementById(`${r}_${t}`);null!=e&&(e.innerHTML=((t,e="default")=>{if("comma"===e)return t.toLocaleString();if("short"===e){if(0===t)return"0";const e=["","K","M","B","T"];let a=Math.floor(Math.log10(t)/3);return t/=Math.pow(1e3,a),`${Math.round(100*t)/100}${e[a]}`}return t.toString()})(a.data[t],i));let n=document.getElementById(`${r}_container_${t}`);null!=n&&(n.style.display="inline")}));let n=e.getResponseHeader("Set-Bsz-Identity");null!=n&&""!=n&&localStorage.setItem(o,n)}}},e.send()};if(s(),a){let t=window.history.pushState;window.history.pushState=function(){t.apply(this,arguments),s()},window.addEventListener("popstate",(function(t){s()}),!1)}}();
+</script>
 
 {{ if site.Params.docs.backToTop | default true }}
     <button id="back-to-top" aria-label="Back to Top Button" class="back-to-top fs-5"><svg width="24" height="24"><path d="M12,10.224l-6.3,6.3L4.32,15.152,12,7.472l7.68,7.68L18.3,16.528Z" style="fill:#fff"/></svg></button>
