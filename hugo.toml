@@ -152,7 +152,7 @@ ignoreLogs = ['warning-goldmark-raw-html']
         # 使用示例``js {hl_lines=[3,"5-7"], linenostart = 2, linenos=false, clickhighlight=false}
        
                                  
-        startTime = "2025-03-18"    # 博客创建时间
+        startTime = "2023-08-15"    # 博客创建时间
         prismTheme = "lucario"     # (optional) - Set theme for PrismJS. Options include: lotusdocs (default), solarized-light, twilight, lucario
         pathName        = "docs"                            # path name for documentation site | default "docs"
 
@@ -203,9 +203,8 @@ ignoreLogs = ['warning-goldmark-raw-html']
     bubble = false
     bubblePosition = 0
     bubbleNum = 200
-    bodyBgImg = ['body/bg.jpg', 'https://img.xxdevops.cn/blog/wallpaper/bg14.avif']
-    bodyBgImgOpacity = 0.5
-    bodyBgImgInterval = 600
+    bodyBgImg = ['body/bg.jpg', 'https://cnb.xiaoying.org.cn?random=one', 'https://img.xxdevops.cn/blog/wallpaper/bg14.avif']
+    bodyBgImgInterval = 86400
 
     [params.footer]
       since = 2025
@@ -262,10 +261,35 @@ ignoreLogs = ['warning-goldmark-raw-html']
     
 [menu]
     [[menu.primary]]
-        name  = "指南"
-        url = "/pages/fe4521/"
-        identifier = "guide"
-        weight = 20
+      name  = "编程"
+      url = "/code/"
+      identifier = "code"
+      weight = 10
+      # 子菜单项
+    [[menu.primary]]
+      name  = "前端"
+      url = "/pages/6676cf"
+      identifier = "vue"
+      parent = "code"
+      weight = 20
+    [[menu.primary]]
+      name  = "后端"
+      url = "/pages/c3fa0c"
+      identifier = "springboot"
+      parent = "code" 
+      weight = 30
+    [[menu.primary]]
+      name  = "嵌入式"
+      url = "/pages/f42760"
+      identifier = "c"
+      parent = "code"
+      weight = 40
+    [[menu.primary]]
+      name  = "python"
+      url = "/pages/5cde20"
+      identifier = "python"
+      parent = "code" 
+      weight = 50
 
     [[menu.primary]]
         name  = "组件"

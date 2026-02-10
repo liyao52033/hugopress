@@ -44,7 +44,10 @@
                 <div class="stat-value">
                     {{ $totalChars := 0 }}
                     {{ range where .Site.RegularPages "Type" "docs" }}
-                    {{ $totalChars = add $totalChars (len (.Content | plainify)) }}
+                    {{ $rawContent := .RawContent }}
+                    {{ $chineseChars := replaceRE `[^\p{Han}]` "" $rawContent }}
+                    {{ $chineseCount := len $chineseChars }}
+                    {{ $totalChars = add $totalChars $chineseCount }}
                     {{ end }}
                     {{ div (float $totalChars) 10000 | printf "%.1f" }}w
                 </div>

@@ -15,7 +15,7 @@ if (mode !== null) {
     };
 
     const updateBgOpacity = debounce(() => {
-        const activeBgItem = document.querySelector('.body-bg-item.active');
+        const activeBgItem = document.querySelector('.body-bg-container');
         if (activeBgItem) {
             const theme = localStorage.getItem('theme');
             activeBgItem.style.opacity = theme === 'dark' ? 0.3 : 1;
@@ -23,7 +23,7 @@ if (mode !== null) {
     }, 100);
 
     const observer = new MutationObserver((mutations, obs) => { 
-        const activeBgItem = document.querySelector('.body-bg-item.active');
+        const activeBgItem = document.querySelector('.body-bg-container');
         if (activeBgItem) {
             updateBgOpacity();
             obs.disconnect();

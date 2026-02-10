@@ -26,6 +26,11 @@
                             <div class="container-fluid">
                                 <div class="layout-spacing">
                                     {{ $currentPage := . -}}
+                                    {{/* 计算字数：从原始Markdown中提取中文字符 */}}
+                                    {{ $rawContent := .RawContent }}
+                                    {{ $chineseChars := replaceRE `[^\p{Han}]` "" $rawContent }}
+                                    {{ $chineseCount := len $chineseChars }}
+                                    {{ $.Scratch.Set "chineseCount" $chineseCount }}
                                     <div class="row flex-xl-nowrap">
                                         {{ if site.Params.docs.toc | default true }}
                                         <div class="docs-toc col-xl-3 {{ if .IsNode }}visually-hidden{{ else }}{{end}} {{ if and (ne .Params.toc false) (ne .TableOfContents "<nav id=\"TableOfContents\"></nav>") }}{{ else }}visually-hidden{{ end }} {{ if site.Params.docs.toc | default true }}{{ else }}visually-hidden{{ end }} d-xl-block">
@@ -43,7 +48,7 @@
                                         <div class="docs-content col-12 {{ if .IsNode }}{{ else }}{{ if site.Params.docs.toc | default true }}{{ if and (ne .Params.toc false) (ne .TableOfContents "<nav id=\"TableOfContents\"></nav>") }}col-xl-9{{else}}{{end}}{{ else }}{{ end }}{{ end }} mt-4">
                                             {{ if site.Params.docs.breadcrumbs | default true }}
                                                 <div class="d-md-flex justify-content-between align-items-center mb-2">
-                                                    {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "breadcrumbs.html") . -}}
+                                                    {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "breadcrumbs.html") $currentPage -}}
                                                 </div>
                                             {{ end }}
                                             <div class="mb-0 d-flex">
