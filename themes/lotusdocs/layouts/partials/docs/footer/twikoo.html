@@ -1,0 +1,41 @@
+<div id="tcomment"></div>
+
+<script>
+    (function () {
+      function initTwikoo() {
+        try {
+          if (document.getElementById('tcomment')) {
+            twikoo.init({
+              el: '#tcomment',
+              envId: '{{ .Site.Params.twikoo.envId }}',
+              lang: '{{- site.LanguageCode -}}',
+            });
+            return true;
+          }
+        } catch (e) {
+          if (window.console && console.debug) console.debug('twikoo init error:', e);
+        }
+        return false;
+      }
+  
+      // 优先在 DOMContentLoaded 时初始化
+      window.addEventListener('DOMContentLoaded', function () {
+        if (!initTwikoo()) {
+          // 若此时未就绪，等到完整加载后再尝试一次
+          window.addEventListener('load', function () {
+            initTwikoo();
+          }, { once: true });
+        }
+      }, { once: true });
+    })();
+  </script>
+
+  <style>
+    .twikoo {
+       margin: 2rem 0 .5rem 0;
+    }
+</style>
+
+
+  
+          

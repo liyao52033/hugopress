@@ -6,7 +6,7 @@
             {{ with resources.Get "images/logos/mark.svg" }}
                 {{ .Content | safeHTML }}
             {{ end }}
-            <span>组件库文档</span>
+            <span class="site-name">{{ .Site.Title }}</span>
         </a>
         
         <!-- End Logo container-->

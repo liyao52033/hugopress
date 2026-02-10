@@ -12,6 +12,7 @@
     
     {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "head.html") . -}}
     <body>
+        {{- partial "docs/banner/bodyBg.html" . -}}
         <div class="content">
             <div class="page-wrapper toggled">
                 {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "sidebar.html") . -}}
@@ -84,12 +85,15 @@
                                             </div>
                                             <div>
                                                 {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "doc-nav.html") . -}}
+                                                {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "footer/twikoo.html") . -}}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName" ) "footer.html") . -}}
+                            {{ if not (eq .Params.footer false) }}
+                                 {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName" ) "footer.html") . -}}
+                            {{ end}}
                     </main>
             </div>
         </div>

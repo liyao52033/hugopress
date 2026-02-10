@@ -1,0 +1,338 @@
+{{/*  背景图片路径数组，支持本地和远程URL  */}}
+{{ $bgImages := site.Params.indexImg.bodyBgImg | default slice }} 
+{{/*  背景图切换间隔（秒）  */}}
+{{ $bgInterval := site.Params.indexImg.bodyBgImgInterval | default 600 }}
+{{/*  背景图是否开启懒加载  */}}
+{{ $enableLazyLoad := site.Params.indexImg.bodyBgImgLazyLoad | default true }}
+{{/*  背景图是否开启响应式  */}}
+{{ $enableResponsive := site.Params.indexImg.bodyBgImgResponsive | default true }}
+
+{{ $processedImages := slice }}
+{{ range $bgImages }}
+    {{ $imgUrl := . }}
+    {{ if not (hasPrefix . "http") }}
+        {{ $resource := resources.Get . }}
+        {{ if $resource }}
+            {{ $imgUrl = $resource.RelPermalink }}
+        {{ end }}
+    {{ end }}
+    {{ $processedImages = $processedImages | append $imgUrl }}
+{{ end }}
+
+{{ if gt (len $processedImages) 0 }}
+{{ $processedImages = $processedImages | jsonify | safeJS }}
+<div id="body-bg-container" class="body-bg-container"></div>
+
+<style>
+    .body-bg-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        min-height: 100vh;
+        z-index: -9;
+        pointer-events: none;
+    }
+
+    .body-bg-item {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        min-height: 100vh;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+        will-change: opacity;
+    }
+
+    .body-bg-item.loading {
+        opacity: 0 !important;
+    }
+
+    body, .page-content,  .sidebar, .sidebar-footer  {
+        background: transparent !important;
+    }
+
+
+    .sidebar-brand {
+        background: hsla(255, 100%, 100%, 0.8) !important;
+        backdrop-filter: saturate(180%) blur(5px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-content{
+        background: hsla(255, 100%, 100%, 0.8) !important;
+        height: 100% !important;
+        overflow-y: auto;
+    }
+
+    .docs-content,  .docs-toc {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+    }
+
+   
+    .twikoo{
+        background: #fff;
+        padding: 1rem 2.5rem 2rem;
+        border-radius: .75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+        backdrop-filter: blur(10px);
+    }
+
+    .docs-toc {
+        margin-left: 1rem;
+        width: 16rem;
+        top: 6.2rem;
+        height: fit-content;
+        max-height: calc(100vh - 8rem);
+    }
+
+    .page-wrapper .page-content .layout-spacing {
+        padding: 60px 14px 24px !important;
+    }
+
+    html[data-dark-mode] {
+        .docs-content,  .docs-toc, .twikoo {
+            background: var(--body-bg) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .sidebar-brand {
+            background: var(--top-header-bg) !important;
+        }
+
+        .sidebar-content{
+            background: var(--sidebar-bg) !important;
+        }
+    }
+
+
+    @media (max-width: 768px) {
+        .body-bg-item {
+            background-size: cover;
+        }
+    }
+
+    @media (min-width: 769px) and (max-width: 1200px) {
+        .body-bg-item {
+            background-size: cover;
+        }
+    }
+
+    @media (min-width: 1201px) {
+        .body-bg-item {
+            background-size: cover;
+        }
+    }
+</style>
+
+<script>
+    (function() {
+      
+        
+        {{/*  const bgImages = {{ $processedImages | jsonify | safeJS }};  */}}
+        const bgImages = JSON.parse('{{ $processedImages }}');
+        const interval = '1000';
+        const enableLazyLoad = '{{ $enableLazyLoad }}';
+        const enableResponsive = '{{ $enableResponsive }}';
+        let currentIndex = 0;
+        let loadedImages = new Set();
+        const container = document.getElementById('body-bg-container');
+
+
+        if (!container) {
+            console.error('[BodyBg] Container element not found!');
+            return;
+        }
+
+        if (!Array.isArray(bgImages)) {
+            console.error('[BodyBg] bgImages is not an array:', typeof bgImages, bgImages);
+            return;
+        }
+
+        if (bgImages.length === 0) {
+            console.error('[BodyBg] No background images configured');
+            return;
+        }
+
+        const bgItems = [];
+
+        function createBgItem(imgUrl, index) {
+      
+            
+            const bgItem = document.createElement('div');
+            bgItem.className = 'body-bg-item loading';
+            bgItem.dataset.index = index;
+            
+            const img = new Image();
+            img.src = imgUrl;
+            
+            img.onload = function() {
+        
+                loadedImages.add(imgUrl);
+                bgItem.classList.remove('loading');
+                if (index === 0) {
+                    bgItem.classList.add('active');
+               
+                }
+            };
+
+            img.onerror = function() {
+                console.error('[BodyBg] Failed to load image:', imgUrl);
+                bgItem.remove();
+            };
+
+            bgItem.style.backgroundImage = 'url("' + imgUrl + '")';
+            container.appendChild(bgItem);
+            bgItems.push(bgItem);
+            
+            return bgItem;
+        }
+
+        function preloadImages(urls) {
+            urls.forEach(url => {
+                if (!loadedImages.has(url)) {
+          
+                    const img = new Image();
+                    img.src = url;
+                    img.onload = () => {
+                 
+                        loadedImages.add(url);
+                    };
+                    img.onerror = () => {
+                        console.error('[BodyBg] Preload failed:', url);
+                    };
+                }
+            });
+        }
+
+        function switchBg() {
+            const activeItems = container.querySelectorAll('.body-bg-item:not(.loading)');
+   
+            
+            if (activeItems.length === 0) {
+                console.warn('[BodyBg] No active items to switch');
+                return;
+            }
+
+            const currentActive = container.querySelector('.body-bg-item.active');
+            if (currentActive) {
+                currentActive.classList.remove('active');
+            }
+
+            currentIndex = (currentIndex + 1) % activeItems.length;
+            activeItems[currentIndex].classList.add('active');
+      
+
+            const nextIndex = (currentIndex + 1) % activeItems.length;
+            if (!loadedImages.has(bgImages[nextIndex])) {
+                preloadImages([bgImages[nextIndex]]);
+            }
+        }
+
+        function setupLazyLoad() {
+    
+            
+            if (!enableLazyLoad || !('IntersectionObserver' in window)) {
+          
+                loadAllImages();
+                return;
+            }
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                
+                        loadAllImages();
+                        observer.disconnect();
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            observer.observe(container);
+        }
+
+        function loadAllImages() {
+     
+            bgImages.forEach((imgUrl, index) => {
+                if (!loadedImages.has(imgUrl)) {
+                    createBgItem(imgUrl, index);
+                }
+            });
+        }
+
+        function setupResponsiveImages() {
+            if (!enableResponsive) return;
+
+            const updateBackgroundSize = () => {
+                const width = window.innerWidth;
+                bgItems.forEach(item => {
+                    if (width < 768) {
+                        item.style.backgroundSize = 'cover';
+                    } else if (width < 1200) {
+                        item.style.backgroundSize = 'cover';
+                    } else {
+                        item.style.backgroundSize = 'cover';
+                    }
+                });
+            };
+
+            window.addEventListener('resize', debounce(updateBackgroundSize, 250));
+            updateBackgroundSize();
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function init() {
+     
+            
+            if (enableLazyLoad) {
+                setupLazyLoad();
+            } else {
+                loadAllImages();
+            }
+
+            if (enableResponsive) {
+                setupResponsiveImages();
+            }
+
+            if (bgImages.length > 1) {
+                setTimeout(() => {
+            
+                    setInterval(switchBg, 1000 * '{{ $bgInterval }}');
+                }, 1000 * '{{ $bgInterval }}');
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+</script>
+{{ end }}

@@ -1,5 +1,5 @@
 {{ define "main" }}
-    {{ $landingData := .Site.Data.landing }}
+    {{/*  {{ $landingData := .Site.Data.landing }}
     {{ $map := newScratch }}
 
     {{ range $key, $value := $landingData }}
@@ -19,15 +19,20 @@
         {{ $.Scratch.Set "sectionTitle" .sectionTitle }}
         {{ $path := printf "landing/%s.html" .template }}
         {{ partial $path $.Page }}
-    {{ end }}
+    {{ end }}  */}}
 
+    <div class="banner">
+        {{ partial "docs/banner/indexBg.html" . }}
+        {{ partial "docs/banner/fantasy.html" . }}    
+    </div>
+   
    
 
     <div class="dashboard-container">
-        <div class="dashboard-header">
+        {{/*  <div class="dashboard-header">
             <h2 class="dashboard-title">{{ .Site.Title }}</h2>
             <p class="dashboard-subtitle">{{ .Site.Params.description | default "探索知识，发现价值" }}</p>
-        </div>
+        </div>  */}}
 
         <div class="dashboard-grid">
             <div class="dashboard-main">
@@ -46,5 +51,9 @@
             </div>
         </div>
     </div>
+
+  
+    {{- partial "footer.html" . -}}
+
 {{ end }}
     

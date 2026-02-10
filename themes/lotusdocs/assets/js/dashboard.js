@@ -316,71 +316,183 @@
         skeletonWrapper.classList.remove('loading');
         articleGrid.style.display = 'grid';
 
-        const loadMoreBtn = document.getElementById('load-more-btn');
-        const loadMoreContainer = document.getElementById('load-more-container');
+        const paginationContainer = document.getElementById('pagination-container');
         const totalArticles = parseInt(articleGrid.getAttribute('data-total')) || 0;
         const perPage = parseInt(articleGrid.getAttribute('data-per-page')) || 12;
 
-        if (loadMoreBtn && loadMoreContainer && totalArticles > perPage) {
-            loadMoreBtn.style.display = 'inline-block';
-            loadMoreContainer.style.display = 'block';
+        if (paginationContainer && totalArticles > perPage) {
+            paginationContainer.style.display = 'flex';
+            // 更新总条数显示
+            const paginationTotal = document.getElementById('pagination-total');
+            if (paginationTotal) {
+                paginationTotal.textContent = '共 ' + totalArticles + ' 条';
+            }
         }
     }
 
     function initLoadMore() {
-        const loadMoreBtn = document.getElementById('load-more-btn');
-        const loadMoreContainer = document.getElementById('load-more-container');
-        const loadMoreLoading = document.getElementById('load-more-loading');
         const articleGrid = document.getElementById('article-grid-latest');
+        const paginationContainer = document.getElementById('pagination-container');
+        const paginationNumbers = document.getElementById('pagination-numbers');
+        const paginationPrev = document.getElementById('pagination-prev');
+        const paginationNext = document.getElementById('pagination-next');
+        const paginationInput = document.getElementById('pagination-input');
+        const paginationGoto = document.getElementById('pagination-goto');
 
-        if (!loadMoreBtn || !articleGrid) return;
+        if (!articleGrid || !paginationContainer) return;
 
         let currentPage = 1;
         const perPage = parseInt(articleGrid.getAttribute('data-per-page')) || 12;
         const totalArticles = parseInt(articleGrid.getAttribute('data-total')) || 0;
         const totalPages = Math.ceil(totalArticles / perPage);
 
-        function updateLoadMoreButton() {
-            if (currentPage >= totalPages) {
-                loadMoreBtn.style.display = 'none';
-                loadMoreContainer.style.display = 'none';
-            } else {
-                loadMoreBtn.style.display = 'inline-block';
-                loadMoreContainer.style.display = 'block';
+        if (totalPages <= 1) {
+            paginationContainer.style.display = 'none';
+            return;
+        }
+
+        function renderPaginationNumbers() {
+            if (!paginationNumbers) return;
+            paginationNumbers.innerHTML = '';
+
+            const maxVisiblePages = 5;
+            let startPage = 1;
+            let endPage = totalPages;
+
+            if (totalPages > maxVisiblePages) {
+                const halfVisible = Math.floor(maxVisiblePages / 2);
+                if (currentPage <= halfVisible + 1) {
+                    startPage = 1;
+                    endPage = maxVisiblePages - 1;
+                } else if (currentPage >= totalPages - halfVisible) {
+                    startPage = totalPages - maxVisiblePages + 2;
+                    endPage = totalPages;
+                } else {
+                    startPage = currentPage - halfVisible + 1;
+                    endPage = currentPage + halfVisible - 1;
+                }
+            }
+
+            // 第一页
+            if (startPage > 1) {
+                addPageButton(1);
+                if (startPage > 2) {
+                    addEllipsis();
+                }
+            }
+
+            // 中间页码
+            for (let i = startPage; i <= endPage; i++) {
+                addPageButton(i);
+            }
+
+            // 最后一页
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    addEllipsis();
+                }
+                addPageButton(totalPages);
             }
         }
 
-        function showPage(page) {
+        function addPageButton(page) {
+            const btn = document.createElement('button');
+            btn.className = 'pagination-btn pagination-number' + (page === currentPage ? ' active' : '');
+            btn.textContent = page;
+            btn.addEventListener('click', () => goToPage(page));
+            paginationNumbers.appendChild(btn);
+        }
+
+        function addEllipsis() {
+            const span = document.createElement('span');
+            span.className = 'pagination-ellipsis';
+            span.textContent = '...';
+            paginationNumbers.appendChild(span);
+        }
+
+        function updatePaginationButtons() {
+            if (paginationPrev) paginationPrev.disabled = currentPage === 1;
+            if (paginationNext) paginationNext.disabled = currentPage === totalPages;
+            if (paginationInput) paginationInput.value = currentPage;
+            renderPaginationNumbers();
+        }
+
+        function showPage(page, shouldScroll = false) {
             const allCards = Array.from(articleGrid.querySelectorAll('.article-card'));
             const startIndex = (page - 1) * perPage;
             const endIndex = Math.min(startIndex + perPage, allCards.length);
 
             allCards.forEach((card, index) => {
-                if (index < endIndex) {
+                if (index >= startIndex && index < endIndex) {
                     card.style.display = 'flex';
-                    card.setAttribute('data-page', Math.floor(index / perPage) + 1);
                 } else {
                     card.style.display = 'none';
                 }
             });
+
+            // 只在用户交互时滚动到内容顶部
+            if (shouldScroll) {
+                
+                const offset = 80;
+                const content = document.querySelector('.multi-content');
+                const elementPosition = content.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - offset;
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+
+                //    const search = document.querySelector('.quick-tools');
+              //  search.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
 
-        loadMoreBtn.addEventListener('click', function () {
-            loadMoreBtn.style.display = 'none';
-            loadMoreLoading.style.display = 'block';
+        function goToPage(page) {
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            showPage(currentPage, true);
+            updatePaginationButtons();
+        }
 
-            setTimeout(() => {
-                currentPage++;
-                showPage(currentPage);
+        // 上一页
+        if (paginationPrev) {
+            paginationPrev.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    goToPage(currentPage - 1);
+                }
+            });
+        }
 
-                loadMoreBtn.style.display = 'inline-block';
-                loadMoreLoading.style.display = 'none';
+        // 下一页
+        if (paginationNext) {
+            paginationNext.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    goToPage(currentPage + 1);
+                }
+            });
+        }
 
-                updateLoadMoreButton();
-            }, 50);
-        });
+        // 跳转按钮
+        if (paginationGoto && paginationInput) {
+            paginationGoto.addEventListener('click', () => {
+                const page = parseInt(paginationInput.value);
+                if (page && page >= 1 && page <= totalPages) {
+                    goToPage(page);
+                }
+            });
 
+            paginationInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const page = parseInt(paginationInput.value);
+                    if (page && page >= 1 && page <= totalPages) {
+                        goToPage(page);
+                    }
+                }
+            });
+        }
+
+        // 初始化
         showPage(1);
-        updateLoadMoreButton();
+        updatePaginationButtons();
     }
 })();

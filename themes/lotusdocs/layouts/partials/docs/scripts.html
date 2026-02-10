@@ -25,6 +25,12 @@
     {{ end }}
 {{ end }}
 
+<!-- twikoo 评论系统 -->
+{{ if and (eq .Site.Params.twikoo.enabled true) (.Site.Params.twikoo.envId)  -}}
+  {{ $twikoo := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/twikoo.min.js") }}
+  {{ $thirdSlice = $thirdSlice | append $twikoo -}}
+{{ end -}}
+
 {{ $thirdJS := $thirdSlice | resources.Concat (printf "/%s/%s" ($.Scratch.Get "pathName") "js/third.js") -}}
 
 <!-- 引入自定义脚本 -->

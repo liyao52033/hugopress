@@ -7,9 +7,17 @@
             <button class="viz-btn" data-period="year">年</button>
         </div>
         <div class="viz-year-controls">
-            {{/* 固定显示今年和去年的年份选择按钮 */}}
-            <button class="year-btn" data-year="{{ sub (now.Year) 1 }}">{{ sub (now.Year) 1 }} 年</button>
-            <button class="year-btn active" data-year="{{ now.Year }}">{{ now.Year }}年</button>
+            {{/* 从配置读取博客创建时间，生成年份下拉选择框 */}}
+            {{ $startTime := .Site.Params.docs.startTime | default "2025-01-01" }}
+            {{ $startYear := time $startTime | time.Format "2006" | int }}
+            {{ $currentYear := now.Year }}
+
+            <select class="year-select" id="yearSelect">
+                <option value="all">全部年份</option>
+                {{ range seq $startYear $currentYear }}
+                <option value="{{ . }}">{{ . }}年</option>
+                {{ end }}
+            </select>
         </div>
     </div>
     <div class="viz-content">
@@ -76,6 +84,31 @@
             border-color: var(--dashboard-primary);
             color: white;
         }
+
+        .year-select {
+            padding: 6px 28px 6px 12px;
+            border: 1px solid var(--dashboard-border);
+            border-radius: 4px;
+            background-color: var(--dashboard-card-bg);
+            color: var(--dashboard-text);
+            font-size: 14px;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            transition: all 0.2s ease;
+        }
+
+        .year-select:hover {
+            border-color: var(--dashboard-primary);
+        }
+
+        .year-select:focus {
+            outline: none;
+            border-color: var(--dashboard-primary);
+            box-shadow: 0 0 0 2px rgba(var(--dashboard-primary-rgb), 0.2);
+        }
     }
 
    /* @media (max-width: 768px) {
@@ -138,34 +171,40 @@
 
             const myChart = echarts.init(chartDom);
 
-            let selectedYear = new Date().getFullYear();
+            // 从 localStorage 读取用户上次选择的年份
+            const STORAGE_KEY = 'dashboard_selected_year';
+            let selectedYear = localStorage.getItem(STORAGE_KEY);
+            let isAllYears = selectedYear === 'all';
             
-            if (pages.length > 0) {
-                const years = pages.map(page => {
-                    const dateParts = page.date.split('-');
-                    return parseInt(dateParts[0]);
-                });
-                const maxYear = Math.max(...years);
-                selectedYear = maxYear;
+            if (!selectedYear) {
+                // 默认选择当前年份
+                selectedYear = new Date().getFullYear();
+            }
+            
+            // 设置下拉框的选中状态
+            const yearSelect = document.getElementById('yearSelect');
+            if (yearSelect) {
+                yearSelect.value = isAllYears ? 'all' : selectedYear;
             }
 
             function getChartData(period, year = selectedYear) {
                 const now = new Date();
                 let labels = [];
                 let data = [];
+                const allYearsMode = year === 'all' || isAllYears;
                 
                 if (period === 'week') {
                     const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
                     labels = weekDays;
                     data = new Array(7).fill(0);
                     
-                    const targetDate = new Date(year, now.getMonth(), now.getDate());
+                    const targetDate = allYearsMode ? now : new Date(year, now.getMonth(), now.getDate());
                     
                     pages.forEach(page => {
                         const dateParts = page.date.split('-');
                         const pageDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
                         
-                        if (pageDate.getFullYear() !== year) return;
+                        if (!allYearsMode && pageDate.getFullYear() !== parseInt(year)) return;
                         
                         const diffTime = Math.abs(targetDate - pageDate);
                         const diffDays = diffTime / (1000 * 60 * 60 * 24);
@@ -177,41 +216,61 @@
                     });
                 } else if (period === 'month') {
                     const targetMonth = now.getMonth();
-                    const daysInMonth = new Date(year, targetMonth + 1, 0).getDate();
+                    const targetYear = allYearsMode ? now.getFullYear() : parseInt(year);
+                    const daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
                     labels = Array.from({length: daysInMonth}, (_, i) => (i + 1) + '日');
                     data = new Array(daysInMonth).fill(0);
                     
                     pages.forEach(page => {
                         const dateParts = page.date.split('-');
                         const pageDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
-                        if (pageDate.getMonth() === targetMonth && pageDate.getFullYear() === year) {
+                        if (pageDate.getMonth() === targetMonth && (allYearsMode || pageDate.getFullYear() === parseInt(year))) {
                             data[pageDate.getDate() - 1]++;
                         }
                     });
                 } else if (period === 'year') {
-                    const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
-                    labels = months;
-                    data = new Array(12).fill(0);
-                    
-                    pages.forEach(page => {
-                        const dateParts = page.date.split('-');
-                        const pageDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
-                        if (pageDate.getFullYear() === year) {
-                            data[pageDate.getMonth()]++;
-                        }
-                    });
+                    if (allYearsMode) {
+                        // 全部年份模式：按年份统计
+                        const years = [...new Set(pages.map(page => {
+                            const dateParts = page.date.split('-');
+                            return parseInt(dateParts[0]);
+                        }))].sort((a, b) => a - b);
+                        
+                        labels = years.map(y => y + '年');
+                        data = new Array(years.length).fill(0);
+                        
+                        pages.forEach(page => {
+                            const dateParts = page.date.split('-');
+                            const pageYear = parseInt(dateParts[0]);
+                            const yearIndex = years.indexOf(pageYear);
+                            if (yearIndex !== -1) {
+                                data[yearIndex]++;
+                            }
+                        });
+                    } else {
+                        // 单年份模式：按月统计
+                        const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+                        labels = months;
+                        data = new Array(12).fill(0);
+                        
+                        pages.forEach(page => {
+                            const dateParts = page.date.split('-');
+                            const pageDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+                            if (pageDate.getFullYear() === parseInt(year)) {
+                                data[pageDate.getMonth()]++;
+                            }
+                        });
+                    }
                 }
                 
                 return { labels, data };
             }
 
-            function getTargetDateForYear(year) {
-                const now = new Date();
-                return new Date(year, now.getMonth(), now.getDate());
-            }
-
             function updateStats(year = selectedYear) {
-                const targetDate = getTargetDateForYear(year);
+                const allYearsMode = year === 'all' || isAllYears;
+                const now = new Date();
+                const targetYear = allYearsMode ? now.getFullYear() : parseInt(year);
+                const targetDate = new Date(targetYear, now.getMonth(), now.getDate());
                 const targetMonth = targetDate.getMonth();
                 let weekCount = 0, monthCount = 0, yearCount = 0;
                 
@@ -219,7 +278,7 @@
                     const dateParts = page.date.split('-');
                     const pageDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
                     
-                    if (pageDate.getFullYear() !== year) return;
+                    if (!allYearsMode && pageDate.getFullYear() !== parseInt(year)) return;
                     
                     const diffTime = Math.abs(targetDate - pageDate);
                     const diffDays = diffTime / (1000 * 60 * 60 * 24);
@@ -233,6 +292,12 @@
                 
                 document.getElementById('week-count').textContent = weekCount;
                 document.getElementById('month-count').textContent = monthCount;
+                
+                // 更新统计标签文字
+                const yearLabel = document.querySelector('#year-count').previousElementSibling;
+                if (yearLabel) {
+                    yearLabel.textContent = allYearsMode ? '累计发布' : '今年发布';
+                }
                 document.getElementById('year-count').textContent = yearCount;
             }
 
@@ -325,18 +390,6 @@
                 myChart.setOption(option);
             }
 
-            function updateYearButtons() {
-                document.querySelectorAll('.year-btn').forEach(btn => {
-                    const year = parseInt(btn.getAttribute('data-year'));
-                    if (year === selectedYear) {
-                        btn.classList.add('active');
-                    } else {
-                        btn.classList.remove('active');
-                    }
-                });
-            }
-
-            updateYearButtons();
             updateChart('week', selectedYear);
             updateStats(selectedYear);
 
@@ -348,11 +401,15 @@
                 });
             });
 
-            document.querySelectorAll('.year-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    selectedYear = parseInt(this.getAttribute('data-year'));
+            // 年份下拉框 change 事件
+            if (yearSelect) {
+                yearSelect.addEventListener('change', function() {
+                    const value = this.value;
+                    isAllYears = value === 'all';
+                    selectedYear = isAllYears ? 'all' : parseInt(value);
+                    
+                    // 保存到 localStorage
+                    localStorage.setItem(STORAGE_KEY, value);
                     
                     const activePeriodBtn = document.querySelector('.viz-btn.active');
                     const period = activePeriodBtn ? activePeriodBtn.getAttribute('data-period') : 'week';
@@ -360,7 +417,7 @@
                     updateChart(period, selectedYear);
                     updateStats(selectedYear);
                 });
-            });
+            }
 
             window.addEventListener('resize', function() {
                 myChart.resize();
