@@ -8,7 +8,7 @@ weight: 100
 tags: []
 categories: []
 author:
-  name: liyao
+  name: 华总
   link: https://xiaoying.org.cn
 cover: https://cnb.xiaoying.org.cn?random=/pages/9333df
 ---

@@ -13,7 +13,7 @@ categories:
   - 本站插件
 tags: ["hugo"]
 author:
-  name: liyao
+  name: 华总
   link: https://xiaoying.org.cn
 ---
 

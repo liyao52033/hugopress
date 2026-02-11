@@ -95,7 +95,7 @@ git clone https://github.com/liyao52033/hugopress.git
     - 工具类
     - 本站插件
   author:                //作者
-    name: liyao
+    name: 华总
     link: https://xiaoying.org.cn
   type: docs            //文章布局，md不在docs目录下时必填
   icon: celebration     // 文章标题图标

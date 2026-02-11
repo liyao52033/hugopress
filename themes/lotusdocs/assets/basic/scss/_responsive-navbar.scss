@@ -189,6 +189,12 @@
     }
 }
 
+html[data-dark-mode] {
+    .nav-link {
+        color: var(--primary-100) !important;
+    }
+}
+
 // Mobile specific styles
 @media (max-width: 992px) {
 

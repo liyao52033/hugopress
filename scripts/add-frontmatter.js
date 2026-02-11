@@ -425,7 +425,7 @@ const writeFrontmatterToFile = (filePaths, option) => {
         tags: [],
         categories: createCategory(categories, fileInfo, ignore),
         author: {
-          name: "liyao",
+          name: "华总",
           link: "https://xiaoying.org.cn",
         },
 

@@ -41,14 +41,15 @@
     border: none !important;
   }
 
+  .nav-link1 {
+    color: hsl(207, 100%, 88%) !important;
+  }
   
-
-  .navbar-nav1>.nav-item>a,
   .navbar-nav1 .dropdown-title a:hover,
   .navbar-nav1 .title,
   .navbar-nav1 .dropdown-title>.link-title,
   .site-name1 {
-    color: #9698c3;
+    color: #9698c3;  
   }
 
   /* 箭头样式 */
@@ -340,14 +341,25 @@
   function blurText(navColor = config.navColor) {
     const title = document.querySelector(".site-name");
     const nav = document.querySelector(".navbar-nav");
+    const navLinks = document.querySelectorAll(".nav-link");
     
     
     if (navColor == 1) {
       if (title) title.classList.remove("site-name1");
       if (nav) nav.classList.remove("navbar1");
+      if(navLinks) {
+        navLinks.forEach(link => {
+          link.classList.remove("nav-link1");
+        });
+      }
     } else if (navColor == 2) {
       if (title) title.classList.add("site-name1");
       if (nav) nav.classList.add("navbar1");
+      if(navLinks) {
+        navLinks.forEach(link => {
+          link.classList.add("nav-link1");
+        });
+      }
     }
   }
 

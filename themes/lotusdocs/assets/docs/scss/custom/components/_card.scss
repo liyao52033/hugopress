@@ -29,6 +29,19 @@
     }
 }
 
+html[data-dark-mode] {
+
+    .card{
+        background-color: var(--feature-link-hover-bg-color);
+        color: var(--white);
+        opacity: 0.8;
+    }
+
+    .card-text{
+        opacity: 0.5;
+    }
+}
+
 // .card-title {
 //     color: var(--card-title-color);
 // }
