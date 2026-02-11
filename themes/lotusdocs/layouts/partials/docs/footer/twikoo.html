@@ -8,7 +8,7 @@
             twikoo.init({
               el: '#tcomment',
               envId: '{{ .Site.Params.twikoo.envId }}',
-              lang: '{{- site.LanguageCode -}}',
+              lang: '{{- .Site.LanguageCode -}}',
             });
             return true;
           }

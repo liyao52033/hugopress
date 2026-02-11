@@ -3,7 +3,7 @@ title: 归档
 date: 2025-09-14T00:00:00.000Z
 type: archives
 url: /archives
-description: null
+description: 文章归档页面，按时间顺序展示所有文章的发布日期和分类，方便用户快速查找和浏览历史内容。
 weight: 100
 tags: []
 categories: []

@@ -4,8 +4,8 @@
         <a href='{{ with .Site.Params.docs.logoLinkURL }}{{ . }}{{ else }}{{ relLangURL "" }}{{ end }}'
             aria-label="HomePage" alt="HomePage">
             {{ with resources.Get "images/logos/logo.svg" }}
-            {{ .Content | safeHTML }}
-            <span>组件库文档</span>
+                {{ .Content | safeHTML }}
+                <span>{{ site.Title }}</span>
             {{ end }}
         </a>
     </div>

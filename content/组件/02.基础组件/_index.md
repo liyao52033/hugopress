@@ -4,5 +4,5 @@ description: 常用组件
 weight: 10
 type: docs
 url: /components/basic/
-icon: menu_book
+icon: extension
 ---

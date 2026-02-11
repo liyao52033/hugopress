@@ -1,6 +1,6 @@
 baseURL = 'https://hugo.xiaoying.org.cn/'
 languageCode = "zh-CN"
-title = '组件库文档'
+title = '编程随笔'
 publishDir = "dist"
 contentDir = "content"
 enableEmoji = true
@@ -265,66 +265,78 @@ ignoreLogs = ['warning-goldmark-raw-html']
       url = "/code/"
       identifier = "code"
       weight = 10
-      # 子菜单项
-    [[menu.primary]]
-      name  = "前端"
-      url = "/pages/6676cf"
-      identifier = "vue"
-      parent = "code"
-      weight = 20
-    [[menu.primary]]
-      name  = "后端"
-      url = "/pages/c3fa0c"
-      identifier = "springboot"
-      parent = "code" 
-      weight = 30
-    [[menu.primary]]
-      name  = "嵌入式"
-      url = "/pages/f42760"
-      identifier = "c"
-      parent = "code"
-      weight = 40
-    [[menu.primary]]
-      name  = "python"
-      url = "/pages/5cde20"
-      identifier = "python"
-      parent = "code" 
-      weight = 50
+        # 子菜单项
+      [[menu.primary]]
+        name  = "前端"
+        url = "/front/"
+        identifier = "vue"
+        parent = "code"
+        weight = 20
+      [[menu.primary]]
+        name  = "后端"
+        url = "/springboot/"
+        identifier = "springboot"
+        parent = "code" 
+        weight = 30
+      [[menu.primary]]
+        name  = "嵌入式"
+        url = "/embedded/"
+        identifier = "c"
+        parent = "code"
+        weight = 40
+      [[menu.primary]]
+        name  = "python"
+        url = "/python/"
+        identifier = "python"
+        parent = "code" 
+        weight = 50
 
     [[menu.primary]]
         name  = "组件"
-        url = "/pages/1a7d12/"
+        url = "/components/"
         identifier = "components"
         weight = 30
-
-    [[menu.primary]]
-        name  = "后端"
-        url = "/pages/571de5/"
-        identifier = "java"
+      [[menu.primary]]
+        name  = "指南"
+        url = "/docs/guide/"
+        identifier = "qianduan"
+        parent = "components" 
         weight = 40
+      [[menu.primary]]
+        name  = "使用"
+        url = "/components/"
+        identifier = "vue-components"
+        parent = "components" 
+        weight = 50
+      [[menu.primary]]
+        name  = "后端组件"
+        url = "/backend/"
+        identifier = "java"
+        parent = "components" 
+        weight = 60
 
     [[menu.primary]]
         name  = "资源"
-        url = "/pages/9d746f/"
+        url = "/tools/"
         identifier = "tool"
         weight = 50
 
     [[menu.primary]]
-    name  = "关于"
-    url = "/about/"
-    identifier = "about"
-    weight = 60
-    # 子菜单项
-    [[menu.primary]]
-    name  = "联系我们"
-    url = "/about/"
-    identifier = "contact"
-    parent = "about"
-    weight = 10
-    [[menu.primary]]
-    name  = "文章归档"
-    url = "/archives/"
-    identifier = "team"
-    parent = "about" 
-    weight = 20
+      name  = "关于"
+      url = "/about/"
+      identifier = "about"
+      weight = 60
+      # 子菜单项
+      [[menu.primary]]
+        name  = "联系我们"
+        url = "/about/"
+        identifier = "contact"
+        parent = "about"
+        weight = 10
+      [[menu.primary]]
+        name  = "文章归档"
+        url = "/archives/"
+        identifier = "team"
+        parent = "about" 
+        weight = 20
 

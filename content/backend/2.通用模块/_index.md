@@ -4,5 +4,5 @@ url: /backend/common/
 type: "docs"
 description: 常用后端模块
 weight: 10
-icon: code
+icon: integration_instructions
 ---
