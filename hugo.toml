@@ -295,7 +295,7 @@ ignoreLogs = ['warning-goldmark-raw-html']
         name  = "组件"
         url = "/components/"
         identifier = "components"
-        weight = 30
+        weight = 20
       [[menu.primary]]
         name  = "指南"
         url = "/docs/guide/"
@@ -316,16 +316,34 @@ ignoreLogs = ['warning-goldmark-raw-html']
         weight = 60
 
     [[menu.primary]]
+        name  = "项目实战"
+        url = "/projects-practice/"
+        identifier = "projects"
+        weight = 30
+      [[menu.primary]]
+        name  = "星球项目"
+        url = "/projects/"
+        identifier = "code-generator"
+        parent = "projects" 
+        weight = 50
+      [[menu.primary]]
+        name  = "开源项目"
+        url = "/opensource/"
+        identifier = "opensource"
+        parent = "projects" 
+        weight = 60
+    
+    [[menu.primary]]
         name  = "资源"
         url = "/tools/"
         identifier = "tool"
-        weight = 50
+        weight = 90
 
     [[menu.primary]]
       name  = "关于"
       url = "/about/"
       identifier = "about"
-      weight = 60
+      weight = 100
       # 子菜单项
       [[menu.primary]]
         name  = "联系我们"
