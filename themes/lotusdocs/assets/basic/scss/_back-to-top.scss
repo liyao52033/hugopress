@@ -12,11 +12,13 @@
     justify-content: center;
     cursor: pointer;
     z-index: 9999;
-    border:none;
+    border: none;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    padding: 0;
+    margin: 0;
 }
 
 .back-to-top.show {
@@ -33,7 +35,8 @@
 .back-to-top svg {
     width: 24px;
     height: 24px;
-    fill: currentColor;
+    display: block;
+    flex-shrink: 0;
 }
 
 // Responsive adjustments
@@ -43,8 +46,10 @@
         right: 20px;
         width: 45px;
         height: 45px;
+        min-width: 45px;
+        min-height: 45px;
     }
-    
+
     .back-to-top svg {
         width: 20px;
         height: 20px;
