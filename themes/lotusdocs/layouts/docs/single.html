@@ -17,7 +17,7 @@
     {{ end }}
 
     {{/* 2. 处理非代码块内的::: */}}
-    {{ $pattern := `(?m)::: *(info|warning|danger|success|primary|default)(?:\s+([^\n]+))?\n(.*?)\n:::` }}
+    {{ $pattern := `(?m)::: *(info|warning|danger|success|primary|default)(?:\s+([^\n]+))?\n([\s\S]*?)\n\s*:::` }}
     {{ $replacement := `{{< alert type="$1" title="$2">}}$3{{< /alert>}}` }}
     {{ $tempContent = replaceRE $pattern $replacement $tempContent }}
 

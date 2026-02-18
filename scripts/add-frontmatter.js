@@ -379,6 +379,45 @@ const calculateWeight = (filePath, options = {}) => {
 };
 
 // ======================================
+// 处理 Markdown 内容中的标题数字前缀
+// ======================================
+
+/**
+ * 移除 Markdown 标题中的数字前缀
+ * @param {string} content - Markdown 内容
+ * @returns {string} 处理后的内容
+ */
+const removeHeadingNumbers = (content) => {
+  // 只处理以数字开头的标题
+  // 支持格式：
+  // - 阿拉伯数字：1. 标题 、1、标题 、1.1 标题
+  // - 中文数字：一、标题 、二. 标题 、十一、标题
+  // - 括号数字：(1) 标题 、（1）标题 、(1)标题 、（1）标题（括号后无空格）
+  // - 支持全角和半角标点
+
+  // 数字部分（阿拉伯数字或中文数字）
+  const numberPart = '(?:\\d+(?:\\.\\d+)*|[零一二三四五六七八九十百千万亿]+)';
+  // 括号（中英文）
+  const brackets = '[\\(\\（]';
+  const bracketsEnd = '[\\)\\）]';
+  // 标点符号
+  const punctuation = '[.。．\\-、,，]';
+
+  // 匹配模式：
+  // 1. 数字 + 可选标点 + 空格 + 标题
+  // 2. 括号 + 数字 + 括号 + 可选空格 + 标题
+  const pattern = new RegExp(
+    `^(#{1,6})\\s+(?:${brackets}${numberPart}${bracketsEnd}\\s*|${numberPart}(?:${punctuation})?\\s+)(.+)$`,
+    'gm'
+  );
+
+  return content.replace(pattern, (match, hashes, title) => {
+    const cleanTitle = title.trim();
+    return `${hashes} ${cleanTitle}`;
+  });
+};
+
+// ======================================
 // 核心逻辑：批量添加 frontmatter 到文件
 // ======================================
 
@@ -443,6 +482,10 @@ const writeFrontmatterToFile = (filePaths, option) => {
         }
       });
 
+      // 处理 Markdown 内容中的标题数字前缀
+      const processedContent = removeHeadingNumbers(markdownContent);
+      const contentChanged = processedContent !== markdownContent;
+
       // 自定义 transform（可选）
       if (typeof transform === "function") {
         const transformed = transform(finalFrontmatter, fileInfo);
@@ -452,16 +495,20 @@ const writeFrontmatterToFile = (filePaths, option) => {
         }
       }
 
-      if (!hasChange) {
+      if (!hasChange && !contentChanged) {
         continue;
       }
 
       // 写入更新后的 frontmatter
       const frontmatterStr = matter.stringify("", finalFrontmatter).replace(/'/g, "");
-      const newFileContent = `${frontmatterStr}${markdownContent}`;
+      const newFileContent = `${frontmatterStr}${processedContent}`;
       fs.writeFileSync(filePath, newFileContent, "utf-8");
 
-      console.log(`✅ 成功更新 frontmatter：${filePath}`);
+      if (contentChanged) {
+        console.log(`✅ 成功更新 frontmatter 并移除标题数字：${filePath}`);
+      } else {
+        console.log(`✅ 成功更新 frontmatter：${filePath}`);
+      }
     } catch (error) {
       console.error(`❌ 处理文件失败：${filePath}`, error.message);
     }
