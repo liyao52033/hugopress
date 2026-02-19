@@ -23,17 +23,21 @@
     {{- with .Description | default ($.Param "description") }}
         <meta name="description" content="{{ . }}">
     {{- end }}
-    <meta name="keywords" content="Documentation, Hugo, Hugo Theme, Bootstrap" />
-    <meta name="author" content="Colin Wilson - Lotus Labs" />
-    <meta name="email" content="support@aigis.uk" />
-    <meta name="website" content="https://lotusdocs.dev" />
-    <meta name="Version" content="v0.1.0" />
+    <meta name="keywords" content="{{ with .Site.Params.keywords }}{{ delimit . ", " }}{{ else }}前端开发, Vue3, SpringBoot, 技术博客{{ end }}" />
+    <meta name="author" content="{{ .Site.Params.author | default "华总" }}" />
+    <meta name="website" content="{{ .Site.BaseURL }}" />
     <script async src="//at.alicdn.com/t/c/font_5002477_3r8q6p0a9n8.js"></script>
 
     <!-- favicon -->
     {{ block "favicon" . }}{{ partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "head/favicon.html") . }}{{ end }}
     {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "head/opengraph") . }}
     {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "head/twitter_cards") . }}
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ .Permalink }}" />
+
+    <!-- Schema.org structured data -->
+    {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "head/schema") . }}
 
     <!-- Atom feed autodiscovery -->
     {{- with .Site.Title }}

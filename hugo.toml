@@ -1,4 +1,4 @@
-baseURL = 'https://hugo.xiaoying.org.cn/'
+baseURL = 'https://xiaoying.org.cn/'
 languageCode = "zh-CN"
 title = '编程随笔'
 publishDir = "dist"
@@ -82,6 +82,10 @@ ignoreLogs = ['warning-goldmark-raw-html']
     enabled = true  
 
 [params]
+    # SEO 基础配置
+    description = "Web前端技术博客，积跬步以至千里，致敬每个爱学习的你。分享前端、后端、嵌入式开发技术经验。"
+    author = "华总"
+    keywords = ["前端开发", "Vue3", "SpringBoot", "技术博客", "编程教程", "嵌入式开发", "Hugo", "TypeScript"]
     
     # 字体配置 - 选择一种配置启用，其他保持注释状态
 

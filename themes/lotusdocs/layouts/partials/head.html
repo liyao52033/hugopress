@@ -5,12 +5,10 @@
     <meta name="robots" content="noindex">
     {{- end }}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A Lightweight, Modern Documentation Theme for Hugo" />
-    <meta name="keywords" content="Documentation, Hugo, Hugo Theme, Bootstrap" />
-    <meta name="author" content="Colin Wilson - Lotus Labs" />
-    <meta name="email" content="support@aigis.uk" />
-    <meta name="website" content="https://lotusdocs.dev" />
-    <meta name="Version" content="v0.1.0" />
+    <meta name="description" content="{{ .Site.Params.description | default .Site.Params.indexImg.desc | default "编程随笔 - 技术博客" }}" />
+    <meta name="keywords" content="{{ with .Site.Params.keywords }}{{ delimit . ", " }}{{ else }}前端开发, Vue3, SpringBoot, 技术博客{{ end }}" />
+    <meta name="author" content="{{ .Site.Params.author | default "华总" }}" />
+    <meta name="website" content="{{ .Site.BaseURL }}" />
     <meta name="algolia-site-verification" content="CA4B71628D467FFC" />
 
     {{- $bootstrapCss := resources.Get "scss/bootstrap.min.css" -}}
