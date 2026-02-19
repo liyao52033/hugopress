@@ -1,4 +1,4 @@
-{{ if os.FileExists "static/favicon.ico" -}}
+{{/*  {{ if os.FileExists "static/favicon.ico" -}}
 <link rel="icon" href="{{ "favicon.ico" | absURL }}" sizes="any">
 {{ end -}}
 {{ if os.FileExists "static/apple-touch-icon.png" -}}
@@ -12,4 +12,9 @@
 {{ end -}}
 {{ if os.FileExists "static/site.webmanifest" -}}
 <link rel="manifest" crossorigin="use-credentials" href="{{ "site.webmanifest" | absURL }}">
+{{ end -}}  */}}
+
+
+{{ if os.FileExists "static/logo.png" -}}
+<link rel="icon" type="image/png" sizes="32x32" href="{{ "logo.png" | absURL }}">
 {{ end -}}

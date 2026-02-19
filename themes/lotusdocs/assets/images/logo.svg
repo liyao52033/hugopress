@@ -4,6 +4,7 @@
      viewBox="0 0 500 500"
      preserveAspectRatio="xMidYMid meet"
      xml:space="preserve"
+	 height="40"
 >
   <!-- 绿色叶子（保留原始填充） -->
   <path fill="#2B9F0D" opacity="1.000000" stroke="none"
