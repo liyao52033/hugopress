@@ -5,7 +5,7 @@
             <a href='{{ with .Site.Params.docs.logoLinkURL }}{{ . }}{{ else }}{{ relLangURL "" }}{{ end }}'
                 class="logo-icon me-3" aria-label="HomePage" alt="HomePage">
                 <div class="small">
-                    {{ with resources.Get "images/logos/mark.svg" }}
+                    {{ with resources.Get "images/logos/file.svg" }}
                     {{ .Content | safeHTML }}
                     {{ end }}
                 </div>

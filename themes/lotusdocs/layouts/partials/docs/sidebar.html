@@ -3,7 +3,7 @@
     <div class="sidebar-brand">
         <a href='{{ with .Site.Params.docs.logoLinkURL }}{{ . }}{{ else }}{{ relLangURL "" }}{{ end }}'
             aria-label="HomePage" alt="HomePage">
-            {{ with resources.Get "images/logos/logo.svg" }}
+            {{ with resources.Get "images/logos/file.svg" }}
                 {{ .Content | safeHTML }}
                 <span>{{ site.Title }}</span>
             {{ end }}
