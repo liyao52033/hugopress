@@ -42,7 +42,7 @@
         transition: background-image 1s ease-in-out;
     }
 
-    body, .page-content, .sidebar, .sidebar-footer {
+    body, .page-content, .sidebar  {
         background: transparent !important;
     }
 
@@ -52,12 +52,26 @@
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .sidebar-content {
-        background: hsla(255, 100%, 100%, 0.8) !important;
-        height: 100% !important;
-        padding: 0 0 5rem 0;
-        overflow-y: auto;
+    .sidebar-brand > a {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
+
+
+    @media(min-width:992px){
+        .sidebar-content {
+            background: hsla(255, 100%, 100%, 0.8) !important;
+            height: 100% !important;
+            padding: 0 0 5rem 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-footer{
+            background: transparent !important;
+        }
+    }
+    
 
     .docs-content, .docs-toc {
         background: rgba(255, 255, 255, 0.9) !important;
@@ -103,23 +117,6 @@
         }
     }
 
-    @media (max-width: 768px) {
-        .body-bg-container {
-            background-size: cover;
-        }
-    }
-
-    @media (min-width: 769px) and (max-width: 1200px) {
-        .body-bg-container {
-            background-size: cover;
-        }
-    }
-
-    @media (min-width: 1201px) {
-        .body-bg-container {
-            background-size: cover;
-        }
-    }
 </style>
 
 <script>
