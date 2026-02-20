@@ -23,9 +23,12 @@
     }
     &:hover {
         border-color: var(--card-border-hover-color);
-        // .card-title {
-        //     color: #fff;
-        // }
+        .icon-color {
+            color: var(--bs-info) !important;
+        }
+        .card-title {
+            color: var(--bs-teal) !important;
+        }
     }
 }
 
@@ -41,10 +44,6 @@ html[data-dark-mode] {
         opacity: 0.5;
     }
 }
-
-// .card-title {
-//     color: var(--card-title-color);
-// }
 
 .card-text {
     color: var(--card-text-color);
