@@ -232,9 +232,9 @@ ignoreLogs = ['warning-goldmark-raw-html']
         rss = true                    # show rss icon with link     
         
     [params.blogger]
-      avatar = "https://img.xiaoying.org.cn/img/20250725164502996.png?w=150&h=150&fit=crop&fm=webp&q=80"
+      avatar = "https://img.xiaoying.org.cn/img/20250725164502996.png"
       backgroundImage = "https://img.xxdevops.cn/blog/wallpaper/bg14.avif"  # 博主卡片背景图（可选，留空则使用纯色背景）
-      circleBgImg = "https://img.xiaoying.org.cn/img/20250725164502996.png?w=300&h=300&fit=crop&fm=webp&q=80"
+      circleBgImg = "https://img.xiaoying.org.cn/img/20250725164502996.png"
       circleBgMask = false
       name = "liyao"
       shape = "circle-rotate"
@@ -247,7 +247,7 @@ ignoreLogs = ['warning-goldmark-raw-html']
       [[params.blogger.social]]
         name = "GitHub"
         icon = "github"  # GitHub 图标
-        url = "https://github.com/liyao52033/hugopress"  # 你的 GitHub 地址
+        url = "https://github.com/liyao52033"  # 你的 GitHub 地址
       [[params.blogger.social]]
             name = "CNB"
             icon = "cnb"  #

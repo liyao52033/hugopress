@@ -5,14 +5,7 @@
       {{ end }}
       {{ $avatar := .Site.Params.blogger.avatar }}
       {{/* 博主头像优化：缩放到 240x240 (2x 显示为 120x120) */}}
-      {{ if in $avatar "img.xxdevops.cn" }}
-        {{ $baseUrl := $avatar }}
-        {{ if in $avatar "?" }}
-          {{ $baseUrl = index (split $avatar "?") 0 }}
-        {{ end }}
-        {{ $avatar = printf "%s?w=240&h=240&fit=crop&fm=webp&q=85" $baseUrl }}
-      {{ end }}
-      <img src="{{ $avatar }}"
+      <img src="{{ $avatar }}?w=120"
            alt="头像"
            class="blogger-avatar"
            width="120"

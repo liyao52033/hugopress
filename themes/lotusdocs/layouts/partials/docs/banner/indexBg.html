@@ -2,9 +2,13 @@
 
 <div class="banner-conent">
   <header class="hero">
-    {{ $logo := (resources.Get "images/logo.png").Filter (images.Process "format webp q70") }}
-    <img src="{{ $logo.RelPermalink }}" alt="logo" style="width: 200px;"> 
-    <h1 id="main-title">{{.Site.Title}}</h1> 
+    {{/*  {{ $logo := (resources.Get "images/logo.png").Filter (images.Process "format webp q70") }}  */}}
+    {{/*  <img src="{{ $logo.RelPermalink }}" alt="logo" style="width: 200px;">  */}}
+    {{ $dest := .Site.Params.blogger.avatar }}
+    <img src="{{ $dest }}?w=400" srcset="
+            {{ $dest }}?w=400 400w,
+        " sizes="100vw" alt="logo" style="width: 200px;">
+    <h2 id="main-title">{{.Site.Title}}</h2> 
     <p class="description"><span>{{.Site.Params.indexImg.desc}}</span><span class="typed" style="animation: auto ease 0s 1 normal none running none;"></span></p> 
   </header> 
 </div>

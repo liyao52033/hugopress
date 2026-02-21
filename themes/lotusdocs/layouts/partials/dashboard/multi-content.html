@@ -18,7 +18,7 @@
 
     {{ $sortedLatest := $fixPages }}
     {{ range $normalPages }}
-        {{ $sortedLatest = $sortedLatest | append . }}
+    {{ $sortedLatest = $sortedLatest | append . }}
     {{ end }}
 
     <div class="content-panel active" id="panel-latest">
@@ -27,34 +27,50 @@
             {{ partial "dashboard/skeleton.html" }}
             {{ end }}
         </div>
-        <div class="article-grid" id="article-grid-latest" style="display: none;" data-page="1" data-per-page="12" data-total="{{ len $sortedLatest }}">
+        <div class="article-grid" id="article-grid-latest" style="display: none;" data-page="1" data-per-page="12"
+            data-total="{{ len $sortedLatest }}">
             {{ range $index, $page := $sortedLatest }}
-            <div class="article-card" data-url="{{ $page.Permalink }}" data-page="{{ add (div $index 12) 1 }}"{{ if lt $index 12 }} style="display: block;"{{ else }} style="display: none;"{{ end }}>
+            <div class="article-card" data-url="{{ $page.Permalink }}" data-page="{{ add (div $index 12) 1 }}" {{ if lt
+                $index 12 }} style="display: block;" {{ else }} style="display: none;" {{ end }}>
                 <div class="article-cover">
                     {{ with $page.Params.cover }}
-                        {{ $coverImage := . }}
-                        {{ $isExternal := or (hasPrefix $coverImage "http://") (hasPrefix $coverImage "https://") }}
-                        {{ if $isExternal }}
-                            <img data-src="{{ $coverImage }}" srcset="{{ $coverImage }} 320w, {{ $coverImage }} 640w, {{ $coverImage }} 960w" sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, 960px" alt="{{ $page.Title }}" class="cover-image" loading="lazy"  >
-                        {{ else }}
-                            <img data-src="{{ $coverImage }}" srcset="{{ $coverImage }} 320w, {{ $coverImage }} 640w, {{ $coverImage }} 960w" sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, 960px" alt="{{ $page.Title }}" class="cover-image" loading="lazy"  >
-                        {{ end }}
-                    {{ else with $page.Params.images }}
-                        {{ range first 1 (shuffle .) }}
-                            {{ $coverImage := . }}
-                            {{ $isExternal := or (hasPrefix $coverImage "http://") (hasPrefix $coverImage "https://") }}
-                            {{ if $isExternal }}
-                                <img data-src="{{ $coverImage }}" srcset="{{ $coverImage }} 320w, {{ $coverImage }} 640w, {{ $coverImage }} 960w" sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, 960px" alt="{{ $page.Title }}" class="cover-image" loading="lazy" width="640" height="360" >
-                            {{ else }}
-                                <img data-src="{{ $coverImage }}" srcset="{{ $coverImage }} 320w, {{ $coverImage }} 640w, {{ $coverImage }} 960w" sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, 960px" alt="{{ $page.Title }}" class="cover-image" loading="lazy" width="640" height="360" >
-                            {{ end }}
-                        {{ end }}
+                    {{ $coverImage := . }}
+                    {{ $isExternal := or (hasPrefix $coverImage "http://") (hasPrefix $coverImage "https://") }}
+                    {{ if $isExternal }}
+                    <img data-src="{{ $coverImage }}"
+                        srcset="{{ $coverImage }} 320w, {{ $coverImage }} 640w, {{ $coverImage }} 960w"
+                        sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, 960px" alt="{{ $page.Title }}"
+                        class="cover-image" loading="lazy">
                     {{ else }}
-                        <div class="cover-placeholder">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 1024 1024" class="placeholder-icon">
-                                <path d="M880 112H144c-17.7 0-32 14.3-32 32v736c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V144c0-17.7-14.3-32-32-32zm-40 728H184V184h656v656zM304 280a56 56 0 1 1 112 0 56 56 0 0 1 1-112 0zm376 280H304c-4.4 0-8-3.6-8-8v-48c0-4.4 3.6-8 8-8h376c4.4 0 8 3.6 8 8v48c0 4.4-3.6 8-8 8zm-200 144H304c-4.4 0-8-3.6-8-8v-48c0-4.4 3.6-8 8-8h176c4.4 0 8 3.6 8 8v48c0 4.4-3.6 8-8 8z"/>
-                            </svg>
-                        </div>
+                    <img data-src="{{ $coverImage }}"
+                        srcset="{{ $coverImage }} 320w, {{ $coverImage }} 640w, {{ $coverImage }} 960w"
+                        sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, 960px" alt="{{ $page.Title }}"
+                        class="cover-image" loading="lazy">
+                    {{ end }}
+                    {{ else with $page.Params.images }}
+                    {{ range first 1 (shuffle .) }}
+                    {{ $coverImage := . }}
+                    {{ $isExternal := or (hasPrefix $coverImage "http://") (hasPrefix $coverImage "https://") }}
+                    {{ if $isExternal }}
+                    <img data-src="{{ $coverImage }}"
+                        srcset="{{ $coverImage }} 320w, {{ $coverImage }} 640w, {{ $coverImage }} 960w"
+                        sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, 960px" alt="{{ $page.Title }}"
+                        class="cover-image" loading="lazy" width="640" height="360">
+                    {{ else }}
+                    <img data-src="{{ $coverImage }}"
+                        srcset="{{ $coverImage }} 320w, {{ $coverImage }} 640w, {{ $coverImage }} 960w"
+                        sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, 960px" alt="{{ $page.Title }}"
+                        class="cover-image" loading="lazy" width="640" height="360">
+                    {{ end }}
+                    {{ end }}
+                    {{ else }}
+                    <div class="cover-placeholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 1024 1024"
+                            class="placeholder-icon">
+                            <path
+                                d="M880 112H144c-17.7 0-32 14.3-32 32v736c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V144c0-17.7-14.3-32-32-32zm-40 728H184V184h656v656zM304 280a56 56 0 1 1 112 0 56 56 0 0 1 1-112 0zm376 280H304c-4.4 0-8-3.6-8-8v-48c0-4.4 3.6-8 8-8h376c4.4 0 8 3.6 8 8v48c0 4.4-3.6 8-8 8zm-200 144H304c-4.4 0-8-3.6-8-8v-48c0-4.4 3.6-8 8-8h176c4.4 0 8 3.6 8 8v48c0 4.4-3.6 8-8 8z" />
+                        </svg>
+                    </div>
                     {{ end }}
                 </div>
                 <div class="article-header">
@@ -80,8 +96,10 @@
                 <div class="article-meta">
                     <span class="meta-item">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 1024 1024">
-                            <path fill="currentColor" d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"/>
-                            <path fill="currentColor" d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"/>
+                            <path fill="currentColor"
+                                d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z" />
+                            <path fill="currentColor"
+                                d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z" />
                         </svg>
                         {{ $page.Date.Format "2006-01-02" }}
                     </span>
@@ -98,24 +116,28 @@
         </div>
         <div class="pagination" id="pagination-container" style="display: none;">
             <div class="pagination-nav">
-                <button class="pagination-btn pagination-prev" id="pagination-prev" disabled>
+                <button class="pagination-btn pagination-prev" id="pagination-prev" disabled aria-label="上一页"
+                    title="上一页">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 1024 1024">
-                        <path fill="currentColor" d="M724 218.3V141c0-6.7-7.7-10.4-12.9-6.3L260.3 486.8a31.86 31.86 0 0 0 0 50.3l450.8 352.1c5.3 4.1 12.9.4 12.9-6.3v-77.3c0-4.9-2.3-9.6-6.1-12.6l-360-281 360-281.1c3.8-3 6.1-7.7 6.1-12.6z"/>
+                        <path fill="currentColor"
+                            d="M724 218.3V141c0-6.7-7.7-10.4-12.9-6.3L260.3 486.8a31.86 31.86 0 0 0 0 50.3l450.8 352.1c5.3 4.1 12.9.4 12.9-6.3v-77.3c0-4.9-2.3-9.6-6.1-12.6l-360-281 360-281.1c3.8-3 6.1-7.7 6.1-12.6z" />
                     </svg>
                 </button>
                 <div class="pagination-numbers" id="pagination-numbers">
                     <!-- 页码按钮由 JS 动态生成 -->
                 </div>
-                <button class="pagination-btn pagination-next" id="pagination-next">
+                <button class="pagination-btn pagination-next" id="pagination-next" aria-label="下一页" title="下一页">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 1024 1024">
-                        <path fill="currentColor" d="M765.7 486.8L314.9 134.7c-5.3-4.1-12.9-.4-12.9 6.3v77.3c0 4.9 2.3 9.6 6.1 12.6l360 281.1-360 281.1c-3.9 3-6.1 7.7-6.1 12.6V883c0 6.7 7.7 10.4 12.9 6.3l450.8-352.1a31.86 31.86 0 0 0 0-50.3z"/>
+                        <path fill="currentColor"
+                            d="M765.7 486.8L314.9 134.7c-5.3-4.1-12.9-.4-12.9 6.3v77.3c0 4.9 2.3 9.6 6.1 12.6l360 281.1-360 281.1c-3.9 3-6.1 7.7-6.1 12.6V883c0 6.7 7.7 10.4 12.9 6.3l450.8-352.1a31.86 31.86 0 0 0 0-50.3z" />
                     </svg>
                 </button>
             </div>
             <div class="pagination-jump">
                 <span class="pagination-text">前往</span>
-                <input type="number" class="pagination-input" id="pagination-input" min="1" value="1">
-                <button class="pagination-btn pagination-goto" id="pagination-goto">跳转</button>
+                <label for="pagination-input" class="visually-hidden">页码</label>
+                <input type="number" class="pagination-input" id="pagination-input" min="1" value="1" aria-label="页码输入">
+                <button class="pagination-btn pagination-goto" id="pagination-goto" aria-label="跳转到指定页">跳转</button>
                 <span class="pagination-total" id="pagination-total">共 0 条</span>
             </div>
         </div>
@@ -125,12 +147,12 @@
         <div class="article-list">
             {{ $sorted := slice }}
             {{ range $index, $page := $normalPages }}
-                {{ $daysSinceUpdate := now.Sub $page.Lastmod }}
-                {{ $daysSinceUpdateInt := (div (int $daysSinceUpdate.Hours) 24) }}
-                {{ $wordCount := len ($page.Content | plainify) }}
-                {{ $popularityScore := sub (float $wordCount) (mul (float $daysSinceUpdateInt) 5) }}
-                {{ $pageWithScore := (dict "page" $page "score" $popularityScore) }}
-                {{ $sorted = $sorted | append $pageWithScore }}
+            {{ $daysSinceUpdate := now.Sub $page.Lastmod }}
+            {{ $daysSinceUpdateInt := (div (int $daysSinceUpdate.Hours) 24) }}
+            {{ $wordCount := len ($page.Content | plainify) }}
+            {{ $popularityScore := sub (float $wordCount) (mul (float $daysSinceUpdateInt) 5) }}
+            {{ $pageWithScore := (dict "page" $page "score" $popularityScore) }}
+            {{ $sorted = $sorted | append $pageWithScore }}
             {{ end }}
             {{ $sorted := sort $sorted "score" "desc" }}
             {{ range $index, $item := first 12 $sorted }}
@@ -143,22 +165,22 @@
     <div class="content-panel" id="panel-featured">
         <div class="featured-grid">
             {{ if $topPages }}
-                {{ range first 12 $topPages }}
-                <div class="featured-card" data-url="{{ .Permalink }}">
-                    <div class="featured-content">
-                        <h3 class="featured-title">
-                            <a href="{{ .Permalink }}">{{ .Title }}</a>
-                        </h3>
-                        <p class="featured-excerpt">
-                            {{ if .Description }}
-                            {{ .Description | truncate 150 }}
-                            {{ else }}
-                            {{ .Content | plainify | truncate 150 }}
-                            {{ end }}
-                        </p>
-                        <a href="{{ .Permalink }}" class="featured-link">阅读全文 →</a>
-                    </div>
+            {{ range first 12 $topPages }}
+            <div class="featured-card" data-url="{{ .Permalink }}">
+                <div class="featured-content">
+                    <h3 class="featured-title">
+                        <a href="{{ .Permalink }}">{{ .Title }}</a>
+                    </h3>
+                    <p class="featured-excerpt">
+                        {{ if .Description }}
+                        {{ .Description | truncate 150 }}
+                        {{ else }}
+                        {{ .Content | plainify | truncate 150 }}
+                        {{ end }}
+                    </p>
+                    <a href="{{ .Permalink }}" class="featured-link">阅读全文 →</a>
                 </div>
+            </div>
             {{ end }}
             {{ end }}
         </div>
