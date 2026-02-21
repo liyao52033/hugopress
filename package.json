@@ -7,9 +7,9 @@
     "server:prod": "bash start.sh",
     "build": "hugo -D -F",
     "build:prod": "bash build.sh",
-    "clean": "hugo --cleanDestinationDir",
+    "clean": "hugo --cleanDestinationDir && hugo build --gc && rm -rf dist .edgeone",
     "proxy": "node scripts/proxy.js",
-    "deploy": "yarn run build:prod && edgeone pages deploy ./dist -n vuepress-vdoing"
+    "deploy": "yarn run clean && edgeone pages deploy -n vuepress-vdoing"
   },
   "keywords": [
     "hugo"

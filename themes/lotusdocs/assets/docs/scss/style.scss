@@ -36,6 +36,7 @@ $code-block-padding-top: {{ if eq .Site.Params.docs.prism true -}}0{{ else }}1.2
 @import "custom/structure/doc-nav";
 @import "custom/structure/toc";
 @import "custom/structure/footer";
+@import "custom/structure/images";
 
 // Components
 @import "custom/components/buttons";

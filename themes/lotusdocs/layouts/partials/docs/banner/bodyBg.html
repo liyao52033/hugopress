@@ -10,7 +10,7 @@
     {{ $imgUrl := . }}
     {{ if not (hasPrefix . "http") }}
         {{/*  尝试从 assets 目录获取（资源管道处理）  */}}
-        {{ $resource := resources.Get . }}
+        {{ $resource := (resources.Get .).Filter (images.Process "format webp q70") }}
         {{ if $resource }}
             {{ $imgUrl = $resource.RelPermalink }}
         {{ else }}

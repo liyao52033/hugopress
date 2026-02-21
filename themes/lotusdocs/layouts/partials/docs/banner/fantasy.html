@@ -6,15 +6,15 @@
 </div>
   
   {{/* Hugo 资源管道处理图片 */}}
-  {{ $bg := resources.Get "images/fantasy/bg.png" | resources.Fingerprint }}
-  {{ $mask := resources.Get "images/fantasy/mask.png" | resources.Fingerprint }}
-  {{ $light := resources.Get "images/fantasy/light.png" | resources.Fingerprint }}
-  {{ $caidai := resources.Get "images/fantasy/caidai.png" | resources.Fingerprint }}
-  {{ $two := resources.Get "images/fantasy/22.png" | resources.Fingerprint }}
-  {{ $screen := resources.Get "images/fantasy/screen.png" | resources.Fingerprint }}
-  {{ $screenLight := resources.Get "images/fantasy/screenLight.png" | resources.Fingerprint }}
-  {{ $phoneLight := resources.Get "images/fantasy/phoneLight.png" | resources.Fingerprint }}
-  {{ $screenMask := resources.Get "images/fantasy/Screenmask.png" | resources.Fingerprint }}
+  {{ $bg := (resources.Get "images/fantasy/bg.png").Filter (images.Process "format webp q70") }}
+  {{ $mask := (resources.Get "images/fantasy/mask.png").Filter (images.Process "format webp q70") }}
+  {{ $light := (resources.Get "images/fantasy/light.png").Filter (images.Process "format webp q70") }}
+  {{ $caidai := (resources.Get "images/fantasy/caidai.png").Filter (images.Process "format webp q70") }}
+  {{ $two := (resources.Get "images/fantasy/22.png").Filter (images.Process "format webp q70") }}
+  {{ $screen := (resources.Get "images/fantasy/screen.png").Filter (images.Process "format webp q70") }}
+  {{ $screenLight := (resources.Get "images/fantasy/screenLight.png").Filter (images.Process "format webp q70") }}
+  {{ $phoneLight := (resources.Get "images/fantasy/phoneLight.png").Filter (images.Process "format webp q70") }}
+  {{ $screenMask := (resources.Get "images/fantasy/Screenmask.png").Filter (images.Process "format webp q70") }}
   
   <style>
   .fantasy {
