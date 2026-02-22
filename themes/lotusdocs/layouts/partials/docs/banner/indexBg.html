@@ -5,9 +5,10 @@
     {{/*  {{ $logo := (resources.Get "images/logo.png").Filter (images.Process "format webp q70") }}  */}}
     {{/*  <img src="{{ $logo.RelPermalink }}" alt="logo" style="width: 200px;">  */}}
     {{ $dest := .Site.Params.blogger.avatar }}
-    <img src="{{ $dest }}?w=400" srcset="
-            {{ $dest }}?w=400 400w,
-        " sizes="100vw" alt="logo" style="width: 200px;">
+    <link rel="preload" href="{{ $dest }}?w=400" as="image" type="image/avif" fetchpriority="high">
+    <img src="{{ $dest }}?w=400" width="200" height="200"
+      srcset="{{ $dest }}?w=400 400w," 
+      sizes="100vw" alt="logo" style="width: 200px;" fetchpriority="high">
     <h2 id="main-title">{{.Site.Title}}</h2> 
     <p class="description"><span>{{.Site.Params.indexImg.desc}}</span><span class="typed" style="animation: auto ease 0s 1 normal none running none;"></span></p> 
   </header> 
@@ -116,7 +117,7 @@
     filter: brightness(1.1);
   }
 
-  /* 描述文字样式 */
+  /* 描述文字样式 - 优化布局偏移 */
   .description {
     display: inline-block;
     font-size: '{{ .Site.Params.indexImg.descFontSize | default "1.4rem" }}';
@@ -126,8 +127,20 @@
     border: 1px solid rgba(147, 197, 253, .1);
     border-radius: 50px;
     padding: 10px 20px;
-    width: fit-content;
-
+    /* 优化：使用 min-width 替代 fit-content，避免布局偏移 */
+    min-width: 200px;
+    width: auto;
+    /* 优化：预留最大宽度空间，防止内容变化导致偏移 */
+    max-width: 90vw;
+    /* 优化：确保高度固定，防止文字换行导致偏移 */
+    min-height: 1.5em;
+    line-height: 1.5;
+    /* 优化：内容溢出处理 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    /* 优化：添加 contain 减少重排影响范围 */
+    contain: layout style;
   }
 
   .typed {
@@ -259,29 +272,36 @@
   let fadeInInterval = "";
   let fadeOutInterval = "";
 
-  // 页面加载完成后执行
+  // 页面加载完成后执行 - 使用 requestIdleCallback 延迟非关键初始化
   document.addEventListener('DOMContentLoaded', function() {
-    // 创建并添加箭头元素
+    // 关键初始化：创建箭头元素（需要立即执行）
     initArrow();
-    
-    // 初始化功能
-    if (config.bgTimeColor) {
-      bgTimeColorAndTip();
-    }
-    
-    setTimeout(() => {
+
+    // 延迟非关键初始化，避免阻塞首次渲染
+    function initNonCritical() {
+      // 初始化功能
+      if (config.bgTimeColor) {
+        bgTimeColorAndTip();
+      }
+
       noBgBlur();
-    }, 100);
+      blurText();
+      watchScroll();
 
-    blurText();
-    watchScroll();
+      if (config.descFade) {
+        textFadeInAndOut();
+      }
 
-    if (config.descFade) {
-      textFadeInAndOut();
+      if (config.bubble) {
+        initCanvasBubble();
+      }
     }
-    
-    if (config.bubble) {
-      initCanvasBubble();
+
+    // 使用 requestIdleCallback 延迟非关键初始化
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(initNonCritical, { timeout: 200 });
+    } else {
+      setTimeout(initNonCritical, 100);
     }
   });
 
@@ -311,24 +331,64 @@
     });
   }
 
-  // 监听滚动事件
+  // 监听滚动事件 - 使用 Intersection Observer 优化性能
   function watchScroll() {
     const banner = document.querySelector(`.${bannerClass}`);
-    const windowH = banner.clientHeight;
-    
-    window.addEventListener('scroll', function() {
-      if (document.documentElement.scrollTop < windowH) {
-        blurText(config.navColor);
-        noBgBlur();
-      } else {
-        if (config.switchNavColor && config.navColor == 1) {
-          blurText(2);
-        } else if (config.switchNavColor && config.navColor == 2) {
-          blurText(1);
+    if (!banner) return;
+
+    // 使用 Intersection Observer 替代 scroll 事件监听
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(
+        function (entries) {
+          const isBannerVisible = entries[0].isIntersecting;
+
+          if (isBannerVisible) {
+            // Banner 可见时（在视口内）
+            blurText(config.navColor);
+            noBgBlur();
+          } else {
+            // Banner 不可见时（滚动超过 Banner）
+            if (config.switchNavColor && config.navColor == 1) {
+              blurText(2);
+            } else if (config.switchNavColor && config.navColor == 2) {
+              blurText(1);
+            }
+            bgBlur();
+          }
+        },
+        {
+          threshold: 0,
+          rootMargin: '-70px 0px 0px 0px' // 考虑导航栏高度
         }
-        bgBlur();
-      }
-    });
+      );
+
+      observer.observe(banner);
+    } else {
+      // 降级方案：使用 RAF + passive 监听器（旧浏览器）
+      let ticking = false;
+      const windowH = banner.clientHeight;
+
+      window.addEventListener('scroll', function() {
+        if (!ticking) {
+          requestAnimationFrame(function() {
+            const scrollTop = document.documentElement.scrollTop;
+            if (scrollTop < windowH) {
+              blurText(config.navColor);
+              noBgBlur();
+            } else {
+              if (config.switchNavColor && config.navColor == 1) {
+                blurText(2);
+              } else if (config.switchNavColor && config.navColor == 2) {
+                blurText(1);
+              }
+              bgBlur();
+            }
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }, { passive: true });
+    }
   }
 
   function bgBlur() {
@@ -573,11 +633,15 @@
       requestAnimationFrame(updateDots);
     }
     
-    // 窗口大小变化时重置画布
+    // 窗口大小变化时重置画布 - 使用防抖优化性能
+    let resizeTimeout;
     window.addEventListener('resize', function() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      initDots();
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(function() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        initDots();
+      }, 150);
     });
     
     // 启动气泡动画
@@ -585,31 +649,35 @@
     updateDots();
   }
 
-  // 添加提示框（修复选择器错误）
+  // 添加提示框（修复选择器错误，优化性能避免强制重排）
   function addTip(content, type, startHeight = 50, dieTime = 3000) {
     const tips = document.querySelectorAll(".global-tip");
     // 修复：给时间戳添加前缀，避免数字开头的类名
     const time = `tip-${new Date().getTime()}`;
-    
-    // 计算提示框位置
+
+    // 性能优化：先批量读取所有现有提示框的高度（避免交错读写）
     let lastTop = startHeight;
     if (tips.length > 0) {
       const lastTip = tips[tips.length - 1];
       const top = parseInt(lastTip.getAttribute("data-top"));
-      lastTop = top + lastTip.offsetHeight + 17;
+      // 使用 data-height 缓存高度，避免读取 offsetHeight 导致重排
+      let lastTipHeight = parseInt(lastTip.getAttribute("data-height")) || 50;
+      lastTop = top + lastTipHeight + 17;
     }
-    
+
     // 创建提示框元素
     const div = document.createElement("div");
     // 修复：使用带前缀的类名
     div.className = `global-tip tip-${type} ${time}`;
     div.style.top = "0px";
     div.setAttribute("data-top", lastTop);
-    
+    // 预设一个默认高度，后续更新
+    div.setAttribute("data-height", "50");
+
     // 设置提示框内容
     let iconClass = "";
     let contentClass = "";
-    
+
     switch(type) {
       case "info":
       case 1:
@@ -632,30 +700,45 @@
         contentClass = "tip-warning-content";
         break;
     }
-    
+
     div.innerHTML = `<i class="iconfont ${iconClass} icon"></i><p class="${contentClass}">${content}</p>`;
     document.body.appendChild(div);
-    
-    // 显示提示框（修复：使用正确的选择器）
+
+    // 性能优化：在下一帧更新高度缓存和显示
     const timeTip = document.querySelector(`.${time}`);
-    setTimeout(() => {
+    requestAnimationFrame(() => {
+      // 缓存实际高度，供后续使用
+      const actualHeight = timeTip.offsetHeight;
+      timeTip.setAttribute("data-height", actualHeight);
+
+      // 批量样式更新
       timeTip.style.top = lastTop + "px";
       timeTip.style.opacity = "1";
-    }, 10);
-    
+    });
+
     // 自动关闭提示框
     setTimeout(() => {
       timeTip.style.top = "0px";
       timeTip.style.opacity = "0";
-      
-      // 调整其他提示框位置
+
+      // 性能优化：批量处理后续提示框的位置更新
       const allTips = nextAllTipElement(timeTip);
-      allTips.forEach(tip => {
-        const top = parseInt(tip.getAttribute("data-top")) - tip.offsetHeight - 17;
-        tip.setAttribute("data-top", top);
-        tip.style.top = top + "px";
-      });
-      
+      if (allTips.length > 0) {
+        // 先读取所有高度
+        const tipData = allTips.map(tip => ({
+          element: tip,
+          currentTop: parseInt(tip.getAttribute("data-top")),
+          height: parseInt(tip.getAttribute("data-height")) || 50
+        }));
+
+        // 再批量写入样式
+        tipData.forEach(data => {
+          const newTop = data.currentTop - data.height - 17;
+          data.element.setAttribute("data-top", newTop);
+          data.element.style.top = newTop + "px";
+        });
+      }
+
       // 删除提示框
       setTimeout(() => {
         timeTip.remove();

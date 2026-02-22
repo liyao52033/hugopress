@@ -422,28 +422,35 @@
             const startIndex = (page - 1) * perPage;
             const endIndex = Math.min(startIndex + perPage, allCards.length);
 
+            // 性能优化：先读取布局属性，再批量修改样式，避免强制重排
+            let content, elementPosition;
+            if (shouldScroll) {
+                // 先读取布局属性（在修改样式之前）
+                content = document.querySelector('.multi-content');
+                if (content) {
+                    elementPosition = content.getBoundingClientRect().top;
+                }
+            }
+
+            // 批量修改样式（使用 CSS 类替代直接操作 style）
             allCards.forEach((card, index) => {
                 if (index >= startIndex && index < endIndex) {
-                    card.style.display = 'flex';
+                    card.classList.remove('hidden');
+                    card.classList.add('visible');
                 } else {
-                    card.style.display = 'none';
+                    card.classList.remove('visible');
+                    card.classList.add('hidden');
                 }
             });
 
             // 只在用户交互时滚动到内容顶部
-            if (shouldScroll) {
-                
+            if (shouldScroll && content && elementPosition !== undefined) {
                 const offset = 80;
-                const content = document.querySelector('.multi-content');
-                const elementPosition = content.getBoundingClientRect().top;
                 const offsetPosition = elementPosition + window.pageYOffset - offset;
                 window.scrollTo({
                     top: offsetPosition,
                     behavior: 'smooth'
                 });
-
-                //    const search = document.querySelector('.quick-tools');
-              //  search.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
 

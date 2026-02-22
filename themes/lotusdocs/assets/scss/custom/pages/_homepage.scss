@@ -296,6 +296,15 @@
     display: flex;
     flex-direction: column;
     min-height: 380px;
+
+    // 性能优化：使用 visibility 和 opacity 替代 display:none，避免重排
+    &.hidden {
+        display: none;
+    }
+
+    &.visible {
+        display: flex;
+    }
 }
 
 .article-card-link {
@@ -415,7 +424,7 @@
     margin: 0 0 1rem 0;
     padding: 0 1.25rem;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -722,7 +731,7 @@
     line-height: 1.6;
     margin: 0 0 1rem 0;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }

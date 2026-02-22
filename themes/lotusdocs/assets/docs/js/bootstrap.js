@@ -29,8 +29,8 @@ window.bootstrap = {
     Tooltip
 };
 
-// 按需初始化 Bootstrap 组件
-document.addEventListener('DOMContentLoaded', function () {
+// 按需初始化 Bootstrap 组件 - 使用 requestIdleCallback 延迟初始化避免强制重排
+function initBootstrapComponents() {
     // 只在页面上有下拉菜单元素时才初始化 Dropdown
     const dropdownElements = document.querySelectorAll('.dropdown-toggle');
     if (dropdownElements.length > 0) {
@@ -41,5 +41,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const tooltipElements = document.querySelectorAll('[data-bs-toggle="tooltip"]');
     if (tooltipElements.length > 0) {
         tooltipElements.forEach(tooltipEl => new Tooltip(tooltipEl));
+    }
+}
+
+// 延迟初始化，避免阻塞首次渲染
+document.addEventListener('DOMContentLoaded', function () {
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(initBootstrapComponents, { timeout: 200 });
+    } else {
+        setTimeout(initBootstrapComponents, 50);
     }
 });

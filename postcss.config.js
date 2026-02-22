@@ -37,6 +37,7 @@ const purgecss = require('@fullhuman/postcss-purgecss').default({
             'active',
             'collapsed',
             'collapsing',
+            'scrolled',
             /^dropdown/,
             /^modal/,
             /^offcanvas/,
@@ -116,7 +117,8 @@ const purgecss = require('@fullhuman/postcss-purgecss').default({
             /^hover:/,
             /^focus:/,
             /^active:/,
-            /^disabled:/
+            /^disabled:/,
+            // /aria-expanded/
         ],
     },
     blocklist: [

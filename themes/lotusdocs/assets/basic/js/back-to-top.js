@@ -34,8 +34,8 @@ function toggleBackToTopButton() {
     }
 }
 
-// Initialize back-to-top functionality
-document.addEventListener('DOMContentLoaded', function () {
+// Initialize back-to-top functionality - 延迟初始化避免强制重排
+function initBackToTop() {
     backToTopButton = document.getElementById('back-to-top');
     if (backToTopButton) {
         // Add click event listener
@@ -43,9 +43,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Add throttled scroll event listener
         const throttledToggle = throttle(toggleBackToTopButton, 100);
-        window.addEventListener('scroll', throttledToggle);
+        window.addEventListener('scroll', throttledToggle, { passive: true });
 
-        // Initialize on page load
-        toggleBackToTopButton();
+        // Initialize on page load - 使用 RAF 延迟执行
+        requestAnimationFrame(toggleBackToTopButton);
+    }
+}
+
+// 延迟初始化，避免阻塞首次渲染
+document.addEventListener('DOMContentLoaded', function () {
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(initBackToTop, { timeout: 150 });
+    } else {
+        setTimeout(initBackToTop, 50);
     }
 });

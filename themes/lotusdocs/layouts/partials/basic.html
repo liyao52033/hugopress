@@ -36,7 +36,7 @@
   crossorigin
 >
 
-{{/* 处理JS */}}
+{{/* 处理JS - 性能优化版 */}}
 {{ $navbarJs := resources.Get "js/responsive-navbar.js" }}
 {{ $slice := slice $navbarJs -}}
 
@@ -48,14 +48,14 @@
 
 {{ $basicJs := $slice | resources.Concat "navbar.js" -}}
 
-{{/* 统一构建配置 */}}
+{{/* 统一构建配置 - 优化目标为 ES2018 以支持现代浏览器特性 */}}
 {{ $params := dict }}
 {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
-{{ $opts := dict 
-  "sourceMap" $sourceMap 
-  "minify" hugo.IsProduction 
-  "target" "es2018" 
-  "params" $params 
+{{ $opts := dict
+  "sourceMap" $sourceMap
+  "minify" hugo.IsProduction
+  "target" "es2018"
+  "params" $params
 }}
 
 {{ $basicJs  := $basicJs | js.Build $opts -}}
@@ -65,11 +65,12 @@
   {{ $basicJs = $basicJs | fingerprint "sha384" -}}
 {{ end }}
 
-
-<link rel="preload" as="script" 
-  href="{{ $basicJs.RelPermalink }}" 
+{{/* 性能优化：预加载关键 JS，使用 fetchpriority 提示浏览器优先级 */}}
+<link rel="preload" as="script"
+  href="{{ $basicJs.RelPermalink }}"
   {{ if hugo.IsProduction }}integrity="{{ $basicJs.Data.Integrity }}" {{ end -}}
   crossorigin
 >
 
+{{/* 使用 defer 确保 DOM 解析完成后再执行，不阻塞渲染 */}}
 <script src="{{ $basicJs.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $basicJs.Data.Integrity }}" {{ end -}} defer></script>

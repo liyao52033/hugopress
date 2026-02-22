@@ -50,7 +50,6 @@ $code-block-padding-top: {{ if eq .Site.Params.docs.prism true -}}0{{ else }}1.2
 @import "custom/components/table";
 @import "custom/components/tabs";
 @import "custom/components/tooltip";
-// @import "custom/components/responsive-navbar";
 @import "custom/components/codeBlock";
 
 // Pages
@@ -77,4 +76,6 @@ $code-block-padding-top: {{ if eq .Site.Params.docs.prism true -}}0{{ else }}1.2
 
 // Mermaid
 @import "custom/plugins/mermaid/mermaid";
+
+
 

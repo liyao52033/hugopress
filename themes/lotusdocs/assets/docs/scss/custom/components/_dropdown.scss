@@ -31,6 +31,18 @@
 
     --#{$prefix}dropdown-border-radius: var(--dropdown-border-radius);
 
-    transform: translate(0px, 57px) !important;
     border-top: none;
+}
+
+
+html[data-dark-mode] {
+    .top-header {
+        .nav-link {
+            color: #c2e3ff94 !important;
+        }
+
+        .hamburger-line {
+            background-color: #3C4257;
+        }
+    }
 }
