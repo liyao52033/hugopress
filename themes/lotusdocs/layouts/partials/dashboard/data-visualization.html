@@ -141,8 +141,13 @@
 {{ end }}
 
 <script>
-    // 检查是否为PC端
-    if (window.innerWidth > 768) {
+    /**
+     * 检查是否为PC端
+     * 根据视口宽度来应用不同的样式或执行不同的 JavaScript 逻辑，可以考虑使用 window.matchMedia() API。它提供了一种更声明式的方式来响应媒体查询，并且通常不会触发强制回流。
+     * matchMedia 不会直接读取元素的实时布局，因此不会导致回流。
+     * @returns {boolean} 是否为PC端
+     */
+    if (window.matchMedia("(min-width: 769px)").matches) {
         // 动态创建script标签加载echarts库
         const script = document.createElement('script');
         script.src = '{{ $echartsJs.RelPermalink }}';

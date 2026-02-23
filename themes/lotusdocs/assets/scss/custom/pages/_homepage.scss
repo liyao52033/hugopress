@@ -1124,24 +1124,53 @@
 
 @media (max-width: 768px) {
     .dashboard-container {
-        padding: 1rem;
+        padding: 0;
+        max-width: 100%;
     }
 
     .dashboard-header {
         margin-bottom: 2rem;
-        padding: 1.5rem 0;
+        padding: 1.5rem 1rem;
     }
+
+    // .dashboard-main,
+    // .dashboard-sidebar {
+    //     padding: 0 0.75rem;
+    // }
 
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    .stat-card {
+        border-radius: 0;
+    }
+
+    .quick-tools,
+    .multi-content,
+    .smart-recommend,
+    .tag-cloud,
+    .activity-timeline {
+        border-radius: 0.5rem;
     }
 
     .article-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .article-card {
+        border-radius: 0.5rem;
     }
 
     .featured-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .featured-card {
+        border-radius: 0.5rem;
     }
 
     .tools-content {
@@ -1156,6 +1185,10 @@
     .filter-btn {
         flex: 1;
         min-width: 80px;
+    }
+
+    .list-item {
+        border-radius: 0.5rem;
     }
 }
 

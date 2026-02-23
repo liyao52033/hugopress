@@ -10,7 +10,7 @@
       srcset="{{ $dest }}?w=400 400w," 
       sizes="100vw" alt="logo" style="width: 200px;" fetchpriority="high">
     <h2 id="main-title">{{.Site.Title}}</h2> 
-    <p class="description"><span>{{.Site.Params.indexImg.desc}}</span><span class="typed" style="animation: auto ease 0s 1 normal none running none;"></span></p> 
+    <p class="description"><span>{{.Site.Params.indexImg.desc}}</span><span class="typed"></span></p> 
   </header> 
 </div>
 
@@ -39,23 +39,18 @@
     position: relative;
   }
 
-  /* 导航栏透明样式 */
-  .navbar1 {
-    background-color: transparent !important;
-    box-shadow: none;
-    backdrop-filter: none !important;
-    border: none !important;
-  }
-
-  .nav-link1 {
-    color: hsl(207, 100%, 88%) !important;
-  }
-  
-  .navbar-nav1 .dropdown-title a:hover,
-  .navbar-nav1 .title,
-  .navbar-nav1 .dropdown-title>.link-title,
-  .site-name1 {
-    color: #9698c3;  
+  /* 时间背景色（叠加在图片上） */
+  .banner-color {
+    width: 100%;
+    min-height: 450px;
+    overflow: hidden;
+    margin-top: 0;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    pointer-events: none;
   }
 
   /* 箭头样式 */
@@ -74,14 +69,6 @@
     margin-left: -10px;
     cursor: pointer;
     z-index: 999;
-  }
-
-  @keyframes bounce-in {
-    0% { transform: translateY(0); }
-    20% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
-    80% { transform: translateY(0); }
-    to { transform: translateY(0); }
   }
 
   .banner-arrow::before {
@@ -144,23 +131,9 @@
   }
 
   .typed {
-    opacity: 1;
+    animation: auto ease 0s 1 normal none running none;
   }
-
-  /* 时间背景色（叠加在图片上） */
-  .banner-color {
-    width: 100%;
-    min-height: 450px;
-    overflow: hidden;
-    margin-top: 0;
-    height: 100vh;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1;
-    pointer-events: none;
-  }
-
+  
   /* 气泡画布 */
   #canvas {
     position: absolute;
@@ -170,81 +143,40 @@
     pointer-events: none;
   }
 
-  /* 提示框样式 */
-  .global-tip {
-    position: fixed;
-    display: flex;
-    top: -10px;
-    left: 50%;
-    opacity: 0;
-    min-width: 320px;
-    transform: translateX(-50%);
-    transition: opacity 0.3s linear, top 0.4s, transform 0.4s;
-    z-index: 99999;
-    padding: 15px 15px 15px 20px;
-    border: 1px solid #ebeef5;
-    border-radius: 4px;
-    grid-row: 1;
-    line-height: 17px;
+  @keyframes bounce-in {
+    0% { transform: translateY(0); }
+    20% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+    80% { transform: translateY(0); }
+    to { transform: translateY(0); }
   }
 
-  .global-tip p {
-    line-height: 17px;
-    margin: 0;
-    font-size: 14px;
+  /* 导航栏透明样式 */
+  .navbar1 {
+    background-color: transparent !important;
+    box-shadow: none;
+    backdrop-filter: none !important;
+    border: none !important;
   }
 
-  .icon {
-    margin-right: 10px;
-    line-height: 17px;
+  .nav-link1 {
+    color: hsl(207, 100%, 88%) !important;
+  }
+  
+  .navbar-nav1 .dropdown-title a:hover,
+  .navbar-nav1 .title,
+  .navbar-nav1 .dropdown-title>.link-title,
+  .site-name1 {
+    color: #9698c3;  
   }
 
-  .tip-success {
-    color: #67c23a;
-    background-color: #f0f9eb;
-    border-color: #e1f3d8;
+ 
+  @media screen and (max-width: 768px) {
+    .description {
+      display: none;
+    }
   }
-
-  .tip-success .tip-success-content {
-    color: #67c23a;
-  }
-
-  .tip-danger {
-    color: #f56c6c;
-    background-color: #fef0f0;
-    border-color: #fde2e2;
-  }
-
-  .tip-danger .tip-danger-content {
-    color: #f56c6c;
-  }
-
-  .tip-info {
-    background-color: #edf2fc;
-    border-color: #ebeef5;
-  }
-
-  .tip-info .tip-info-content {
-    color: #909399;
-  }
-
-  .tip-warning {
-    color: #e6a23c;
-    background-color: #fdf6ec;
-    border-color: #faecd8;
-  }
-
-  .tip-warning .tip-warning-content {
-    margin: 0;
-    color: #e6a23c;
-    line-height: 21px;
-    font-size: 14px;
-  }
-
-  @keyframes typedBlink {
-    0% { opacity: 1; }
-    100% { opacity: 0; }
-  }
+  
 </style>
 
 <!-- JavaScript 逻辑（所有模板语法加引号） -->
@@ -439,7 +371,7 @@
     div.className = "banner-color";
     
     let bgColor = "";
-    let tipContent = "";
+    {{/*  let tipContent = "";
     
     if (hours >= 6 && hours < 11) {
       bgColor = config.bgTimeColorArray[0];
@@ -456,13 +388,13 @@
     } else if (hours >= 0 && hours < 6) {
       bgColor = config.bgTimeColorArray[3];
       tipContent = `别再熬夜了~~，现在是 ${hours}:${minutes}:${seconds}，早点睡吧，让我们一起欣赏早上的太阳~~😇🛏`;
-    }
+    }  */}}
     
     div.style.backgroundColor = bgColor;
     document.querySelector(`.${bannerClass}`).parentNode.appendChild(div);
     
     // 添加提示框
-    addTip(tipContent, "info");
+  //  addTip(tipContent, "info");
   }
 
   // 文字淡入淡出效果
@@ -650,7 +582,7 @@
   }
 
   // 添加提示框（修复选择器错误，优化性能避免强制重排）
-  function addTip(content, type, startHeight = 50, dieTime = 3000) {
+  {{/*  function addTip(content, type, startHeight = 50, dieTime = 3000) {
     const tips = document.querySelectorAll(".global-tip");
     // 修复：给时间戳添加前缀，避免数字开头的类名
     const time = `tip-${new Date().getTime()}`;
@@ -744,7 +676,7 @@
         timeTip.remove();
       }, 500);
     }, dieTime);
-  }
+  }  */}}
 
   // 获取后续兄弟元素
   function nextAllTipElement(elem) {

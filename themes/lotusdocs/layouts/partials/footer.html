@@ -130,9 +130,22 @@
 
     @media (max-width: 768px) {
         .site-footer {
-            width: 100%;
+            max-width: 100%;
+            margin-top: 3rem;
             padding: 1.5rem 1rem;
             font-size: 0.85rem;
+        }
+
+        .site-footer .copyright {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            text-align: center;
+        }
+
+        .site-footer .copyright .theme {
+            margin-left: 0;
         }
 
         .site-footer .visit-stats {
@@ -145,7 +158,10 @@
         }
 
         .site-footer .visit-stats .stat-row {
-            gap: 1rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.8rem;
+            justify-items: center;
         }
 
         .site-footer .beian {
@@ -157,15 +173,17 @@
 
 <footer class="site-footer ">
     <div class="copyright">
-        &copy; 
-        {{ if and (.Site.Params.footer.since) (ne .Site.Params.footer.since (int (now.Format "2006"))) }}
-            {{ .Site.Params.footer.since }} - 
-        {{ end }}
-        {{ now.Format "2006" }} 
-
-        {{with .Site.Params.footer.copyright}}
-            {{ . | safeHTML }}
-        {{ end }}  
+        <span>
+            &copy; 
+            {{ if and (.Site.Params.footer.since) (ne .Site.Params.footer.since (int (now.Format "2006"))) }}
+                {{ .Site.Params.footer.since }} - 
+            {{ end }}
+            {{ now.Format "2006" }} 
+    
+            {{with .Site.Params.footer.copyright}}
+                {{ . | safeHTML }}
+            {{ end }}  
+        </span>
         <span class="theme">
             Theme by <a href='https://gohugo.io/' target='_blank' rel='noopener noreferrer'>Hugo</a> with <a href='https://lotusdocs.dev/docs/quickstart/' target='_blank' rel='noopener noreferrer'>Lotus Docs</a>
         </span>

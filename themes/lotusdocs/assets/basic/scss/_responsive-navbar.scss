@@ -1,12 +1,31 @@
 //
-// Responsive Navbar Styles - 性能优化版
+// Responsive Navbar Styles - 移动端优化版
 // _responsive-navbar.scss
 // 优化点：
-// 1. 使用 contain 限制渲染范围
+// 1. 使用 CSS 变量替代 JS 布局读取
 // 2. 使用 will-change 提示浏览器优化
 // 3. 使用 transform 替代会触发重排的属性
-// 4. 优化过渡动画性能
+// 4. 移动端完全使用 CSS 处理平滑滚动
 //
+
+// ========== CSS 变量定义 ==========
+:root {
+    --navbar-height: 70px;
+    --navbar-scroll-padding: 90px;
+}
+
+// ========== 全局平滑滚动设置 ==========
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: var(--navbar-scroll-padding);
+}
+
+// 减少动画偏好用户的体验
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
 
 // Top Header Navbar - 同时适用于首页和文档页
 .top-header,
@@ -17,10 +36,10 @@
     right: 0;
     z-index: 200;
     background-color: transparent;
-  //  background-color: var(--bs-success);
-//    backdrop-filter: blur(10px);
-  //  -webkit-backdrop-filter: blur(10px);
-  //  border-bottom: 1px solid #e9ecef;
+    //  background-color: var(--bs-success);
+    //    backdrop-filter: blur(10px);
+    //  -webkit-backdrop-filter: blur(10px);
+    //  border-bottom: 1px solid #e9ecef;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
 
     // 性能优化：提示浏览器准备 GPU 加速
@@ -217,6 +236,12 @@
 
 // Mobile specific styles
 @media (max-width: 992px) {
+
+    // 移动端 CSS 变量调整
+    :root {
+        --navbar-height: 60px;
+        --navbar-scroll-padding: 80px;
+    }
 
     .top-header,
     #topnav {

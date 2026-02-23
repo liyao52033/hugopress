@@ -364,7 +364,7 @@
       var phoneLight = new Image();
       phoneLight.src = imagePaths.phoneLight;
 
-      var phoneText = [
+      {{/*  var phoneText = [
         {"time":0,"text":"凌晨啦!"},
         {"time":6,"text":"早上好!"},
         {"time":8,"text":"上午好!"},
@@ -372,7 +372,7 @@
         {"time":13,"text":"下午好鸭!"},
         {"time":16,"text":"傍晚咯!"},
         {"time":19,"text":"晚安!"}
-      ];
+      ];  */}}
 
       var noRili = false;
       var updateSongInfoHandler = -1;
@@ -584,16 +584,16 @@
 
         // 时间判断和问候语
         night = true;
-        var greeting = "凌晨啦!";
-        phoneText.forEach((v) => {
+      //  var greeting = "凌晨啦!";
+        {{/*  phoneText.forEach((v) => {
           if (time.getHours() >= v.time) greeting = v.text;
-        });
+        });  */}}
 
         if (time.getHours() >= 6 && time.getHours() <= 18) night = false;
         night = debug ? !night : night;
 
         // 手机问候语 - 字体预设置
-        ctx.save();
+        {{/*  ctx.save();
         ctx.fillStyle = "#000";
         ctx.font = "31.02pt SimHei"; // 只在需要时设置
         ctx.transform(1.0911, -35 * (Math.PI / 180), 0, 0.5868, 1132.94, 564.07);
@@ -601,11 +601,11 @@
         ctx.textAlign = "center";
         ctx.fillStyle = "#fff";
         ctx.fillText(greeting, 135, 100);
-        ctx.restore();
+        ctx.restore();  */}}
 
         // 恢复默认字体设置
-        ctx.font = "32pt Impact";
-        ctx.textAlign = "start";
+        {{/*  ctx.font = "32pt Impact";
+        ctx.textAlign = "start";  */}}
 
         // 最终绘制到显示画布
         displayCtx.drawImage(cvs, 0, 0, display.width, display.height);

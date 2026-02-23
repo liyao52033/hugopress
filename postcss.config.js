@@ -118,7 +118,7 @@ const purgecss = require('@fullhuman/postcss-purgecss').default({
             /^focus:/,
             /^active:/,
             /^disabled:/,
-            // /aria-expanded/
+            /aria-expanded/
         ],
     },
     blocklist: [
