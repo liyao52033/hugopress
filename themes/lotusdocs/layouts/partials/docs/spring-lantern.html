@@ -1,21 +1,36 @@
 <script>
-    window.addEventListener('load', function () {
-    
-      if(window.innerWidth < 992) {
+    (function() {
+      // 防止重复生成灯笼
+      if (document.querySelector('.deng-box')) {
         return;
       }
+
+      function initLantern() {
+        // 检查 tyme 是否已加载
+        if (!window.tymeExports || !window.tymeExports.LunarDay) {
+          return false;
+        }
+
+        // 检查灯笼是否已存在
+        if (document.querySelector('.deng-box')) {
+          return true;
+        }
+
+        if(window.innerWidth < 992) {
+          return true;
+        }
     
-      const today = new Date();
-      const year = today.getFullYear();
+        const today = new Date();
+        const year = today.getFullYear();
     
-      const solarDay = window.tymeExports.LunarDay.fromYmd(year, 1, 1).getSolarDay();
-      const spring = new Date(solarDay.getYear(), solarDay.getMonth() - 1, solarDay.getDay());
-    
-      const start = new Date(spring.getTime() - 7 * 86400000);
-      const end   = new Date(spring.getTime() + 7 * 86400000);
-    
-      const inRange = today >= start && today <= end;
-      if (!inRange) return;
+        const solarDay = window.tymeExports.LunarDay.fromYmd(year, 1, 1).getSolarDay();
+        const spring = new Date(solarDay.getYear(), solarDay.getMonth() - 1, solarDay.getDay());
+
+        const start = new Date(spring.getTime() - 7 * 86400000);
+        const end   = new Date(spring.getTime() + 7 * 86400000);
+
+        const inRange = today >= start && today <= end;
+        if (!inRange) return true;
     
       const mei = `<div class="meiha"></div>`;
     
@@ -240,5 +255,17 @@
           }
         });
       });
-    });
+        return true;
+      }
+
+      // 监听第三方库加载完成事件
+      window.addEventListener('thirdPartyLoaded', function() {
+        initLantern();
+      }, { once: true });
+
+      // 备用：window load 时尝试初始化
+      window.addEventListener('load', function() {
+        initLantern();
+      }, { once: true });
+    })();
     </script>

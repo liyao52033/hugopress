@@ -99,8 +99,21 @@ ignoreLogs = ['warning-goldmark-raw-html']
     keywords = ["前端开发", "Vue3", "SpringBoot", "技术博客", "编程教程", "嵌入式开发", "Hugo", "TypeScript"]
     
     # 字体配置 - 选择一种配置启用，其他保持注释状态
+    # 说明：
+    # - 本地字体：Inter, Fira Code（已下载到本地，支持预加载）
+    # - 中文字体：使用系统字体栈，无需下载
+    # - Google Fonts：如需使用，取消下方 google_fonts 注释
 
-    # 选项1：完整中文优化字体配置
+    # 选项1：Inter + Fira Code（英文优化，推荐）
+    # sans_serif_font = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Ubuntu', sans-serif"
+    # secondary_font = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Ubuntu', sans-serif"
+    # mono_font = "'Fira Code', 'JetBrains Mono', 'Source Code Pro', 'Consolas', 'Monaco', 'Courier New', monospace"
+    # google_fonts = [
+    #   ["Inter", "300, 400, 600, 700"],
+    #   ["Fira Code", "500, 700"]
+    # ]
+
+    # 选项2：完整中文优化字体配置（使用系统字体）
     # secondary_font = "'Noto Sans SC', 'Source Han Sans SC', 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif"
     # sans_serif_font = "'Noto Sans SC', 'Source Han Sans SC', 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif"
     # mono_font = "'JetBrains Mono', 'Fira Code', 'Source Code Pro', 'Consolas', 'Monaco', 'Courier New', monospace"

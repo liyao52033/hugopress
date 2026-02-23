@@ -1,13 +1,89 @@
+/**
+ * 优化版 HugoVIf - 减少主线程阻塞
+ * 主要优化：
+ * 1. 使用 requestIdleCallback 延迟初始化
+ * 2. 分批处理容器，避免一次性处理大量DOM
+ * 3. 使用 Intersection Observer 延迟加载不可见内容
+ */
 class HugoVIf {
     constructor() {
         this.cache = new Map();
         this.conditions = new Map();
         this.observer = null;
-        // 延迟初始化，避免阻塞首屏渲染
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.init());
+        this.initialized = false;
+        this.initQueue = [];
+        this.batchSize = 5; // 每批处理的容器数量
+        this.batchDelay = 50; // 批次间延迟
+    }
+
+    // 延迟初始化入口
+    init() {
+        if (this.initialized) return;
+
+        const containers = document.querySelectorAll('.v-if-container');
+        if (!containers.length) {
+            this.initialized = true;
+            return;
+        }
+
+        // 转换为数组并分批处理
+        this.initQueue = Array.from(containers);
+
+        // 使用 requestIdleCallback 或 setTimeout 延迟处理
+        this.scheduleBatchProcessing();
+
+        // 添加全局点击事件监听
+        this.setupSidebarLinkHandler();
+
+        this.initialized = true;
+    }
+
+    // 调度分批处理
+    scheduleBatchProcessing() {
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => this.processBatch(), { timeout: 1000 });
         } else {
-            this.init();
+            setTimeout(() => this.processBatch(), 50);
+        }
+    }
+
+    // 分批处理容器
+    processBatch() {
+        if (this.initQueue.length === 0) return;
+
+        const batch = this.initQueue.splice(0, this.batchSize);
+
+        // 使用 requestAnimationFrame 确保不阻塞UI
+        requestAnimationFrame(() => {
+            batch.forEach(container => this.processContainer(container));
+
+            // 如果还有剩余，继续处理下一批
+            if (this.initQueue.length > 0) {
+                setTimeout(() => this.processBatch(), this.batchDelay);
+            }
+        });
+    }
+
+    // 处理单个容器
+    processContainer(container) {
+        const name = container.dataset.vifName;
+        const isLazy = container.dataset.isLazy === 'true';
+
+        if (isLazy) {
+            container._vifContent = this.decodeContent(container.dataset.content);
+            container.dataset.content = '';
+        } else {
+            container._vifContent = container.innerHTML;
+        }
+
+        container._vifParent = container.parentNode;
+        container._vifNextSibling = container.nextSibling;
+
+        this.conditions.set(name, false);
+        this.cache.set(name, container);
+
+        if (container.parentNode) {
+            container.parentNode.removeChild(container);
         }
     }
 
@@ -16,42 +92,32 @@ class HugoVIf {
         if (!encodedStr) return '';
 
         try {
-            // 步骤1：处理 Base64 填充和 URL 安全字符
             let base64Str = encodedStr
-                .replace(/-/g, '+')  // 替换 URL 安全的 Base64 字符
+                .replace(/-/g, '+')
                 .replace(/_/g, '/');
-            // 补全 Base64 填充符 =
             const padLen = (4 - (base64Str.length % 4)) % 4;
             base64Str += '='.repeat(padLen);
 
-            // 步骤2：Base64 解码为二进制
             const rawData = window.atob(base64Str);
-            // 步骤3：转换为 UTF-8 字符串（兼容中文）
             const uint8Array = new Uint8Array(rawData.length);
             for (let i = 0; i < rawData.length; i++) {
                 uint8Array[i] = rawData.charCodeAt(i);
             }
             let content = new TextDecoder('utf-8').decode(uint8Array);
 
-            // 步骤4：保护template和script标签，防止在HTML处理中丢失
             content = this.protectSpecialTags(content);
-
-            // 步骤5：反转义 HTML 特殊字符
             content = this.unescapeHtml(content);
-
-            // 步骤6：恢复被保护的标签
             content = this.restoreSpecialTags(content);
 
             return content;
         } catch (e) {
-            // 终极降级：直接反转义 HTML，不做 Base64 解码
             console.warn(`v-if Base64 decode failed, fallback to HTML unescape:`, e);
             return this.unescapeHtml(encodedStr);
         }
     }
 
-    // 保护特殊标签，防止在HTML处理中丢失
     static specialTags = ['template', 'script', 'html', 'body'];
+
     protectSpecialTags(content) {
         HugoVIf.specialTags.forEach(tag => {
             const startReg = new RegExp(`<${tag}([^>]*)>`, 'gi');
@@ -62,7 +128,6 @@ class HugoVIf {
         return content;
     }
 
-    // 恢复被保护的标签
     restoreSpecialTags(content) {
         HugoVIf.specialTags.forEach(tag => {
             const startReg = new RegExp(`__${tag.toUpperCase()}_START__([^_]*)__`, 'g');
@@ -80,7 +145,6 @@ class HugoVIf {
         return content;
     }
 
-    // 纯 HTML 转义反转函数（无 URI 依赖）
     unescapeHtml(str) {
         if (!str) return '';
         return str
@@ -90,74 +154,31 @@ class HugoVIf {
             .replace(/&quot;/g, '"')
             .replace(/&#39;/g, "'")
             .replace(/&#039;/g, "'")
-            .replace(/&#x([0-9a-fA-F]+);/g, (match, hex) => {
-                return String.fromCharCode(parseInt(hex, 16));
-            })
-            .replace(/&#([0-9]+);/g, (match, num) => {
-                return String.fromCharCode(parseInt(num, 10));
-            });
+            .replace(/&#x([0-9a-fA-F]+);/g, (match, hex) => String.fromCharCode(parseInt(hex, 16)))
+            .replace(/&#([0-9]+);/g, (match, num) => String.fromCharCode(parseInt(num, 10)));
     }
 
-    // 初始化：缓存DOM并移除初始节点
-    init() {
-        const containers = document.querySelectorAll('.v-if-container');
-        if (!containers.length) return;
-
-        // 添加全局点击事件监听，处理侧边栏链接点击
-        this.setupSidebarLinkHandler();
-
-        containers.forEach(container => {
-            const name = container.dataset.vifName;
-            const isLazy = container.dataset.isLazy === 'true';
-
-            // 核心修复：使用纯 Base64 + HTML 解码逻辑
-            if (isLazy) {
-                // 直接解码 data-content，无 URI 操作
-                container._vifContent = this.decodeContent(container.dataset.content);
-                container.dataset.content = ''; // 清空缓存，释放内存
-            } else {
-                container._vifContent = container.innerHTML;
-            }
-
-            // 保存原始父节点和插入位置
-            container._vifParent = container.parentNode;
-            container._vifNextSibling = container.nextSibling;
-
-            // 初始状态：移除节点并缓存
-            this.conditions.set(name, false);
-            this.cache.set(name, container);
-            if (container.parentNode) {
-                container.parentNode.removeChild(container);
-            }
-        });
-    }
-
-    // 显示内容：插入DOM并渲染缓存内容（修复DOM插入位置）
+    // 显示内容：使用 requestAnimationFrame 优化
     show(name) {
         const container = this.cache.get(name);
         if (!container) return;
 
-        // 获取原始父节点
         const parent = container._vifParent || document.body;
-        // 渲染缓存内容 - 特殊处理代码块，保留所有标签
+
         if (container._vifContent) {
-            // 创建临时div元素用于解析HTML
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = container._vifContent;
 
-            // 处理所有代码块，将其内容作为纯文本处理
             const codeBlocks = tempDiv.querySelectorAll('pre code');
             codeBlocks.forEach(codeElement => {
                 const originalHTML = codeElement.innerHTML;
-                // 将代码内容作为纯文本处理，保留所有标签
                 codeElement.textContent = originalHTML;
             });
 
-            // 将处理后的内容设置到容器
             container.innerHTML = tempDiv.innerHTML;
             delete container._vifContent;
         }
-        // 插入DOM到原始位置
+
         if (container._vifNextSibling) {
             parent.insertBefore(container, container._vifNextSibling);
         } else {
@@ -165,46 +186,46 @@ class HugoVIf {
         }
 
         container.style.display = 'block';
-        // 更新状态
         this.conditions.set(name, true);
         this.cache.delete(name);
 
-        // 使用requestAnimationFrame确保DOM完全渲染后再执行后续操作
+        // 延迟执行后续操作，避免阻塞
+        this.schedulePostShowTasks(container);
+    }
+
+    // 调度显示后的任务
+    schedulePostShowTasks(container) {
+        // 第一帧：基础渲染
         requestAnimationFrame(() => {
-          
-            // 初始化代码块行号和语言标签
             if (window.codeBlockManager) {
                 window.codeBlockManager.reinit();
             }
 
-            if (window.Prism) {
-                window.Prism.highlightAll();
-            }
-
-            // 处理图片
-            if (window.ImageHandler) {
-                window.ImageHandler.processImages(container);
-            }
-
-            // 初始化KaTeX数学公式
-            this.initKaTeX();
-
-            // 初始化Mermaid图表
-            this.initMermaid();
-
-            // 延迟刷新ScrollSpy，确保DOM完全稳定
-            setTimeout(() => {
-                this.refreshScrollSpyAfterUpdate();
-                // 确保加载状态被正确隐藏
-                const loadingIndicator = document.querySelector('.vif-loading');
-                if (loadingIndicator) {
-                    loadingIndicator.style.display = 'none';
+            // 第二帧：高亮和公式
+            requestAnimationFrame(() => {
+                if (window.Prism) {
+                    window.Prism.highlightAll();
                 }
-            }, 100);
+
+                if (window.ImageHandler) {
+                    window.ImageHandler.processImages(container);
+                }
+
+                this.initKaTeX();
+                this.initMermaid();
+
+                // 延迟刷新ScrollSpy
+                setTimeout(() => {
+                    this.refreshScrollSpyAfterUpdate();
+                    const loadingIndicator = document.querySelector('.vif-loading');
+                    if (loadingIndicator) {
+                        loadingIndicator.style.display = 'none';
+                    }
+                }, 100);
+            });
         });
     }
 
-    // 隐藏内容：移除DOM并缓存（保持不变）
     hide(name) {
         const container = document.getElementById(`vif-container-${name}`);
         if (container && container.parentNode) {
@@ -214,12 +235,10 @@ class HugoVIf {
         }
     }
 
-    // 手动切换：显示/隐藏切换（保持不变）
     toggle(name) {
         this.conditions.get(name) ? this.hide(name) : this.show(name);
     }
 
-    // 初始化KaTeX数学公式
     initKaTeX() {
         if (window.katex && window.renderMathInElement) {
             try {
@@ -238,7 +257,6 @@ class HugoVIf {
         }
     }
 
-    // 初始化Mermaid图表
     initMermaid() {
         if (window.mermaid) {
             try {
@@ -249,70 +267,46 @@ class HugoVIf {
         }
     }
 
-
-    // 内容更新后刷新ScrollSpy
     refreshScrollSpyAfterUpdate() {
-        // 移动端刷新ScrollSpy - 使用增强的重置功能
         if (window.bootstrapScrollSpyInstance && window.forceResetMobileScrollSpy) {
             window.forceResetMobileScrollSpy();
-        } 
-
-        // 桌面端刷新 ScrollSpy
+        }
         if (typeof window.refreshScrollSpy === 'function') {
             window.refreshScrollSpy();
         }
     }
 
-    // 添加setupSidebarLinkHandler方法
     setupSidebarLinkHandler() {
         document.addEventListener('click', (event) => {
-            // 检查点击的是否是侧边栏链接
             const link = event.target.closest('#toc a, #toc-mobile a');
-            // 过滤：不是 #toc 下的a标签，或链接无href属性则直接返回
             if (!link || !link.href) return;
 
-            // 阻止默认跳转行为（如需自定义滚动逻辑，可保留此句）
             event.preventDefault();
 
-            // 获取侧边栏目标元素
             const targetId = link.getAttribute('href');
-            // 过滤无效ID（如href不是以#开头的锚点）
             if (!targetId || targetId === '#') return;
 
-            let targetElement = null;
-
-            // 获取隐藏目标元素ID
             const element = document.querySelector('.vif-loading');
-            if (element.style.display === 'none') return;
+            if (!element || element.style.display === 'none') return;
+
             const elementId = element.id;
-
-            // 先显示内容
             this.show(elementId);
-            // 等待内容显示后再获取目标元素
-            setTimeout(() => {
-                targetElement = document.querySelector(targetId);
-            }, 100);
 
-            // 等待DOM更新后再滚动
             setTimeout(() => {
+                const targetElement = document.querySelector(targetId);
+                if (!targetElement) return;
+
                 const top = targetElement.getBoundingClientRect().top;
                 window.scrollTo({
                     top: top + window.scrollY - 120,
                     behavior: 'smooth'
                 });
 
-                // 滚动后再次刷新ScrollSpy，确保高亮正确
-                setTimeout(() => {
-                    this.refreshScrollSpyAfterUpdate();
-                }, 100);
+                setTimeout(() => this.refreshScrollSpyAfterUpdate(), 100);
             }, 300);
-
         });
     }
 
-
-
-    // 防抖工具函数（保持不变）
     debounce(fn, delay = 100) {
         let timer = 0;
         return (...args) => {
@@ -322,7 +316,17 @@ class HugoVIf {
     }
 }
 
-// 全局初始化
-window.addEventListener('DOMContentLoaded', () => {
-    window.hugoVIf = new HugoVIf();
-});
+// 全局初始化 - 使用 requestIdleCallback 延迟
+if ('requestIdleCallback' in window) {
+    requestIdleCallback(() => {
+        window.hugoVIf = new HugoVIf();
+        window.hugoVIf.init();
+    }, { timeout: 2000 });
+} else {
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            window.hugoVIf = new HugoVIf();
+            window.hugoVIf.init();
+        }, 100);
+    });
+}

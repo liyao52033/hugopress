@@ -68,7 +68,7 @@
     {{ $opts := dict
     "sourceMap" $sourceMap
     "minify" hugo.IsProduction
-    "target" "es2018"
+    "target" "esnext"
     "params" $params
     "treeShaking" true
     }}
@@ -92,7 +92,7 @@
         {{ $imagecompare := resources.Get "js/image-compare-viewer.min.js" }}
         {{ $params := dict }}
         {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
-        {{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params "treeShaking" true }}
+        {{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "esnext" "params" $params "treeShaking" true }}
         {{ $imagecompare = $imagecompare | js.Build $opts }}
         {{- if not hugo.IsServer }}
             {{- $js := (slice $imagecompare) | resources.Concat "/js/image-compare.js" | minify | fingerprint "sha384" }}

@@ -1,14 +1,29 @@
 <div class="index-bigimg" style="display: none"></div>
 
+{{/*  使用 responsive-image partial 处理本地 logo 图片  */}}
+{{ $logo := partial "responsive-image.html" (dict "src" "images/logo.png" "breakpoints" (dict "200" "200x" "400" "400x") "quality" 80 "format" "webp") }}
+
 <div class="banner-conent">
   <header class="hero">
-    {{/*  {{ $logo := (resources.Get "images/logo.png").Filter (images.Process "format webp q70") }}  */}}
-    {{/*  <img src="{{ $logo.RelPermalink }}" alt="logo" style="width: 200px;">  */}}
-    {{ $dest := .Site.Params.blogger.avatar }}
-    <link rel="preload" href="{{ $dest }}?w=400" as="image" type="image/avif" fetchpriority="high">
-    <img src="{{ $dest }}?w=400" width="200" height="200"
-      srcset="{{ $dest }}?w=400 400w," 
-      sizes="100vw" alt="logo" style="width: 200px;" fetchpriority="high">
+    {{ if $logo.isLocal }}
+      <link rel="preload" href="{{ $logo.src }}" as="image" type="image/webp" fetchpriority="high">
+      <img src="{{ $logo.src }}" 
+           width="200" 
+           height="200"
+           {{ if $logo.srcset }}srcset="{{ $logo.srcset }}"{{ end }}
+           sizes="200px" 
+           alt="logo" 
+           style="width: 200px;" 
+           fetchpriority="high"
+           decoding="sync">
+    {{ else }}
+      {{/*  降级：如果本地图片不存在，使用配置中的远程头像  */}}
+      {{ $dest := .Site.Params.blogger.avatar }}
+      <link rel="preload" href="{{ $dest }}?w=400" as="image" type="image/avif" fetchpriority="high">
+      <img src="{{ $dest }}?w=400" width="200" height="200"
+        srcset="{{ $dest }}?w=400 400w," 
+        sizes="100vw" alt="logo" style="width: 200px;" fetchpriority="high">
+    {{ end }}
     <h2 id="main-title">{{.Site.Title}}</h2> 
     <p class="description"><span>{{.Site.Params.indexImg.desc}}</span><span class="typed"></span></p> 
   </header> 

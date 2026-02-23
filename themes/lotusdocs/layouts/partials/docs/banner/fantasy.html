@@ -5,16 +5,16 @@
     <canvas id="display"></canvas>
 </div>
 
-  {{/* Hugo 资源管道处理图片 */}}
-  {{ $bg := (resources.Get "images/fantasy/bg.png").Filter (images.Process "format webp q70") }}
-  {{ $mask := (resources.Get "images/fantasy/mask.png").Filter (images.Process "format webp q70") }}
-  {{ $light := (resources.Get "images/fantasy/light.png").Filter (images.Process "format webp q70") }}
-  {{ $caidai := (resources.Get "images/fantasy/caidai.png").Filter (images.Process "format webp q70") }}
-  {{ $two := (resources.Get "images/fantasy/22.png").Filter (images.Process "format webp q70") }}
-  {{ $screen := (resources.Get "images/fantasy/screen.png").Filter (images.Process "format webp q70") }}
-  {{ $screenLight := (resources.Get "images/fantasy/screenLight.png").Filter (images.Process "format webp q70") }}
-  {{ $phoneLight := (resources.Get "images/fantasy/phoneLight.png").Filter (images.Process "format webp q70") }}
-  {{ $screenMask := (resources.Get "images/fantasy/Screenmask.png").Filter (images.Process "format webp q70") }}
+  {{/* 使用 responsive-image partial 处理图片 */}}
+  {{ $bg := partial "responsive-image.html" (dict "src" "images/fantasy/bg.png" "quality" 70 "format" "webp") }}
+  {{ $mask := partial "responsive-image.html" (dict "src" "images/fantasy/mask.png" "quality" 70 "format" "webp") }}
+  {{ $light := partial "responsive-image.html" (dict "src" "images/fantasy/light.png" "quality" 70 "format" "webp") }}
+  {{ $caidai := partial "responsive-image.html" (dict "src" "images/fantasy/caidai.png" "quality" 70 "format" "webp") }}
+  {{ $two := partial "responsive-image.html" (dict "src" "images/fantasy/22.png" "quality" 70 "format" "webp") }}
+  {{ $screen := partial "responsive-image.html" (dict "src" "images/fantasy/screen.png" "quality" 70 "format" "webp") }}
+  {{ $screenLight := partial "responsive-image.html" (dict "src" "images/fantasy/screenLight.png" "quality" 70 "format" "webp") }}
+  {{ $phoneLight := partial "responsive-image.html" (dict "src" "images/fantasy/phoneLight.png" "quality" 70 "format" "webp") }}
+  {{ $screenMask := partial "responsive-image.html" (dict "src" "images/fantasy/Screenmask.png" "quality" 70 "format" "webp") }}
 
   <style>
   .fantasy {
@@ -45,15 +45,15 @@
   <script>
   // 定义图片路径变量（从Hugo资源管道传入）
   const imagePaths = {
-    bg: "{{ $bg.RelPermalink }}",
-    mask: "{{ $mask.RelPermalink }}",
-    light: "{{ $light.RelPermalink }}",
-    caidai: "{{ $caidai.RelPermalink }}",
-    two: "{{ $two.RelPermalink }}",
-    screen: "{{ $screen.RelPermalink }}",
-    screenLight: "{{ $screenLight.RelPermalink }}",
-    phoneLight: "{{ $phoneLight.RelPermalink }}",
-    screenMask: "{{ $screenMask.RelPermalink }}"
+    bg: "{{ $bg.src }}",
+    mask: "{{ $mask.src }}",
+    light: "{{ $light.src }}",
+    caidai: "{{ $caidai.src }}",
+    two: "{{ $two.src }}",
+    screen: "{{ $screen.src }}",
+    screenLight: "{{ $screenLight.src }}",
+    phoneLight: "{{ $phoneLight.src }}",
+    screenMask: "{{ $screenMask.src }}"
   };
 
   // 等待DOM加载完成后执行
@@ -124,7 +124,12 @@
       var audioSampleCount = 32; // 从128降到32，减少计算量
 
       // 预设置字体缓存，避免在render中重复设置
-      ctx.font = "32pt Impact";
+      // 字体大小会根据缩放比例动态调整
+      function setScaledFont() {
+        var scaledSize = Math.max(16, Math.round(32 * scaleRatio));
+        ctx.font = scaledSize + "pt Impact";
+      }
+      setScaledFont();
 
       // 绘制日历
       function drawRili() {
@@ -330,11 +335,12 @@
         }
       }, 14);
 
-      // 屏幕大小自适应
+      // 屏幕大小自适应（使用实际图片比例）
       window.onresize = function () {
         display.width = window.innerWidth;
-        if (window.innerWidth / window.innerHeight > 1.8333333333333) {
-          display.height = (window.innerWidth / 1980) * 1080;
+        var aspectRatio = bgOriginalHeight / bgOriginalWidth;
+        if (window.innerWidth / window.innerHeight > aspectRatio) {
+          display.height = window.innerWidth * aspectRatio;
         } else {
           display.height = window.innerHeight;
         }
@@ -445,20 +451,55 @@
       var night = false;
       var debug = false;
 
+      // ========== 自适应缩放相关变量 ==========
+      var scaleRatio = 1;
+      var bgOriginalWidth = 1980;
+      var bgOriginalHeight = 1080;
+      var isScaleReady = false;
+
+      // 计算缩放比例（基于背景图片实际尺寸）
+      function calculateScaleRatio() {
+        if (bg.complete && bg.naturalWidth > 0) {
+          bgOriginalWidth = bg.naturalWidth;
+          bgOriginalHeight = bg.naturalHeight;
+          // 使用宽度比例作为基准（保持与原始设计一致）
+          scaleRatio = bgOriginalWidth / 1980;
+          isScaleReady = true;
+
+          // 更新 canvas 尺寸以匹配图片
+          cvs.width = bgOriginalWidth;
+          cvs.height = bgOriginalHeight;
+
+          // 重新创建预渲染 canvas
+          if (staticBgCanvas) {
+            staticBgCanvas.width = bgOriginalWidth;
+            staticBgCanvas.height = bgOriginalHeight;
+          }
+        }
+      }
+
+      // 坐标转换函数：将原始坐标（基于1980x1080）转换为实际坐标
+      function x(origX) { return origX * scaleRatio; }
+      function y(origY) { return origY * scaleRatio; }
+
       // 预渲染静态背景
       function prerenderStaticBg() {
+        if (!isScaleReady) {
+          calculateScaleRatio();
+        }
+
         if (!staticBgCtx) {
           staticBgCanvas = document.createElement('canvas');
-          staticBgCanvas.width = 1980;
-          staticBgCanvas.height = 1080;
+          staticBgCanvas.width = bgOriginalWidth;
+          staticBgCanvas.height = bgOriginalHeight;
           staticBgCtx = staticBgCanvas.getContext('2d', { alpha: false });
         }
 
-        // 绘制静态元素
+        // 绘制静态元素（使用缩放后的坐标）
         if (bg.complete) staticBgCtx.drawImage(bg, 0, 0);
-        if (mask.complete) staticBgCtx.drawImage(mask, 954, 99);
-        if (caidai.complete) staticBgCtx.drawImage(caidai, 949, 25);
-        if (two.complete) staticBgCtx.drawImage(two, 1319, 345);
+        if (mask.complete) staticBgCtx.drawImage(mask, x(954), y(99));
+        if (caidai.complete) staticBgCtx.drawImage(caidai, x(949), y(25));
+        if (two.complete) staticBgCtx.drawImage(two, x(1319), y(345));
 
         isStaticBgReady = true;
       }
@@ -479,26 +520,34 @@
         currentColor.b += (targetColor.b - currentColor.b) * 0.01;
         currentColor.b = min(max(currentColor.b, 0), 255);
 
-        // 清空画布
-        ctx.clearRect(0, 0, 1980, 1080);
+        // 确保缩放比例已计算
+        if (!isScaleReady) {
+          calculateScaleRatio();
+        }
+
+        // 清空画布（使用实际尺寸）
+        ctx.clearRect(0, 0, bgOriginalWidth, bgOriginalHeight);
 
         // 使用预渲染的静态背景或降级绘制
         if (isStaticBgReady) {
           ctx.drawImage(staticBgCanvas, 0, 0);
         } else {
           ctx.drawImage(bg, 0, 0);
-          ctx.drawImage(mask, 954, 99);
-          ctx.drawImage(caidai, 949, 25);
-          ctx.drawImage(two, 1319, 345);
+          ctx.drawImage(mask, x(954), y(99));
+          ctx.drawImage(caidai, x(949), y(25));
+          ctx.drawImage(two, x(1319), y(345));
           // 尝试预渲染
           if (bg.complete && mask.complete && caidai.complete && two.complete) {
             prerenderStaticBg();
           }
         }
 
-        // 绘制时间 - 字体已在初始化时设置
+        // 绘制时间 - 字体根据缩放比例动态调整
         ctx.save();
         ctx.fillStyle = "#97adbb";
+        // 动态调整字体大小
+        var scaledFontSize = Math.max(16, Math.round(32 * scaleRatio));
+        ctx.font = scaledFontSize + "pt Impact";
         ctx.transform(1, 2.05 * (Math.PI / 180), 0, 1, 0, 0);
 
         var time = new Date();
@@ -506,54 +555,55 @@
                       (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" +
                       (time.getSeconds() < 10 ? "0" : "") + time.getSeconds().toString();
 
-        ctx.fillText(timeStr, 725, 318);
+        // 使用缩放后的坐标绘制时钟
+        ctx.fillText(timeStr, x(725), y(318));
         ctx.restore();
 
-        // 日历本
+        // 日历本（使用缩放后的坐标）
         ctx.save();
-        ctx.transform(0.9645, 0, 0, 0.96, 967, 100);
+        ctx.transform(0.9645, 0, 0, 0.96, x(967), y(100));
         ctx.rotate(6 * (Math.PI / 180));
 
         if (!noRili) {
           ctx.drawImage(rili, 0, 0);
           ctx.restore();
           ctx.save();
-          ctx.transform(0.9645, 0, 9 * (Math.PI / 180), 1, 825, 160);
+          ctx.transform(0.9645, 0, 9 * (Math.PI / 180), 1, x(825), y(160));
           ctx.rotate(7 * (Math.PI / 180));
         }
 
         targetColor = { r: 80, g: 120, b: 169 };
         if (night) targetColor = { r: 255, g: 75, b: 80 };
 
-        // 绘制分隔线
+        // 绘制分隔线（使用缩放后的坐标）
         if (!noRili) {
           ctx.fillStyle = "rgba(0,0,0,0.5)";
-          ctx.fillRect(-10, 320, 650, 2);
+          ctx.fillRect(x(-10), y(320), x(650), y(2));
         }
 
-        // 音频可视化条 - 优化：只绘制32条
+        // 音频可视化条 - 优化：只绘制32条（使用缩放后的坐标）
         ctx.fillStyle = "rgb(" + currentColor.r + "," + currentColor.g + "," + currentColor.b + ")";
 
-        var barSpacing = noRili ? 7.5 : 10;
-        var startX = noRili ? 40 : 10;
-        var baseY = noRili ? 30 : 20;
-        var maxHeight = 300;
+        var barSpacing = noRili ? x(7.5) : x(10);
+        var startX = noRili ? x(40) : x(10);
+        var baseY = noRili ? y(30) : y(20);
+        var maxHeight = y(300);
 
         for (var i = 0; i < audioSampleCount; i++) {
           var height = maxHeight * animData[i];
           ctx.fillRect(
             startX + barSpacing * i,
             baseY + (maxHeight - height),
-            4,
+            x(4),
             height
           );
         }
 
         ctx.restore();
 
-        // 光照效果
+        // 光照效果（使用缩放后的坐标）
         ctx.globalCompositeOperation = "overlay";
-        ctx.drawImage(light, 971, 197);
+        ctx.drawImage(light, x(971), y(197));
         ctx.globalCompositeOperation = "source-over";
 
         // 夜间光照
@@ -566,11 +616,11 @@
         if (lightColor.a > 0) {
           ctx.globalCompositeOperation = "hard-light";
           ctx.fillStyle = "rgba(" + lightColor.r + "," + lightColor.g + "," + lightColor.b + "," + lightColor.a + ")";
-          ctx.fillRect(0, 0, 1980, 1080);
+          ctx.fillRect(0, 0, bgOriginalWidth, bgOriginalHeight);
           ctx.globalCompositeOperation = "source-over";
 
           ctx.globalAlpha = lightColor.a / 0.7;
-          ctx.drawImage(phoneLight, 860, 437);
+          ctx.drawImage(phoneLight, x(860), y(437));
           ctx.globalAlpha = 1;
         }
 

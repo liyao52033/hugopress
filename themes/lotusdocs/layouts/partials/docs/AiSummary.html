@@ -59,33 +59,90 @@
   const FIRST_CHAR_PAUSE = 300;
   const SSE_ERROR_DELAY = 300;
 
+  const PUNCTUATION_PAUSE = 150;
+  const SENTENCE_END_PAUSE = 300;
+  const PARAGRAPH_PAUSE = 500;
+
+  const PUNCTUATION_CHARS = '，、；：';
+  const SENTENCE_END_CHARS = '。！？';
+
+  function getDelayForChar(char) {
+    if (!char) return TYPE_DELAY;
+    if (PUNCTUATION_CHARS.includes(char)) return PUNCTUATION_PAUSE;
+    if (SENTENCE_END_CHARS.includes(char)) return SENTENCE_END_PAUSE;
+    if (char === '\n') return PARAGRAPH_PAUSE;
+    return TYPE_DELAY;
+  }
+
   function updateProgress() {
     const len = summary.length;
     progress = Math.max(progress, Math.min(95, Math.floor(95 * (1 - Math.exp(-len / 800)))));
     progressBar.style.width = progress + "%";
   }
 
-  async function consumeLoop() {
-    if (typing) return;
+  function consumeLoop() {
+    if (typing) return Promise.resolve();
     typing = true;
 
-    // 关键1：开始打字前，主动显示光标
-    caretEl.style.display = "inline-block";
+    return new Promise((resolve) => {
+      caretEl.style.display = "inline-block";
 
-    while (buffer.length > 0) {
-        const chunk = buffer.shift();
-        for (let i = 0; i < chunk.length; i++) {
-        if (i === 0) await new Promise(r => setTimeout(r, FIRST_CHAR_PAUSE));
-        summary += chunk[i];
-        contentEl.innerHTML = summary;
-        updateProgress();
-        await new Promise(r => setTimeout(r, TYPE_DELAY));
+      let lastTypeTime = 0;
+      let firstCharTyped = false;
+      let currentChunk = "";
+      let chunkIndex = 0;
+      let pendingDelay = 0;
+
+      function typeFrame(timestamp) {
+        if (!firstCharTyped) {
+          if (timestamp < FIRST_CHAR_PAUSE) {
+            requestAnimationFrame(typeFrame);
+            return;
+          }
+          firstCharTyped = true;
+          lastTypeTime = timestamp;
         }
-    }
 
-    typing = false;
-    finish();
-}
+        const elapsed = timestamp - lastTypeTime - pendingDelay;
+        
+        if (elapsed < TYPE_DELAY) {
+          requestAnimationFrame(typeFrame);
+          return;
+        }
+
+        if (currentChunk.length === 0) {
+          if (buffer.length === 0) {
+            typing = false;
+            resolve();
+            return;
+          }
+          currentChunk = buffer.shift();
+          chunkIndex = 0;
+        }
+
+        if (chunkIndex < currentChunk.length) {
+          const char = currentChunk[chunkIndex];
+          summary += char;
+          chunkIndex++;
+
+          pendingDelay = getDelayForChar(char) - TYPE_DELAY;
+
+          contentEl.innerHTML = summary;
+          updateProgress();
+          lastTypeTime = timestamp;
+        }
+
+        if (chunkIndex >= currentChunk.length) {
+          currentChunk = "";
+          chunkIndex = 0;
+        }
+
+        requestAnimationFrame(typeFrame);
+      }
+
+      requestAnimationFrame(typeFrame);
+    });
+  }
 
   function resetState() {
     summary = "";

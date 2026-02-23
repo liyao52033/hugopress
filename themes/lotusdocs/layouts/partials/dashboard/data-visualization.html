@@ -133,7 +133,7 @@
 {{ $echartsJs := resources.Get "js/echarts-home.js" }}
 {{ $params := dict }}
 {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
-{{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params "treeShaking" true
+{{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "esnext" "params" $params "treeShaking" true
 }}
 {{ $echartsJs = $echartsJs | js.Build $opts }}
 {{ if hugo.IsProduction }}

@@ -2,27 +2,32 @@
 {{ $bgImages := site.Params.indexImg.bodyBgImg | default slice }}
 {{/*  背景图切换间隔（秒）  */}}
 {{ $bgInterval := site.Params.indexImg.bodyBgImgInterval | default 600 }}
-{{/*  背景图是否开启响应式  */}}
-{{ $enableResponsive := site.Params.indexImg.bodyBgImgResponsive | default true }}
+{{/*  响应式图片断点配置  */}}
+{{ $breakpoints := dict "480" "480x" "800" "800x" "1200" "1200x" "1920" "1920x" }}
 
+{{/*  处理图片：使用 responsive-image partial 生成多尺寸版本  */}}
 {{ $processedImages := slice }}
 {{ range $bgImages }}
-    {{ $imgUrl := . }}
-    {{ if not (hasPrefix . "http") }}
-        {{/*  尝试从 assets 目录获取（资源管道处理）  */}}
-        {{ $resource := (resources.Get .).Filter (images.Process "format webp q70") }}
-        {{ if $resource }}
-            {{ $imgUrl = $resource.RelPermalink }}
-        {{ else }}
-            {{/*  static 目录的文件直接使用原路径  */}}
-            {{ $imgUrl = . | relURL }}
-        {{ end }}
-    {{ end }}
-    {{ $processedImages = $processedImages | append $imgUrl }}
+    {{ $imgData := partial "responsive-image.html" (dict "src" . "breakpoints" $breakpoints "quality" 70 "format" "webp") }}
+    {{ $processedImages = $processedImages | append $imgData }}
 {{ end }}
 
 {{ if gt (len $processedImages) 0 }}
-<div id="body-bg-container" class="body-bg-container"></div>
+{{/*  使用 img 标签替代 background-image，支持 fetchpriority 和更好的性能控制  */}}
+<div id="body-bg-container" class="body-bg-container">
+    {{ range $index, $imgData := $processedImages }}
+        <img class="body-bg-img{{ if eq $index 0 }} active{{ end }}"
+             src="{{ $imgData.src }}"
+             {{ if $imgData.srcset }}srcset="{{ $imgData.srcset }}"{{ end }}
+             sizes="100vw"
+             alt=""
+             fetchpriority="{{ if eq $index 0 }}high{{ else }}low{{ end }}"
+             decoding="{{ if eq $index 0 }}sync{{ else }}async{{ end }}"
+             loading="{{ if eq $index 0 }}eager{{ else }}lazy{{ end }}"
+             data-index="{{ $index }}"
+             aria-hidden="true">
+    {{ end }}
+</div>
 
 <style>
     .body-bg-container {
@@ -36,10 +41,24 @@
         min-height: 100vh;
         z-index: -9;
         pointer-events: none;
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        transition: background-image 1s ease-in-out;
+        overflow: hidden;
+    }
+
+    .body-bg-img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+        will-change: opacity;
+    }
+
+    .body-bg-img.active {
+        opacity: 1;
     }
 
     body, .page-content, .sidebar  {
@@ -71,7 +90,7 @@
             background: transparent !important;
         }
     }
-    
+
 
     .docs-content, .docs-toc {
         background: rgba(255, 255, 255, 0.9) !important;
@@ -120,122 +139,63 @@
 </style>
 
 <script>
-    (function() {
-        const bgImages = JSON.parse('{{ $processedImages | jsonify | safeJS }}');
-        const bgInterval = '{{ $bgInterval }}';
-        const enableResponsive = '{{ $enableResponsive }}';
+    // 使用 requestIdleCallback 推迟非关键脚本执行，避免阻塞 LCP
+    const initBodyBg = () => {
+        const bgImages = document.querySelectorAll('.body-bg-img');
+        const bgInterval = parseInt('{{ $bgInterval }}') || 600;
+
+        // 单张图片时无需切换逻辑
+        if (bgImages.length <= 1) return;
+
         const STORAGE_KEY = 'bodyBgCurrentIndex';
         const LAST_CHANGE_KEY = 'bodyBgLastChange';
-        const container = document.getElementById('body-bg-container');
 
-        if (!container) {
-            console.error('[BodyBg] Container element not found!');
-            return;
+        let currentIndex = 0;
+
+        // 尝试从 localStorage 恢复状态
+        try {
+            const savedIndex = parseInt(localStorage.getItem(STORAGE_KEY));
+            const lastChangeTime = parseInt(localStorage.getItem(LAST_CHANGE_KEY)) || Date.now();
+            const elapsedSeconds = Math.floor((Date.now() - lastChangeTime) / 1000);
+
+            if (!isNaN(savedIndex) && elapsedSeconds > 0) {
+                const intervalsPassed = Math.floor(elapsedSeconds / bgInterval);
+                currentIndex = (savedIndex + intervalsPassed) % bgImages.length;
+            }
+        } catch (e) {
+            // localStorage 不可用
         }
 
-        if (!Array.isArray(bgImages) || bgImages.length === 0) {
-            console.error('[BodyBg] No background images configured');
-            return;
+        // 切换到计算出的图片
+        if (currentIndex !== 0 && bgImages[currentIndex]) {
+            bgImages.forEach(img => img.classList.remove('active'));
+            bgImages[currentIndex].classList.add('active');
         }
 
-        // 从 localStorage 读取当前索引，没有则默认为 0
-        let currentIndex = parseInt(localStorage.getItem(STORAGE_KEY)) || 0;
-        // 确保索引在有效范围内
-        currentIndex = currentIndex % bgImages.length;
-
-        // 获取上次切换时间
-        const lastChangeTime = parseInt(localStorage.getItem(LAST_CHANGE_KEY)) || Date.now();
-        const now = Date.now();
-        const elapsedSeconds = Math.floor((now - lastChangeTime) / 1000);
-
-        // 根据经过的时间计算当前应该显示的图片索引
-        if (bgImages.length > 1 && elapsedSeconds > 0) {
-            const intervalsPassed = Math.floor(elapsedSeconds / bgInterval);
-            currentIndex = (currentIndex + intervalsPassed) % bgImages.length;
-        }
-
-        // 立即设置当前背景图
-        const currentImage = bgImages[currentIndex];
-        container.style.backgroundImage = 'url("' + currentImage + '")';
-
-        // 保存当前状态
-        localStorage.setItem(STORAGE_KEY, currentIndex);
-        localStorage.setItem(LAST_CHANGE_KEY, Date.now());
-
-        // 预加载所有图片
-        function preloadImages() {
-            bgImages.forEach((url, index) => {
-                if (index === currentIndex) return; // 当前显示的图片已经加载
-                const img = new Image();
-                img.src = url;
-            });
-        }
-
-        // 切换背景图
-        function switchBg() {
-            if (bgImages.length <= 1) return;
-
-            currentIndex = (currentIndex + 1) % bgImages.length;
-            const nextImage = bgImages[currentIndex];
-            container.style.backgroundImage = 'url("' + nextImage + '")';
-
-            // 保存当前索引和切换时间
+        // 保存状态
+        try {
             localStorage.setItem(STORAGE_KEY, currentIndex);
             localStorage.setItem(LAST_CHANGE_KEY, Date.now());
-        }
+        } catch (e) {}
 
-        // 响应式背景尺寸
-        function setupResponsive() {
-            if (!enableResponsive) return;
+        // 定时切换
+        setInterval(() => {
+            bgImages[currentIndex].classList.remove('active');
+            currentIndex = (currentIndex + 1) % bgImages.length;
+            bgImages[currentIndex].classList.add('active');
+            try {
+                localStorage.setItem(STORAGE_KEY, currentIndex);
+                localStorage.setItem(LAST_CHANGE_KEY, Date.now());
+            } catch (e) {}
+        }, bgInterval * 1000);
+    };
 
-            const updateBackgroundSize = () => {
-                const width = window.innerWidth;
-                if (width < 768) {
-                    container.style.backgroundSize = 'cover';
-                } else if (width < 1200) {
-                    container.style.backgroundSize = 'cover';
-                } else {
-                    container.style.backgroundSize = 'cover';
-                }
-            };
-
-            const debounce = (func, wait) => {
-                let timeout;
-                return function executedFunction(...args) {
-                    const later = () => {
-                        clearTimeout(timeout);
-                        func(...args);
-                    };
-                    clearTimeout(timeout);
-                    timeout = setTimeout(later, wait);
-                };
-            };
-
-            window.addEventListener('resize', debounce(updateBackgroundSize, 250));
-            updateBackgroundSize();
-        }
-
-        // 初始化
-        function init() {
-            // 预加载其他图片
-            if (bgImages.length > 1) {
-                preloadImages();
-
-                // 设置定时切换
-                setInterval(switchBg, bgInterval * 1000);
-            }
-
-            // 设置响应式
-            if (enableResponsive) {
-                setupResponsive();
-            }
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    })();
+    // 推迟到浏览器空闲时执行，确保不阻塞关键渲染路径
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(initBodyBg, { timeout: 2000 });
+    } else {
+        // 降级方案：使用 setTimeout 推迟执行
+        setTimeout(initBodyBg, 100);
+    }
 </script>
 {{ end }}

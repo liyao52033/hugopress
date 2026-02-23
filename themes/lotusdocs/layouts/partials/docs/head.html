@@ -44,6 +44,9 @@
         <link rel="alternate" type="application/atom+xml" title="Atom feed for {{ . }}" href="/index.xml" />
     {{- end }}
 
+    <!-- 预加载本地字体文件 -->
+    {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "preload") . }}
+
     <!-- Google Fonts -->
     {{- partialCached "google-fonts" . }}
     <!-- Font Variables -->
@@ -71,6 +74,9 @@
     {{- if hugo.IsProduction }}
         {{- $bundle = $bundle | minify | fingerprint "sha384" }}
     {{- end -}}
+    
+    <link rel="preload" href="{{ $bundle.RelPermalink }}" as="style" {{ if hugo.IsProduction }}integrity="{{ $bundle.Data.Integrity }}" {{ end -}}
+    crossorigin>  <!-- 预加载：告诉浏览器提前下载 -->
     <link rel="stylesheet" href="{{ $bundle.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $bundle.Data.Integrity }}" {{ end -}} crossorigin="anonymous">
 
     <!-- Katex CSS -->
@@ -92,15 +98,16 @@
         {{ $katexAutoRender := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/auto-render.js") }}
         {{ $params := dict }}
         {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
-        {{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "es2018" "params" $params "treeShaking" true }}
+        {{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "esnext" "params" $params "treeShaking" true }}
         {{ $katex = $katex | js.Build $opts }}
         {{ $katexAutoRender = $katexAutoRender | js.Build $opts }}
         {{ if hugo.IsProduction }}
             {{ $katex = $katex | fingerprint "sha384" }}
             {{ $katexAutoRender = $katexAutoRender | fingerprint "sha384" }}
         {{- end -}}
-        <script src="{{ $katex.RelPermalink }}" blocking="render" {{ if hugo.IsProduction }}integrity="{{ $katex.Data.Integrity }}" {{ end -}} defer></script>
-        <script src="{{ $katexAutoRender.RelPermalink }}" blocking="render" {{ if hugo.IsProduction }}integrity="{{ $katexAutoRender.Data.Integrity }}" {{ end -}} defer></script>
+        <!-- Katex JS - 延迟加载，不阻塞渲染 -->
+        <script src="{{ $katex.RelPermalink }}" async {{ if hugo.IsProduction }}integrity="{{ $katex.Data.Integrity }}" {{ end -}}></script>
+        <script src="{{ $katexAutoRender.RelPermalink }}" async {{ if hugo.IsProduction }}integrity="{{ $katexAutoRender.Data.Integrity }}" {{ end -}}></script>
     {{ end -}}
     <!-- Katex Config -->
     {{ if .Params.katex }}

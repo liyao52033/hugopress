@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "node scripts/add-frontmatter.js && hugo server --disableFastRender -D -F",
     "server:prod": "bash start.sh",
-    "build": "hugo -D -F",
+    "build": "hugo --gc --minify",
     "build:prod": "bash build.sh",
-    "clean": "hugo --cleanDestinationDir && hugo build --gc && hugo --gc && rm -rf resources dist .edgeone",
+    "clean": "rm -rf resources dist .edgeone",
     "proxy": "node scripts/proxy.js",
     "deploy": "yarn run clean && edgeone pages deploy -n vuepress-vdoing"
   },

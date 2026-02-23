@@ -48,13 +48,13 @@
 
 {{ $basicJs := $slice | resources.Concat "navbar.js" -}}
 
-{{/* 统一构建配置 - 优化目标为 ES2018 以支持现代浏览器特性 */}}
+{{/* 统一构建配置 - 优化目标为 esnext 以减少 polyfills */}}
 {{ $params := dict }}
 {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
 {{ $opts := dict
   "sourceMap" $sourceMap
   "minify" hugo.IsProduction
-  "target" "es2018"
+  "target" "esnext"
   "params" $params
 }}
 

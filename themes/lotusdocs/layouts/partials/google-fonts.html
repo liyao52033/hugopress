@@ -1,14 +1,19 @@
+{{/* 本地托管的 Google Fonts 预加载和加载 */}}
 {{ if .Site.Params.google_fonts }}
-{{ $fonts := slice }}
+
+{{/* 预加载本地字体文件 - 在 CSS 加载前开始下载 */}}
 {{ range .Site.Params.google_fonts }}
-{{ $family := replace (index (.) 0) " " "+" }}
-{{ $weights := replace (index (.) 1) " " "" }}
-{{ $string := print $family ":" $weights }}
-{{ $fonts = $fonts | append $string }}
+{{ $family := index (.) 0 }}
+{{ $weights := split (index (.) 1) "," }}
+{{ range $weights }}
+{{ $weight := trim . " " }}
+{{ $font_slug := lower (replace $family " " "-") }}
+<link rel="preload" as="font" href="{{ printf "/docs/fonts/%s-latin-%s.woff2" $font_slug $weight | absURL }}" type="font/woff2" crossorigin>
 {{ end }}
-{{ $url_part := (delimit $fonts "|") | safeHTMLAttr }}
-<link rel="preconnect" href="https://fonts.gstatic.com/" />
-<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family={{ $url_part }}&display=swap" as="font" type="font/woff2" crossorigin="anonymous" />
-{{ else}}
+{{ end }}
+
+{{/* 异步加载本地字体 CSS - 使用 media="print" 技巧 */}}
+<link rel="preload" href="{{ "/docs/fonts/fonts.css" | absURL }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="{{ "/docs/fonts/fonts.css" | absURL }}"></noscript>
+
 {{ end }}

@@ -4,7 +4,7 @@
     (function () {
       function initTwikoo() {
         try {
-          if (document.getElementById('tcomment')) {
+          if (document.getElementById('tcomment') && window.twikoo) {
             twikoo.init({
               el: '#tcomment',
               envId: '{{ .Site.Params.twikoo.envId }}',
@@ -17,15 +17,15 @@
         }
         return false;
       }
+
+      // 监听第三方库加载完成事件
+      window.addEventListener('thirdPartyLoaded', function() {
+        initTwikoo();
+      }, { once: true });
   
-      // 优先在 DOMContentLoaded 时初始化
+      // 备用：DOMContentLoaded 时尝试初始化（如果库已加载）
       window.addEventListener('DOMContentLoaded', function () {
-        if (!initTwikoo()) {
-          // 若此时未就绪，等到完整加载后再尝试一次
-          window.addEventListener('load', function () {
-            initTwikoo();
-          }, { once: true });
-        }
+        initTwikoo();
       }, { once: true });
     })();
   </script>
