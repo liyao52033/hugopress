@@ -40,6 +40,20 @@
   .banner-conent {
     margin-top: 15vh !important;
   }
+
+  @media screen and (max-width: 768px) {
+    .fantasy {
+      /* 移除背景图，避免与canvas重复 */
+      background: none;
+    }
+    /* 确保canvas在移动端填满整个高度 */
+    #display {
+      width: 100% !important;
+      height: 100vh !important;
+      object-fit: cover;
+    }
+  }
+
   </style>
 
   <script>
@@ -335,18 +349,62 @@
         }
       }, 14);
 
+      // ========== 自适应缩放相关变量（移到前面） ==========
+      var scaleRatio = 1;
+      var bgOriginalWidth = 1980;
+      var bgOriginalHeight = 1080;
+      var isScaleReady = false;
+
       // 屏幕大小自适应（使用实际图片比例）
-      window.onresize = function () {
-        display.width = window.innerWidth;
+      var resizeTimeout;
+      var lastWidth = window.innerWidth;
+      
+      // 实际的resize处理函数
+      function doResize() {
         var aspectRatio = bgOriginalHeight / bgOriginalWidth;
-        if (window.innerWidth / window.innerHeight > aspectRatio) {
-          display.height = window.innerWidth * aspectRatio;
+        var screenRatio = window.innerWidth / window.innerHeight;
+        var dpr = window.devicePixelRatio || 1;
+        
+        // 移动端优化：只根据屏幕宽度缩放，高度自适应，使用DPR提高分辨率
+        if (window.matchMedia("(max-width: 768px)").matches) {
+          // 使用DPR提高canvas分辨率，解决模糊问题
+          display.width = window.innerWidth * dpr;
+          display.height = window.innerWidth * aspectRatio * dpr;
+          // 通过CSS缩放显示为实际尺寸
+          display.style.width = window.innerWidth + 'px';
+          display.style.height = (window.innerWidth * aspectRatio) + 'px';
+          // 缩放所有绘制操作
+          ctx.scale(dpr, dpr);
         } else {
-          display.height = window.innerHeight;
+          // 桌面端保持原有逻辑
+          display.width = window.innerWidth;
+          display.style.width = '';
+          display.style.height = '';
+          if (screenRatio > aspectRatio) {
+            display.height = window.innerWidth * aspectRatio;
+          } else {
+            display.height = window.innerHeight;
+          }
         }
+      }
+      
+      window.onresize = function () {
+        // 只检测宽度变化，高度变化不处理（避免移动端地址栏显示/隐藏导致的resize）
+        var widthChanged = Math.abs(window.innerWidth - lastWidth) > 10;
+        
+        if (!widthChanged) {
+          return;
+        }
+        
+        lastWidth = window.innerWidth;
+        
+        // 防抖延迟，避免频繁重绘
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(doResize, 200);
       };
 
-      window.onresize();
+      // 立即执行一次，确保初始化正确
+      doResize();
 
       // 加载图片
       var bg = new Image();
@@ -370,7 +428,7 @@
       var phoneLight = new Image();
       phoneLight.src = imagePaths.phoneLight;
 
-      {{/*  var phoneText = [
+      var phoneText = [
         {"time":0,"text":"凌晨啦!"},
         {"time":6,"text":"早上好!"},
         {"time":8,"text":"上午好!"},
@@ -378,7 +436,7 @@
         {"time":13,"text":"下午好鸭!"},
         {"time":16,"text":"傍晚咯!"},
         {"time":19,"text":"晚安!"}
-      ];  */}}
+      ];
 
       var noRili = false;
       var updateSongInfoHandler = -1;
@@ -451,12 +509,6 @@
       var night = false;
       var debug = false;
 
-      // ========== 自适应缩放相关变量 ==========
-      var scaleRatio = 1;
-      var bgOriginalWidth = 1980;
-      var bgOriginalHeight = 1080;
-      var isScaleReady = false;
-
       // 计算缩放比例（基于背景图片实际尺寸）
       function calculateScaleRatio() {
         if (bg.complete && bg.naturalWidth > 0) {
@@ -506,6 +558,9 @@
 
       // 主渲染函数 - 已优化
       function render() {
+        // 移动端判断
+        var isMobile = window.matchMedia("(max-width: 768px)").matches;
+        
         // 优化：只处理32个采样点
         for (var i = 0; i < audioSampleCount; i++) {
           animData[i] += (data[i] - animData[i]) * 0.3;
@@ -533,78 +588,88 @@
           ctx.drawImage(staticBgCanvas, 0, 0);
         } else {
           ctx.drawImage(bg, 0, 0);
-          ctx.drawImage(mask, x(954), y(99));
-          ctx.drawImage(caidai, x(949), y(25));
-          ctx.drawImage(two, x(1319), y(345));
+          // 移动端隐藏装饰图片，只保留背景
+          if (!isMobile) {
+            ctx.drawImage(mask, x(954), y(99));
+            ctx.drawImage(caidai, x(949), y(25));
+            ctx.drawImage(two, x(1319), y(345));
+          }
           // 尝试预渲染
           if (bg.complete && mask.complete && caidai.complete && two.complete) {
             prerenderStaticBg();
           }
         }
 
-        // 绘制时间 - 字体根据缩放比例动态调整
-        ctx.save();
-        ctx.fillStyle = "#97adbb";
-        // 动态调整字体大小
-        var scaledFontSize = Math.max(16, Math.round(32 * scaleRatio));
-        ctx.font = scaledFontSize + "pt Impact";
-        ctx.transform(1, 2.05 * (Math.PI / 180), 0, 1, 0, 0);
-
+        // 获取时间字符串
         var time = new Date();
         var timeStr = (time.getHours() < 10 ? "0" : "") + time.getHours().toString() + ":" +
-                      (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" +
-                      (time.getSeconds() < 10 ? "0" : "") + time.getSeconds().toString();
+                      (time.getMinutes() < 10 ? "0" : "") + time.getMinutes();
+        // 桌面端显示秒
+        if (!isMobile) {
+          timeStr += ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds().toString();
+        }
 
-        // 使用缩放后的坐标绘制时钟
-        ctx.fillText(timeStr, x(725), y(318));
-        ctx.restore();
-
-        // 日历本（使用缩放后的坐标）
-        ctx.save();
-        ctx.transform(0.9645, 0, 0, 0.96, x(967), y(100));
-        ctx.rotate(6 * (Math.PI / 180));
-
-        if (!noRili) {
-          ctx.drawImage(rili, 0, 0);
-          ctx.restore();
+        // 桌面端：绘制时间在电视机上
+        if (!isMobile) {
           ctx.save();
-          ctx.transform(0.9645, 0, 9 * (Math.PI / 180), 1, x(825), y(160));
-          ctx.rotate(7 * (Math.PI / 180));
+          ctx.fillStyle = "#97adbb";
+          var scaledFontSize = Math.max(16, Math.round(32 * scaleRatio));
+          ctx.font = scaledFontSize + "pt Impact";
+          ctx.transform(1, 2.05 * (Math.PI / 180), 0, 1, 0, 0);
+          ctx.fillText(timeStr, x(725), y(318));
+          ctx.restore();
         }
 
-        targetColor = { r: 80, g: 120, b: 169 };
-        if (night) targetColor = { r: 255, g: 75, b: 80 };
+        // 日历本（使用缩放后的坐标）- 移动端隐藏
+        if (!isMobile) {
+          ctx.save();
+          ctx.transform(0.9645, 0, 0, 0.96, x(967), y(100));
+          ctx.rotate(6 * (Math.PI / 180));
 
-        // 绘制分隔线（使用缩放后的坐标）
-        if (!noRili) {
-          ctx.fillStyle = "rgba(0,0,0,0.5)";
-          ctx.fillRect(x(-10), y(320), x(650), y(2));
+          if (!noRili) {
+            ctx.drawImage(rili, 0, 0);
+            ctx.restore();
+            ctx.save();
+            ctx.transform(0.9645, 0, 9 * (Math.PI / 180), 1, x(825), y(160));
+            ctx.rotate(7 * (Math.PI / 180));
+          }
+
+          targetColor = { r: 80, g: 120, b: 169 };
+          if (night) targetColor = { r: 255, g: 75, b: 80 };
+
+          // 绘制分隔线（使用缩放后的坐标）
+          if (!noRili) {
+            ctx.fillStyle = "rgba(0,0,0,0.5)";
+            ctx.fillRect(x(-10), y(320), x(650), y(2));
+          }
+
+          // 音频可视化条 - 优化：只绘制32条（使用缩放后的坐标）
+          ctx.fillStyle = "rgb(" + currentColor.r + "," + currentColor.g + "," + currentColor.b + ")";
+
+          var barSpacing = noRili ? x(7.5) : x(10);
+          var startX = noRili ? x(40) : x(10);
+          var baseY = noRili ? y(30) : y(20);
+          var maxHeight = y(300);
+
+          for (var i = 0; i < audioSampleCount; i++) {
+            var height = maxHeight * animData[i];
+            ctx.fillRect(
+              startX + barSpacing * i,
+              baseY + (maxHeight - height),
+              x(4),
+              height
+            );
+          }
+
+          ctx.restore();
         }
 
-        // 音频可视化条 - 优化：只绘制32条（使用缩放后的坐标）
-        ctx.fillStyle = "rgb(" + currentColor.r + "," + currentColor.g + "," + currentColor.b + ")";
-
-        var barSpacing = noRili ? x(7.5) : x(10);
-        var startX = noRili ? x(40) : x(10);
-        var baseY = noRili ? y(30) : y(20);
-        var maxHeight = y(300);
-
-        for (var i = 0; i < audioSampleCount; i++) {
-          var height = maxHeight * animData[i];
-          ctx.fillRect(
-            startX + barSpacing * i,
-            baseY + (maxHeight - height),
-            x(4),
-            height
-          );
+        // 光照效果（使用缩放后的坐标）- 移动端隐藏
+        if (!isMobile) {
+          ctx.globalCompositeOperation = "overlay";
+          ctx.drawImage(light, x(971), y(197));
+          ctx.globalCompositeOperation = "source-over";
         }
-
-        ctx.restore();
-
-        // 光照效果（使用缩放后的坐标）
-        ctx.globalCompositeOperation = "overlay";
-        ctx.drawImage(light, x(971), y(197));
-        ctx.globalCompositeOperation = "source-over";
 
         // 夜间光照
         if (night && lightColor.a < 0.7) {
@@ -620,42 +685,75 @@
           ctx.globalCompositeOperation = "source-over";
 
           ctx.globalAlpha = lightColor.a / 0.7;
-          ctx.drawImage(phoneLight, x(860), y(437));
+          // 调整phoneLight位置和大小，对准背景图中的手机屏幕
+          // 放大1.2倍以覆盖整个手机屏幕
+
+          // - x 坐标增大 → 向右移动
+         // - x 坐标减小 → 向左移动
+         // - y 坐标增大 → 向下移动
+        //  - y 坐标减小 → 向上移动
+          var phoneLightScale = 1.2;
+          ctx.drawImage(phoneLight, x(840), y(430), phoneLight.width * phoneLightScale * scaleRatio, phoneLight.height * phoneLightScale * scaleRatio);
           ctx.globalAlpha = 1;
         }
 
-        // 屏幕
-        ctx.drawImage(screenImage, 0, 0);
-        if (lightColor.a > 0) {
-          ctx.globalAlpha = lightColor.a / 0.7;
-          ctx.drawImage(screenLight, 0, 0);
-          ctx.globalAlpha = 1;
+        // 屏幕 - 桌面端显示电视机图片，移动端不显示（电视机在背景图中）
+        if (!isMobile) {
+          ctx.drawImage(screenImage, 0, 0);
+          if (lightColor.a > 0) {
+            ctx.globalAlpha = lightColor.a / 0.7;
+            ctx.drawImage(screenLight, 0, 0);
+            ctx.globalAlpha = 1;
+          }
+        }
+        
+        // 移动端：在背景图的电视机上绘制时间
+        if (isMobile) {
+          ctx.save();
+          ctx.fillStyle = "#97adbb";
+          var tvFontSize = Math.max(28, Math.round(48 * scaleRatio));
+          ctx.font = tvFontSize + "pt Impact";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          // 背景图中电视机屏幕的大致位置（蓝色小电视）
+          // 根据截图调整坐标，让时间显示在电视机黑色屏幕中央
+          ctx.fillText(timeStr, x(795), y(330));
+          ctx.restore();
         }
 
         // 时间判断和问候语
         night = true;
-      //  var greeting = "凌晨啦!";
-        {{/*  phoneText.forEach((v) => {
+        var greeting = "凌晨啦!";
+        phoneText.forEach((v) => {
           if (time.getHours() >= v.time) greeting = v.text;
-        });  */}}
+        });
 
         if (time.getHours() >= 6 && time.getHours() <= 18) night = false;
         night = debug ? !night : night;
 
-        // 手机问候语 - 字体预设置
-        {{/*  ctx.save();
+        // 手机问候语 - 参照时间逻辑，使用scaleRatio缩放
+        ctx.save();
         ctx.fillStyle = "#000";
-        ctx.font = "31.02pt SimHei"; // 只在需要时设置
-        ctx.transform(1.0911, -35 * (Math.PI / 180), 0, 0.5868, 1132.94, 564.07);
+        // 动态调整字体大小，移动端更大
+        var phoneFontSize = Math.max(12, Math.round(31.02 * scaleRatio));
+        if (isMobile) {
+          phoneFontSize = Math.max(18, Math.round(50 * scaleRatio));
+        }
+        ctx.font = phoneFontSize + "pt SimHei";
+        // 使用缩放后的坐标和变换
+        ctx.transform(1.0911, -35 * (Math.PI / 180), 0, 0.5868, x(1132.94), y(564.07));
         ctx.rotate(56.5 * (Math.PI / 180));
         ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
         ctx.fillStyle = "#fff";
-        ctx.fillText(greeting, 135, 100);
-        ctx.restore();  */}}
+        // 偏移量135和80是在变换后的坐标系中，不需要再缩放
+        // 使用textBaseline: "middle"实现垂直居中
+        ctx.fillText(greeting, 135, 80);
+        ctx.restore();
 
         // 恢复默认字体设置
-        {{/*  ctx.font = "32pt Impact";
-        ctx.textAlign = "start";  */}}
+        ctx.font = "32pt Impact";
+        ctx.textAlign = "start";
 
         // 最终绘制到显示画布
         displayCtx.drawImage(cvs, 0, 0, display.width, display.height);
