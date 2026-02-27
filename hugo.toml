@@ -209,6 +209,7 @@ ignoreLogs = ['warning-goldmark-raw-html']
         navDescTrunc = 30                                  # Number of characters by which to truncate the Prev/Next descriptions
 
         listDescTrunc = 100                                 # Number of characters by which to truncate the list card description
+        homeDescTrunc = 80                                 # Number of characters by which to truncate the home card description
 
         # Link behaviour
         intLinkTooltip  = true                                # Enable a tooltip for internal links that displays info about the destination? default false         

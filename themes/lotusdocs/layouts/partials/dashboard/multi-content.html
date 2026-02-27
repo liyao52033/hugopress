@@ -30,8 +30,7 @@
         <div class="article-grid" id="article-grid-latest" style="display: none;" data-page="1" data-per-page="12"
             data-total="{{ len $sortedLatest }}">
             {{ range $index, $page := $sortedLatest }}
-            <div class="article-card" data-url="{{ $page.Permalink }}" data-page="{{ add (div $index 12) 1 }}" {{ if lt
-                $index 12 }} style="display: block;" {{ else }} style="display: none;" {{ end }}>
+            <div class="article-card" data-url="{{ $page.Permalink }}" data-page="{{ add (div $index 12) 1 }}" >
                 <div class="article-cover">
                     {{ with $page.Params.cover }}
                     {{ $coverImage := . }}
@@ -88,9 +87,11 @@
                 </h3>
                 <p class="article-excerpt">
                     {{ if $page.Description }}
-                    {{ $page.Description | truncate 120 }}
+                    {{ $page.Description | truncate (.Site.Params.docs.homeDescTrunc | default
+                        100) }}
                     {{ else }}
-                    {{ $page.Content | plainify | truncate 120 }}
+                    {{ $page.Content | plainify | (.Site.Params.docs.homeDescTrunc | default
+                        100) }}
                     {{ end }}
                 </p>
                 <div class="article-meta">
