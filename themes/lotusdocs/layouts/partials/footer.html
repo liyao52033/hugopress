@@ -204,7 +204,7 @@
         {{ with .Site.Params.footer.gongan }}
             <a href="https://beian.mps.gov.cn/" target="_blank" rel="noopener">
                 {{ $img := resources.Get "images/beian.png" }}
-                <img src="{{ $img.RelPermalink }}" style="object-fit: contain">
+                <img src="{{ $img.RelPermalink }}" style="object-fit: contain" width="20" height="20" alt="公安备案">
                 {{ . | safeHTML }}
             </a>
         {{ end }}

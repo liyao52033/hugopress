@@ -39,12 +39,12 @@
                     <img data-src="{{ $coverImage }}"
                         srcset="{{ $coverImage }} 320w, {{ $coverImage }} 640w, {{ $coverImage }} 960w"
                         sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, 960px" alt="{{ $page.Title }}"
-                        class="cover-image" loading="lazy">
+                        class="cover-image" loading="lazy" width="640" height="360">
                     {{ else }}
                     <img data-src="{{ $coverImage }}"
                         srcset="{{ $coverImage }} 320w, {{ $coverImage }} 640w, {{ $coverImage }} 960w"
                         sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, 960px" alt="{{ $page.Title }}"
-                        class="cover-image" loading="lazy">
+                        class="cover-image" loading="lazy" width="640" height="360">
                     {{ end }}
                     {{ else with $page.Params.images }}
                     {{ range first 1 (shuffle .) }}
