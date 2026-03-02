@@ -689,7 +689,7 @@ const addToGitignore = (frontmatter, filePath, removeGitCached) => {
     categories: true, // 是否根据目录结构生成分类（true 生成，false 不生成）
     ignore: ["_index.md", "index.md", "pages"], // 忽略的文件/目录（_index.md 是 Hugo 索引文件，建议忽略）
     // 权重计算配置
-    weightStep: 100, // 权重递增步长
+    weightStep: 10, // 权重递增步长
     defaultWeight: 9999, // 默认权重（当无法计算时使用）
     removeGitCached: false, // 是否移除加密文章的 Git 缓存
     enableDebugLog: false, // 是否启用调试日志

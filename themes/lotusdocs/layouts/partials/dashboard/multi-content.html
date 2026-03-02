@@ -86,12 +86,8 @@
                     <a href="{{ $page.Permalink }}">{{ $page.Title }}</a>
                 </h3>
                 <p class="article-excerpt">
-                    {{ if $page.Description }}
-                    {{ $page.Description | truncate (.Site.Params.docs.homeDescTrunc | default
-                        100) }}
-                    {{ else }}
-                    {{ $page.Content | plainify | (.Site.Params.docs.homeDescTrunc | default
-                        100) }}
+                    {{ if and $page.Description }}
+                        {{ $page.Description | truncate (.Site.Params.docs.homeDescTrunc | default 100) }}
                     {{ end }}
                 </p>
                 <div class="article-meta">

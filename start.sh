@@ -16,4 +16,4 @@ if ! command -v hugo &> /dev/null; then
   exit 1
 fi
 
-hugo server --environment production --bind 0.0.0.0 -F
+hugo server --environment production --bind 0.0.0.0 -F -D
