@@ -74,15 +74,14 @@
                 document.body.classList.remove('route-guarding');
                 document.getElementById('route-guard-mask').remove();
             } else {
-                window.location.href = '/login'
+                window.location.replace('/login')
                 localStorage.setItem('redirectUrl', window.location.href);
             }
         } catch (error) {
             // 验证失败: 跳转登录
             authCompleted = true;
-            window.history.replaceState(null, '', window.location.href);
             localStorage.setItem('redirectUrl', window.location.href);
-            setTimeout(() => window.location.href = '/login', 50);
+            setTimeout(() =>  window.location.replace('/login'), 50);
         } finally {
             isVerifying = false;
         }
@@ -142,15 +141,9 @@
         }
     }
 
-    // ========== 防回退兜底 ==========
-    function guardPopState() {
-        if (!authCompleted) beforeEachGuard();
-    }
-
     // ========== 初始化 ==========
     document.addEventListener('DOMContentLoaded', () => {
         beforeEachGuard();
-        window.addEventListener('popstate', guardPopState);
     });
     window.addEventListener('beforeunload', () => {
         window.removeEventListener('popstate', guardPopState);
