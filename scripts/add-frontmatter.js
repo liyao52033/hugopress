@@ -691,7 +691,7 @@ const addToGitignore = (frontmatter, filePath, removeGitCached) => {
     // 权重计算配置
     weightStep: 10, // 权重递增步长
     defaultWeight: 9999, // 默认权重（当无法计算时使用）
-    removeGitCached: false, // 是否移除加密文章的 Git 缓存
+    removeGitCached: true, // 是否移除加密文章的 Git 缓存
     enableDebugLog: false, // 是否启用调试日志
     // 自定义转换 frontmatter（可选，根据需求修改）
     transform: (frontmatter, fileInfo) => {
