@@ -1,6 +1,7 @@
 $:
   push:
-    - docker: docker.cnb.cool/liyao52033/images/hugo-eo:latest
+    - docker: 
+        image: docker.cnb.cool/liyao52033/images/hugo-eo:latest
       stages: 
         - name: install-dependencies
           script: |

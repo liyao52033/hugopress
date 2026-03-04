@@ -27,4 +27,5 @@ echo "分支检查通过"
 # push 到 CNB main
 git push cnb bg:main
 
+# git push origin bg
 # git push -u origin bg
