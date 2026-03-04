@@ -1,0 +1,14 @@
+$:
+  push:
+    - name: deploy-to-edgeone-pages
+      imports:  https://cnb.cool/liyao52033/envs/-/blob/main/envs.yml
+      image: tencentcom/deploy-eopages:latest
+      script: |
+        echo "Deploying to EdgeOne Pages..."
+        edgeone pages deploy -n vuepress-vdoing -t $EDGEONE_PAGES_API_TOKEN
+
+include:
+    - https://cnb.cool/liyao52033/build-template/-/blob/main/.cnb/vscode.yml
+    - https://cnb.cool/liyao52033/build-template/-/blob/main/template/codewiki.yml
+
+      
