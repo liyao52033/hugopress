@@ -8,6 +8,7 @@ $:
             echo "Installing dependencies..."
             npm install
         - name: build
+          imports: https://cnb.cool/liyao52033/envs/-/blob/main/hugo-env.yml
           image: docker.cnb.cool/liyao52033/images/debian:latest
           script: |
             echo "Building..."
