@@ -19,6 +19,14 @@ $:
           script: |
             echo "Deploying to EdgeOne Pages..."
             edgeone pages deploy ./dist -n vuepress-vdoing -t $EDGEONE_PAGES_API_TOKEN
+        - name: sync-to-github
+          image: tencentcom/git-sync
+          settings:
+            imports: https://cnb.cool/liyao52033/envs/-/blob/main/github-env.yml
+            target_url: https://github.com/liyao52033/hugopress.git
+            auth_type: https
+            username: $GIT_USERNAME   
+            password: $GIT_ACCESS_TOKEN
 
 include:
     - https://cnb.cool/liyao52033/build-template/-/blob/main/.cnb/vscode.yml
