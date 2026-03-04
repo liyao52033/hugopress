@@ -1,21 +1,21 @@
 $:
   push:
-    - name: hugo deploy
+    - docker: docker.cnb.cool/liyao52033/images/hugo-eo:latest
       stages: 
         - name: install-dependencies
-          image: docker.cnb.cool/znb/images/node:22
           script: |
             echo "Installing dependencies..."
             npm install
-        - name: build
+        - name: build with hugo
           imports: https://cnb.cool/liyao52033/envs/-/blob/main/hugo-env.yml
-          image: docker.cnb.cool/liyao52033/images/debian:latest
-          script: |
-            echo "Building..."
-            npm run build:prod
+          environment:
+            HUGO_ENVIRONMENT: production      
+          script:
+            - echo "正在运行 Hugo 构建..."
+            - npm run build
+            - echo "✅ 打包完成"
         - name: deploy-to-edgeone-pages
           imports:  https://cnb.cool/liyao52033/envs/-/blob/main/envs.yml
-          image: tencentcom/deploy-eopages:latest
           script: |
             echo "Deploying to EdgeOne Pages..."
             edgeone pages deploy ./dist -n vuepress-vdoing -t $EDGEONE_PAGES_API_TOKEN
