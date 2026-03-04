@@ -3,7 +3,7 @@ $:
     - name: hugo deploy
       stages: 
         - name: install-dependencies
-          image: node22
+          image: docker.cnb.cool/znb/images/node:22
           script: |
             echo "Installing dependencies..."
             npm install

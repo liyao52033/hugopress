@@ -14,6 +14,8 @@ if [ "$branch" != "bg" ]; then
   exit 1
 fi
 
+echo "分支检查通过"
+
 # 检查是否有改动
 # if git diff-index --quiet HEAD --; then
 #   echo "没有未提交的改动，直接 push 到 CNB main..."
