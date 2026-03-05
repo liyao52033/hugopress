@@ -2,9 +2,6 @@ main:
   push:
     - docker: 
         image: docker.cnb.cool/liyao52033/images/hugo-eo:latest
-        volumes:
-          - ./node_modules
-          - ./resources
       stages: 
         - name: install-dependencies
           script: |
@@ -21,7 +18,7 @@ main:
             export HUGO_PARAMS_DOCSEARCH_ASKAI_ASSISTANTID=$HUGO_PARAMS_DOCSEARCH_ASKAI_ASSISTANTID
             export HUGO_PARAMS_FOOTER_ICP=$HUGO_PARAMS_FOOTER_ICP
 
-            hugo -F --minify
+            yarn run build
         - name: deploy-to-edgeone-pages
           imports:  https://cnb.cool/liyao52033/envs/-/blob/main/envs.yml
           script: |
