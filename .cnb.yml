@@ -6,12 +6,13 @@ $:
         - name: install-dependencies
           script: |
             echo "Installing dependencies..."
-            pnpm install
+            npm install -g yarn
+            yarn install
         - name: build with hugo
           imports: https://cnb.cool/liyao52033/envs/-/blob/main/hugo-env.yml
           script:
             - echo "正在运行 Hugo 构建..."
-            - pnpm run build
+            - yarn run build
             - echo "✅ 打包完成"
         - name: deploy-to-edgeone-pages
           imports:  https://cnb.cool/liyao52033/envs/-/blob/main/envs.yml
