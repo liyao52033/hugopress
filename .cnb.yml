@@ -3,23 +3,24 @@ main:
     - docker: 
         image: docker.cnb.cool/liyao52033/images/hugo-eo:latest
         volumes:
-          - node_modules
-          - resources
+          - ./node_modules
+          - ./resources
       stages: 
         - name: install-dependencies
           script: |
             echo "Installing dependencies..."
             yarn install
             echo "✅ 依赖安装完成"
-        - name: optimize-hugo-modules
-          script: |
-            echo "优化Hugo模块下载..."
-            # 设置Hugo模块代理加速下载
-            export GOPROXY=https://mirrors.cloud.tencent.com/go/
-            export HUGO_DISABLE_ALTERNATIVE_RESOLVER=true
         - name: build with hugo
           imports: https://cnb.cool/liyao52033/envs/-/blob/main/hugo-env.yml
           script: |
+            export HUGO_PARAMS_DOCSEARCH_APPID=$HUGO_PARAMS_DOCSEARCH_APPID
+            export HUGO_PARAMS_DOCSEARCH_APIKEY=$HUGO_PARAMS_DOCSEARCH_APIKEY
+            export HUGO_PARAMS_DOCSEARCH_INDEXNAME=$HUGO_PARAMS_DOCSEARCH_APIKEY
+            export HUGO_PARAMS_DOCSEARCH_ASKAI_INDEXNAME=$HUGO_PARAMS_DOCSEARCH_APIKEY
+            export HUGO_PARAMS_DOCSEARCH_ASKAI_ASSISTANTID=$HUGO_PARAMS_DOCSEARCH_APIKEY
+            export HUGO_PARAMS_FOOTER_ICP=$HUGO_PARAMS_DOCSEARCH_APIKEY
+
             hugo 
         # - name: deploy-to-edgeone-pages
         #   imports:  https://cnb.cool/liyao52033/envs/-/blob/main/envs.yml
