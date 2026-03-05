@@ -6,7 +6,6 @@ $:
         - name: install-dependencies
           script: |
             echo "Installing dependencies..."
-            npm install -g yarn
             yarn install
         - name: build with hugo
           imports: https://cnb.cool/liyao52033/envs/-/blob/main/hugo-env.yml
