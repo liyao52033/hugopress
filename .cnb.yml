@@ -29,6 +29,8 @@ main:
           settings:
             target_url: https://github.com/liyao52033/hugopress.git
             branch: bg
+            git_user: ${GIT_USERNAME}
+            git_email: ${GIT_EMAIL}
             username: ${GIT_USERNAME}
             password: ${GIT_ACCESS_TOKEN}
 
