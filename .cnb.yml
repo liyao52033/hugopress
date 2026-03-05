@@ -25,8 +25,8 @@ main:
             - git checkout -b bg origin/main   # 基于 main 创建本地 bg 分支
         - name: sync-to-github
           image: tencentcom/git-sync
+          imports: https://cnb.cool/liyao52033/envs/-/blob/main/github-env.yml
           settings:
-            imports: https://cnb.cool/liyao52033/envs/-/blob/main/github-env.yml
             target_url: https://github.com/liyao52033/hugopress.git
             branch: bg
             username: ${GIT_USERNAME}
