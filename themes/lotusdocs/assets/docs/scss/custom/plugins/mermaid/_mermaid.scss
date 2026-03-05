@@ -1,41 +1,75 @@
 /* Mermaid */
 
-.docs-content .main-content pre {
+.mermaid-codeblock {
+    // 复用prism的背景色
+    background-color: var(--prism-code-bg, #212d63);
+    border-radius: 4px;
 
-    &.mermaid {
-        background-color: transparent !important;
-        text-align: center !important;
-        .messageText {
-            fill: var(--text-default) !important;
-        }
-        .messageLine0,
-        .messageLine1 {
-            stroke: var(--text-default) !important;
-        }
-        #arrowhead path,
-        #crosshead path {
-            fill: var(--text-default) !important;
-            stroke: var(--text-default) !important;
-        }
-        .edgePaths path {
-            stroke: var(--text-default) !important;
-        }
-        .marker {
-            fill: var(--text-default) !important;
-            stroke: var(--text-default) !important;
-        }
-        .grid .tick {
-            stroke: var(--text-default) !important;
+    pre {
+        &.mermaid {
+            width: 100%;
+            height: fit-content;
+            min-height: 25rem;
+            margin: 0;
+            padding: 1rem;
+            text-align: center !important;
+            background-color: var(--prism-code-bg, #212d63) !important;
+            border-radius: 0 0 4px 4px;
+
+            svg {
+                width: 100%;
+                height: 100%;
+                min-height: 25rem;
+                display: block;
+                margin: 0 auto;
+            }
+
+            .messageText {
+                fill: var(--bs-cyan) !important;
+            }
+
+            .messageLine0,
+            .messageLine1 {
+                stroke: var(--bs-cyan) !important;
+            }
+
+
+
+            #arrowhead path,
+            #crosshead path {
+                fill: var(--bs-cyan) !important;
+                stroke: var(--bs-cyan) !important;
+            }
+
+            .edgePaths path {
+                stroke: var(--bs-cyan) !important;
+            }
+
+            .marker {
+                fill: var(--bs-cyan) !important;
+                stroke: var(--bs-cyan) !important;
+            }
+
+            .grid .tick {
+                stroke: var(--bs-cyan) !important;
+
+                text {
+                    fill: var(--bs-cyan) !important;
+                }
+            }
+
+            line {
+                stroke: var(--bs-cyan) !important;
+            }
 
             text {
-                fill: var(--text-default) !important;
+                fill: var(--bs-cyan) !important;
             }
         }
-        line {
-            stroke: var(--text-default) !important;
-        }
-        text {
-            fill: var(--text-default) !important;
-        }
+    }
+
+    // mermaid标签颜色
+    .cb-language-label .cb-lang-text {
+        color: #00BCD4;
     }
 }

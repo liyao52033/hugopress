@@ -455,13 +455,16 @@ const writeFrontmatterToFile = (filePaths, option) => {
         url: createPermalink(permalinkPrefix),
         type: "docs",
         description: "",
+        license: true,
+        twikoo: true,
+        footer: false,
         cover: `https://cnb.xiaoying.org.cn?random=${createPermalink(permalinkPrefix)}`,
         weight: calculateWeight(filePath, {
           weightStep: option.weightStep || 10,
           defaultWeight: option.defaultWeight || 9999,
           enableDebugLog: option.enableDebugLog || false
         }),
-        tags: [],
+        tags: createCategory(categories, fileInfo, ignore),
         categories: createCategory(categories, fileInfo, ignore),
         author: {
           name: "华总",

@@ -1,0 +1,136 @@
+{{ $mermaid := resources.Get (printf "%s/%s" ($.Scratch.Get "pathName") "js/mermaid.min.js") }}
+{{ if hugo.IsProduction }}
+    {{ $mermaid = $mermaid | fingerprint "sha384" }}
+{{ end }}
+<script src="{{ $mermaid.RelPermalink }}" {{ if hugo.IsProduction
+    }}integrity="{{ $mermaid.Data.Integrity }}" {{ end }}></script>
+
+{{ $svgPanZoom := resources.Get (printf "%s/%s" ($.Scratch.Get "pathName") "js/svg-pan-zoom.min.js") }}
+{{ if hugo.IsProduction }}
+    {{ $svgPanZoom = $svgPanZoom | fingerprint "sha384" }}
+{{ end }}
+<script src="{{ $svgPanZoom.RelPermalink }}" {{ if hugo.IsProduction
+    }}integrity="{{ $svgPanZoom.Data.Integrity }}" {{ end }}></script>
+
+<script>
+    const config = {
+        startOnLoad: true,
+        logLevel: "error",
+        align: "center",
+        theme: "null"
+    };
+    mermaid.initialize(config);
+    
+    // 等待 mermaid 渲染完成后再初始化 svg-pan-zoom
+    function initSvgPanZoom() {
+        document.querySelectorAll('.mermaid').forEach(function(mermaidElement) {
+            var svgElement = mermaidElement.querySelector('svg');
+            if (svgElement) {
+                // 检查 SVG 元素尺寸是否有效
+                var rect = svgElement.getBoundingClientRect();
+                if (rect.width > 0 && rect.height > 0) {
+                    try {
+                        
+                        // 移除 SVG 的固定 height 属性，让CSS控制高度
+                        {{/*  if (svgElement.hasAttribute('height')) {
+                            svgElement.removeAttribute('height');
+                        }
+                        if (svgElement.hasAttribute('viewBox')) {
+                            // 保留原有的 viewBox，但确保高度自适应
+                        }  */}}
+                        
+                        // 初始化 svg-pan-zoom，启用自动适应
+                        var panZoomInstance = svgPanZoom(svgElement, {
+                            zoomEnabled: true,
+                            panEnabled: true,
+                            dblClickZoomEnabled: false, // 禁用默认的双击缩放
+                            mouseWheelZoomEnabled: true,
+                            controlIconsEnabled: false, // 不使用默认控制按钮
+                            preventMouseEventsDefault: true,
+                            zoomScaleSensitivity: 0.2,
+                            minZoom: 0.1, // 允许缩很小
+                            maxZoom: 5, // 限制最大缩放
+                            fit: true, // 启用自动适应
+                            contain: true, // 限制平移范围
+                            center: true, // 自动居中
+                            refreshRate: 'auto' // 优化性能
+                        });
+                        
+                        // 添加自定义双击事件，实现重置视图功能
+                        var lastClickTime = 0;
+                        svgElement.addEventListener('click', function(e) {
+                            var currentTime = new Date().getTime();
+                            var timeDiff = currentTime - lastClickTime;
+                            
+                            if (timeDiff < 300) { // 300ms内的点击视为双击
+                                e.preventDefault();
+                                panZoomInstance.reset(); // 重置视图
+                            }
+                            lastClickTime = currentTime;
+                        });
+                        
+                        // 延迟一点时间后调整大小
+                        setTimeout(function() {
+                            panZoomInstance.resize();
+                            panZoomInstance.fit();
+                            panZoomInstance.center();
+                        }, 100);
+                    } catch (error) {
+                        console.error('Error initializing svg-pan-zoom:', error);
+                    }
+                }
+            }
+        });
+    }
+    
+    // 初始化复制功能
+    function initMermaidCopy() {
+        document.querySelectorAll('.mermaid-copy-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                var codeBlock = btn.closest('.mermaid-codeblock');
+                
+                // 从data-mermaid-code属性中获取原始代码
+                var codeText = codeBlock.getAttribute('data-mermaid-code') || '';
+                codeText = codeText.trim();
+                
+                // 复制到剪贴板
+                navigator.clipboard.writeText(codeText).then(function() {
+                    // 复制成功，更改按钮状态
+                    btn.setAttribute('data-copy-state', 'copy-success');
+                    
+                    // 2秒后恢复原始状态
+                    setTimeout(function() {
+                        btn.setAttribute('data-copy-state', 'copy');
+                    }, 2000);
+                }).catch(function(err) {
+                    console.error('复制失败:', err);
+                    btn.setAttribute('data-copy-state', 'copy-error');
+                    
+                    setTimeout(function() {
+                        btn.setAttribute('data-copy-state', 'copy');
+                    }, 2000);
+                });
+            });
+        });
+    }
+    
+    // 当文档加载完成后初始化
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            // 延迟更长时间确保 mermaid 完全渲染完成
+            setTimeout(function() {
+                initSvgPanZoom();
+                initMermaidCopy();
+            }, 500);
+        });
+    } else {
+        // 文档已经加载完成，延迟更长时间确保 mermaid 完全渲染完成
+        setTimeout(function() {
+            initSvgPanZoom();
+            initMermaidCopy();
+        }, 500);
+    }
+</script>
