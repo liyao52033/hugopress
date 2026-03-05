@@ -9,9 +9,9 @@ main:
             yarn install
         - name: build with hugo
           imports: https://cnb.cool/liyao52033/envs/-/blob/main/hugo-env.yml
-          script:
+          script: |
             echo "正在运行 Hugo 构建..."
-            hugo --gc --minify -D -F --environment production 
+            hugo --gc --minify -D -F -e
             echo "✅ 打包完成"
         - name: deploy-to-edgeone-pages
           imports:  https://cnb.cool/liyao52033/envs/-/blob/main/envs.yml
