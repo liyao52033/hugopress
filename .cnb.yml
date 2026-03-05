@@ -3,8 +3,8 @@ main:
     - docker: 
         image: docker.cnb.cool/liyao52033/images/hugo-eo:latest
         volumes:
-          - .node_modules
-          - .resources
+          - node_modules
+          - resources
       stages: 
         - name: install-dependencies
           script: |
@@ -20,7 +20,7 @@ main:
         - name: build with hugo
           imports: https://cnb.cool/liyao52033/envs/-/blob/main/hugo-env.yml
           script: |
-            hugo --gc --minify -D -F
+            hugo 
         # - name: deploy-to-edgeone-pages
         #   imports:  https://cnb.cool/liyao52033/envs/-/blob/main/envs.yml
         #   script: |
