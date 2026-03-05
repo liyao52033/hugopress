@@ -2,6 +2,8 @@ main:
   push:
     - docker: 
         image: docker.cnb.cool/liyao52033/images/hugo-eo:latest
+        volumes:
+          - ./node_modules:copy-on-write
       stages: 
         - name: install-dependencies
           script: |
@@ -11,7 +13,7 @@ main:
           imports: https://cnb.cool/liyao52033/envs/-/blob/main/hugo-env.yml
           script: |
             echo "正在运行 Hugo 构建..."
-            hugo --gc --minify -D -F -e
+            hugo --gc --minify -D -F -e production
             echo "✅ 打包完成"
         - name: deploy-to-edgeone-pages
           imports:  https://cnb.cool/liyao52033/envs/-/blob/main/envs.yml
