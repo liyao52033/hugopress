@@ -11,6 +11,10 @@ author:
   name: 华总
   link: https://xiaoying.org.cn
 cover: https://cnb.xiaoying.org.cn?random=/pages/d210ac
+license: true
+twikoo: true
+footer: false
 ---
+
 
 

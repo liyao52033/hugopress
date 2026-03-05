@@ -14,8 +14,14 @@ icon: menu
 tags:
   - SpringBoot
 cover: https://cnb.xiaoying.org.cn?random=/pages/f3b474
-description: "本文介绍了一款用于自动生成Javadoc注释的Maven插件。该插件旨在满足发布到中央仓库的文档要求，支持Java 8和Java 17及以上版本。其核心特性包括模块化设计、灵活的配置选项（如自定义注释范围、排除特定文件等）、完善的错误处理机制以及代码复用。用户可通过配置灵活控制是否为类、方法、参数、返回值和异常等元素生成注释，并能与maven-javadoc-plugin集成使用。"
+description: >-
+  本文介绍了一款用于自动生成Javadoc注释的Maven插件。该插件旨在满足发布到中央仓库的文档要求，支持Java 8和Java
+  17及以上版本。其核心特性包括模块化设计、灵活的配置选项（如自定义注释范围、排除特定文件等）、完善的错误处理机制以及代码复用。用户可通过配置灵活控制是否为类、方法、参数、返回值和异常等元素生成注释，并能与maven-javadoc-plugin集成使用。
+license: true
+twikoo: true
+footer: false
 ---
+
 
 
 
