@@ -6,6 +6,7 @@
     "dev": "node scripts/add-frontmatter.js && hugo server --disableFastRender -D -F",
     "server:prod": "bash start.sh",
     "build": "hugo --gc --minify -D -F",
+    "build:log": "hugo --gc --minify -D -F --logLevel debug",
     "build:prod": "bash build.sh",
     "clean": "rm -rf resources dist .edgeone",
     "proxy": "node scripts/proxy.js",
