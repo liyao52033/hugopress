@@ -23,7 +23,6 @@ $:
           settings:
             imports: https://cnb.cool/liyao52033/envs/-/blob/main/github-env.yml
             target_url: https://github.com/liyao52033/hugopress.git
-            auth_type: https
             branch: bg
             username: ${GIT_USERNAME}
             password: ${GIT_ACCESS_TOKEN}
