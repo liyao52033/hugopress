@@ -1,14 +1,16 @@
-$:
+main:
   push:
     - docker: 
         image: docker.cnb.cool/liyao52033/images/hugo-eo:latest
         volumes:
           - ./node_modules:copy-on-write
+          - ./resources/_gen/assets/scss:copy-on-write
+          - ./resources/_gen/assets/css:copy-on-write
       stages: 
         - name: check-dependencies
           script: |
             echo "检查依赖状态..."
-            if [ ! -d "node_modules" ] || [ ! -f "node_modules/.install_complete" ] || [ package.json -nt node_modules/.install_complete ]; then
+            if [ ! -d "node_modules" ] || [ ! -f "node_modules/.install_complete" ] || [ package.json -nt node_modules/.install_complete ] || [ yarn.lock -nt node_modules/.install_complete ]; then
               echo "需要安装或更新依赖"
               echo "NEED_INSTALL=true" > build_status.env
             else
@@ -22,21 +24,48 @@ $:
           script: |
             echo "Installing dependencies..."
             yarn install
+            # 安装PostCSS相关依赖以解决Hugo构建问题
+            echo "Installing PostCSS and related dependencies..."
+            yarn add -D postcss postcss-cli autoprefixer cssnano
+            # 创建安装完成标记
             touch node_modules/.install_complete
             echo "✅ 依赖安装完成"
         - name: skip-install-message
           if: '[ "$STATUS" = "false" ]'
           script: |
             echo "⚡ 使用缓存的依赖，跳过安装步骤"
+        - name: ensure-postcss-available
+          if: '[ "$STATUS" = "false" ]'
+          script: |
+            echo "检查PostCSS可用性..."
+            if ! npx postcss --version > /dev/null 2>&1; then
+              echo "PostCSS未找到，正在补充安装..."
+              yarn add -D postcss postcss-cli autoprefixer
+            else
+              echo "✅ PostCSS已可用: $(npx postcss --version)"
+            fi
+        - name: optimize-hugo-modules
+          script: |
+            echo "优化Hugo模块下载..."
+            # 设置Hugo模块代理加速下载
+            export HUGO_MODULE_PROXY=https://goproxy.cn
+            export HUGO_DISABLE_ALTERNATIVE_RESOLVER=true
         - name: build with hugo
           imports: https://cnb.cool/liyao52033/envs/-/blob/main/hugo-env.yml
           script: |
+            # 设置PostCSS环境变量
+            export NODE_PATH="./node_modules"
+            export PATH="./node_modules/.bin:$PATH"
+            
+            # 验证PostCSS可用性
+            echo "验证PostCSS..."
+            npx postcss --version
             yarn run build:prod
-        - name: deploy-to-edgeone-pages
-          imports:  https://cnb.cool/liyao52033/envs/-/blob/main/envs.yml
-          script: |
-            echo "Deploying to EdgeOne Pages..."
-            edgeone pages deploy ./dist -n vuepress-vdoing -t $EDGEONE_PAGES_API_TOKEN
+        # - name: deploy-to-edgeone-pages
+        #   imports:  https://cnb.cool/liyao52033/envs/-/blob/main/envs.yml
+        #   script: |
+        #     echo "Deploying to EdgeOne Pages..."
+        #     edgeone pages deploy ./dist -n vuepress-vdoing -t $EDGEONE_PAGES_API_TOKEN
         # - name: prepare bg branch
         #   image: alpine/git
         #   commands:
