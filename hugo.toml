@@ -140,15 +140,14 @@ ignoreLogs = ['warning-goldmark-raw-html']
 
     reading_speed = 500                            # 这里设置你想要的每分钟字数，比如300字符/分钟
 
-    # algolia搜索 - 通过环境变量 HUGO_PARAMS_DOCSEARCH_APPID 等配置
-    # 不要在下面配置空字符串，否则环境变量无法正确覆盖
-    # [params.docsearch] 
-    #   appID = ""
-    #   apiKey = ""
-    #   indexName = ""
-    #   [params.docsearch.askAi]
-    #     indexName = ""
-    #     assistantId = ""
+    # algolia搜索
+    [params.docsearch] 
+      appID = ""
+      apiKey = ""
+      indexName = ""
+      [params.docsearch.askAi]
+        indexName = ""
+        assistantId = ""
 
     # 浏览器模糊搜索
     [params.flexsearch]
