@@ -99,7 +99,7 @@
                                     </div>
                                 </div>
                             </div>
-                            {{ if not (eq .Params.footer false) }}
+                            {{ if .Params.footer }}
                                  <div style="margin-bottom: 2rem;">
                                     {{- partialCached "footer.html" . -}}
                                  </div>
