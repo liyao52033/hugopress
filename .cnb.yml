@@ -3,21 +3,21 @@ main:
     - docker: 
         image: docker.cnb.cool/liyao52033/images/hugo-eo:latest
       stages: 
-        # - name: install-dependencies
-        #   script: |
-        #     echo "Installing dependencies..."
-        #     yarn install
-        # - name: build with hugo
-        #   imports: https://cnb.cool/liyao52033/envs/-/blob/main/hugo-env.yml
-        #   script:
-        #     - echo "正在运行 Hugo 构建..."
-        #     - yarn run build:prod
-        #     - echo "✅ 打包完成"
-        - name: deploy-to-edgeone-pages
-          imports:  https://cnb.cool/liyao52033/envs/-/blob/main/envs.yml
+        - name: install-dependencies
           script: |
-            echo "Deploying to EdgeOne Pages..."
-            edgeone pages deploy ./dist -n vuepress-vdoing -t $EDGEONE_PAGES_API_TOKEN
+            echo "Installing dependencies..."
+            yarn install
+        - name: build with hugo
+          imports: https://cnb.cool/liyao52033/envs/-/blob/main/hugo-env.yml
+          script:
+            echo "正在运行 Hugo 构建..."
+            hugo --gc --minify -D -F --environment production 
+            echo "✅ 打包完成"
+        # - name: deploy-to-edgeone-pages
+        #   imports:  https://cnb.cool/liyao52033/envs/-/blob/main/envs.yml
+        #   script: |
+        #     echo "Deploying to EdgeOne Pages..."
+        #     edgeone pages deploy ./dist -n vuepress-vdoing -t $EDGEONE_PAGES_API_TOKEN
         # - name: prepare bg branch
         #   image: alpine/git
         #   commands:
