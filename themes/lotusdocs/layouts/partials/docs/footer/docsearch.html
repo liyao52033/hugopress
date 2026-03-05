@@ -13,6 +13,7 @@
               assistantId: '{{ .Site.Params.docsearch.askAi.assistantId }}'
             },
           });
+          console.log('[DocSearch] 初始化成功');
           return true;
         }
       } catch (e) {
@@ -21,14 +22,32 @@
       return false;
     }
 
-    // 优先在 DOMContentLoaded 时初始化
-    window.addEventListener('DOMContentLoaded', function () {
-      if (!initDocSearch()) {
-        // 若此时未就绪，等到完整加载后再尝试一次
-        window.addEventListener('load', function () {
-          initDocSearch();
-        }, { once: true });
+    // 等待 docsearch 脚本加载完成的轮询函数
+    function waitForDocSearch(maxAttempts) {
+      maxAttempts = maxAttempts || 50; // 最多等待 5 秒 (50 * 100ms)
+      var attempts = 0;
+      
+      function check() {
+        attempts++;
+        if (initDocSearch()) {
+          return; // 初始化成功
+        }
+        if (attempts < maxAttempts) {
+          setTimeout(check, 100); // 100ms 后重试
+        } else {
+          console.warn('[DocSearch] 等待超时，未能初始化');
+        }
       }
-    }, { once: true });
+      
+      // DOM 就绪后开始检查
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', check);
+      } else {
+        check();
+      }
+    }
+
+    // 启动等待流程
+    waitForDocSearch();
   })();
 </script>
