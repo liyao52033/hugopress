@@ -17,7 +17,7 @@ main:
             export HUGO_PARAMS_DOCSEARCH_ASKAI_INDEXNAME=$HUGO_PARAMS_DOCSEARCH_ASKAI_INDEXNAME
             export HUGO_PARAMS_DOCSEARCH_ASKAI_ASSISTANTID=$HUGO_PARAMS_DOCSEARCH_ASKAI_ASSISTANTID
             export HUGO_PARAMS_FOOTER_ICP=$HUGO_PARAMS_FOOTER_ICP
-
+            node scripts/add-frontmatter.js
             yarn run build
         - name: deploy-to-edgeone-pages
           imports:  https://cnb.cool/liyao52033/envs/-/blob/main/envs.yml
