@@ -114,18 +114,6 @@
         {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "footer/katex.html") . -}}
     {{ end }}
 
-    <!-- Plausible Analytics Config -->
-    {{- if not hugo.IsServer }}
-        {{ if and (.Site.Params.plausible.scriptURL | default "https://plausible.io") (.Site.Params.plausible.dataDomain) -}}
-            {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "head/plausible") . }}
-        {{- end -}}
-    {{- end -}}
-
-    <!-- Google Analytics v4 Config -->
-    {{- if not hugo.IsServer }}
-        {{- if .Site.Config.Services.GoogleAnalytics.ID }}
-            {{- template "_internal/google_analytics.html" . -}}
-        {{- end -}}
-    {{- end -}}
+    {{ partial "plausible_head.html" . }}
 
 </head>

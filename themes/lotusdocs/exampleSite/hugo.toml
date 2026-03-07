@@ -134,7 +134,7 @@ defaultContentLanguage = 'en'
     # [params.feedback]
     #     enabled = true
     #     emoticonTpl = true
-    #     eventDest = ["plausible","google"]
+    #     eventDest = ["google"]
     #     emoticonEventName = "Feedback"
     #     positiveEventName = "Positive Feedback"
     #     negativeEventName = "Negative Feedback"

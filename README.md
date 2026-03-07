@@ -1,5 +1,7 @@
 # 快速搭好你的个人博客（Hugo + Lotus Docs）
 
+具体文档请参考[hugopress主题wiki](https://cnb.cool/liyao52033/hugopress/-/wiki/)
+
 ## 一、它能做什么
 - 开箱即用的文档站：`永久链接`、`代码块自动换行(行号自动增加)`、algolia搜索、分类页、归档页、标签页、关于页、[KaTex数学公式](https://lotusdocs.dev/docs/features/katex/)、[mermaid流程图](https://lotusdocs.dev/docs/features/mermaid/)等都已内置。
 - 写 Markdown 就能生成页面，结构清晰。

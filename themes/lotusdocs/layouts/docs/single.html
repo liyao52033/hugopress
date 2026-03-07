@@ -185,41 +185,40 @@
 
     {{ if .Page.Store.Get "hasMermaid" }}
         {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "meramid.html") . -}}
+        {{- $options := dict "enableSourceMap" true }}
+        {{- if hugo.IsProduction}}
+            {{- $options := dict "enableSourceMap" false "outputStyle" "compressed" }}
+        {{- end -}}
+        {{ $mermaidCss := resources.Get (printf "%s/%s" ($.Scratch.Get "pathName") "scss/custom/plugins/mermaid/_mermaid.scss") }}
+        {{- $mermaidCss = $mermaidCss | resources.ExecuteAsTemplate (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/custom/plugins/mermaid/_mermaid.scss") . | css.Sass $options }}
+        {{- if hugo.IsProduction }}
+            {{- $mermaidCss = $mermaidCss | minify | fingerprint "sha384" }}
+        {{- end -}}
+        <link rel="stylesheet" href="{{ $mermaidCss.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $mermaidCss.Data.Integrity }}" {{ end -}} crossorigin="anonymous">
     {{ end }}
 
 
     {{/* 文章底部声明模板 - 调整缝隙与图标 */}}
     {{ if not (eq .Params.license false) }}
-    <div class="custom-block tip article-bottom-tip d-flex flex-column"
-        style="margin-top: 4rem; padding-top: 0.5rem;">
-        <!-- 左侧图标 + 声明标题行 -->
-        <div class="d-flex align-items-center mb-2">
-            <p class="custom-block-title mb-0">声明</p>
+        <div class="custom-block tip article-bottom-tip d-flex flex-column"
+            style="margin-top: 4rem; padding-top: 0.5rem;">
+            <!-- 左侧图标 + 声明标题行 -->
+            <div class="d-flex align-items-center mb-2">
+                <p class="custom-block-title mb-0">声明</p>
+            </div>
+            <p class="mb-2"> 作者： <a href="https://xiaoying.org.cn" rel="noopener noreferrer"
+                    target="_blank">liyao</a></p>
+            <p class="mb-2"> 版权：本博客所有文章除特别声明外，均采用<a href="http://www.suncai.net/PubLicense/CCBY40.html"
+                    target="_blank">CCBY-NC-SA4.O</a>许可协议。转载请注明! </p>
+            <p class="link-row" style="margin-bottom: 0px;"> 链接： <a href="{{ .Permalink }}" class="page-url"
+                    rel="noopener noreferrer" target="_blank">{{ .Permalink }}</a></p>
         </div>
-        <p class="mb-2"> 作者： <a href="https://xiaoying.org.cn" rel="noopener noreferrer"
-                target="_blank">liyao</a></p>
-        <p class="mb-2"> 版权：本博客所有文章除特别声明外，均采用<a href="http://www.suncai.net/PubLicense/CCBY40.html"
-                target="_blank">CCBY-NC-SA4.O</a>许可协议。转载请注明! </p>
-        <p class="link-row" style="margin-bottom: 0px;"> 链接： <a href="{{ .Permalink }}" class="page-url"
-                rel="noopener noreferrer" target="_blank">{{ .Permalink }}</a></p>
-    </div>
     {{ end }}
 
 
     {{ if and .GitInfo .Site.Params.docs.repoURL -}}
         {{ partial (printf "%s/%s" ($.Scratch.Get "pathName") "gitinfo") . }}
     {{ end -}}
-
-    {{/* 文章底部版权信息 - 结束 */}}
-
-    {{/* 文章评论区 */}}
-    {{/*  {{ if .Site.Params.feedback.enabled | default false -}}
-        {{ if or (.Site.Params.plausible.dataDomain) (.Site.Config.Services.GoogleAnalytics.ID) }}
-            {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "footer/feedback.html") . -}}
-        {{ else }}
-            {{ errorf "Either Google Analytics or Plausible Analytics must be configured before enabling the Feedback Widget." }}
-        {{ end }}
-    {{ end -}}  */}}
 
     {{/* 私密文章访问控制 */}}
     {{ if .Params.private }}

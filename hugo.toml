@@ -66,6 +66,11 @@ ignoreLogs = ['warning-goldmark-raw-html']
     [[module.imports]]
         path = "github.com/gohugoio/hugo-mod-bootstrap-scss/v5"
         disable = false
+    [[module.imports]]
+        path = "github.com/divinerites/plausible-hugo"
+        disable = false
+
+
 
 # goldmark选项参考：https://gohugo.io/configuration/markup/#goldmark
 [markup]
@@ -139,6 +144,14 @@ ignoreLogs = ['warning-goldmark-raw-html']
     # mono_font       = "'Courier New', 'Consolas', monospace" 
 
     reading_speed = 500                            # 这里设置你想要的每分钟字数，比如300字符/分钟
+
+    [params.plausible]
+      enable = true
+      domain = "xiaoying.org.cn"
+      gitstar = false
+      dash_link = "https://plausible.io/share/xiaoying.org.cn?auth=XVapVCgsQoU0VWChQumjI"
+      dash_bgcolor = "transparent"
+      dash_disable = false
 
     # algolia搜索
     [params.docsearch] 

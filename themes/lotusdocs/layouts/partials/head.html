@@ -103,17 +103,5 @@
         {{- end }}
     {{- end }}  */}}
 
-    <!-- Plausible Analytics Config -->
-    {{- if not hugo.IsServer }}
-        {{ if and (.Site.Params.plausible.scriptURL) (.Site.Params.plausible.dataDomain) -}}
-        {{- partialCached "head/plausible" . }}
-        {{- end -}}
-    {{- end -}}
-
-    <!-- Google Analytics v4 Config -->
-    {{- if not hugo.IsServer }}
-        {{- if .Site.Config.Services.GoogleAnalytics.ID }}
-        {{- template "_internal/google_analytics.html" . -}}
-        {{- end -}}
-    {{- end -}}
+    {{ partial "plausible_head.html" . }}
 </head>

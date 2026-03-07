@@ -1,5 +1,5 @@
 - name: "vitepress-plugin-sidebar-permalink"
-  desc: "vitepress插件，实现自动生成 sidebar..."
+  desc: "VitePress 插件：自动生成 sidebar 侧边栏和 permalink rewrites 映射，支持数字前缀排序、collapsed 配置、permalink 匹配高亮、目录/文件名美化等。"
   tag:
     name: "vitepress"
     bg: "#e3edfa"
@@ -8,7 +8,7 @@
   Star: 1258
   Fork: 342
   View: 3876
-  github: "https://vp.xiaoying.org.cn/pages/47a27c"
+  github: "https://github.com/liyao52033/vitepress-plugin-sidebar-permalink"
 
 
 
