@@ -103,6 +103,9 @@ ignoreLogs = ['warning-goldmark-raw-html']
     author = "华总"
     keywords = ["前端开发", "Vue3", "SpringBoot", "技术博客", "编程教程", "嵌入式开发", "Hugo", "TypeScript"]
     
+    # 社交分享图片（用于 Open Graph 和 Twitter Cards）
+    images = ["https://xiaoying.org.cn/logo.png"]
+    
     # 字体配置 - 选择一种配置启用，其他保持注释状态
     # 说明：
     # - 本地字体：Inter, Fira Code（已下载到本地，支持预加载）

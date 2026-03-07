@@ -2,29 +2,44 @@
 const scrollArea = document.getElementById('content');
 const tocBtn = document.getElementById('toc-dropdown-btn');
 
-// 初始化 ScrollSpy 并挂载到 window.bootstrapScrollSpyInstance
-window.bootstrapScrollSpyInstance = new bootstrap.ScrollSpy(document.body, {
-    target: '.dropdown-menu',
-    offset: 10,
-    rootMargin: '0px 0px -25%'
-});
+// 等待 bootstrap 加载完成后初始化 ScrollSpy
+function initScrollSpy() {
+    if (window.bootstrap && window.bootstrap.ScrollSpy) {
+        // 初始化 ScrollSpy 并挂载到 window.bootstrapScrollSpyInstance
+        window.bootstrapScrollSpyInstance = new window.bootstrap.ScrollSpy(document.body, {
+            target: '.dropdown-menu',
+            offset: 10,
+            rootMargin: '0px 0px -25%'
+        });
 
-// 监听 ScrollSpy 激活事件
-scrollArea.addEventListener("activate.bs.scrollspy", function () {
-    var currentItem = document.querySelector('.dropdown-menu li > a.active');
-    if (currentItem) tocBtn.innerHTML = currentItem.innerHTML;
-});
+        // 监听 ScrollSpy 激活事件
+        if (scrollArea) {
+            scrollArea.addEventListener("activate.bs.scrollspy", function () {
+                var currentItem = document.querySelector('.dropdown-menu li > a.active');
+                if (currentItem) tocBtn.innerHTML = currentItem.innerHTML;
+            });
+        }
+    } else {
+        // 如果 bootstrap 还未加载，延迟重试
+        setTimeout(initScrollSpy, 100);
+    }
+}
+
+// 开始初始化
+initScrollSpy();
 
 // 监听下拉菜单展开/收起事件
-tocBtn.addEventListener('shown.bs.dropdown', event => {
-    tocBtn.style.borderBottom = 'none';
-    tocBtn.style.borderRadius = '4px 4px 0 0';
-});
+if (tocBtn) {
+    tocBtn.addEventListener('shown.bs.dropdown', event => {
+        tocBtn.style.borderBottom = 'none';
+        tocBtn.style.borderRadius = '4px 4px 0 0';
+    });
 
-tocBtn.addEventListener('hidden.bs.dropdown', event => {
-    tocBtn.style.borderBottom = '1px solid var(--alert-border-color)';
-    tocBtn.style.borderRadius = '4px';
-});
+    tocBtn.addEventListener('hidden.bs.dropdown', event => {
+        tocBtn.style.borderBottom = '1px solid var(--alert-border-color)';
+        tocBtn.style.borderRadius = '4px';
+    });
+}
 
 function debounce(fn, delay = 100) {
     let timer = 0;
@@ -78,10 +93,15 @@ window.forceResetMobileScrollSpy = function () {
                 document.querySelectorAll('.dropdown-menu li > a.active').forEach(a => a.classList.remove('active'));
                 // 设置新 active
                 activeLink.classList.add('active');
-                tocBtn.innerHTML = activeLink.innerHTML;
+                if (tocBtn) {
+                    tocBtn.innerHTML = activeLink.innerHTML;
+                }
             }
         };
         window.addEventListener("scroll", debounce(window.scrollHandler));
+
+        // 重新初始化 ScrollSpy
+        initScrollSpy();
 
     }, 50);
 }

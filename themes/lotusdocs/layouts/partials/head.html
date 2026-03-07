@@ -103,5 +103,14 @@
         {{- end }}
     {{- end }}  */}}
 
+    <!-- Open Graph -->
+    {{ partial "docs/head/opengraph.html" . }}
+
+    <!-- Twitter Cards -->
+    {{ partial "docs/head/twitter_cards.html" . }}
+
+    <!-- Schema.org structured data -->
+    {{ partial "docs/head/schema.html" . }}
+
     {{ partial "plausible_head.html" . }}
 </head>

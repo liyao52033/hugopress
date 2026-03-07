@@ -60,8 +60,6 @@
   </style>
 
   <script>
-  // 调试标记 - 确认代码已更新
-  console.log('[Fantasy Banner] Code updated: contain mode enabled');
   
   // 定义图片路径变量（从Hugo资源管道传入）
   const imagePaths = {
@@ -385,22 +383,16 @@
         var imgRatio = actualHeight / actualWidth;
         var screenRatio = window.innerHeight / window.innerWidth;
         
-        console.log('[Fantasy Banner] actualSize:', actualWidth, 'x', actualHeight);
-        console.log('[Fantasy Banner] imgRatio:', imgRatio, 'screenRatio:', screenRatio);
-        console.log('[Fantasy Banner] window:', window.innerWidth, 'x', window.innerHeight);
-        
         if (screenRatio > imgRatio) {
           // 屏幕比图片更高，按高度缩放，左右裁剪
           coverScale = window.innerHeight / actualHeight;
           coverOffsetX = (window.innerWidth - actualWidth * coverScale) / 2;
           coverOffsetY = 0;
-          console.log('[Fantasy Banner] Mode: cover height, scale:', coverScale, 'offsetX:', coverOffsetX);
         } else {
           // 屏幕比图片更宽，按宽度缩放，上下裁剪
           coverScale = window.innerWidth / actualWidth;
           coverOffsetX = 0;
           coverOffsetY = (window.innerHeight - actualHeight * coverScale) / 2;
-          console.log('[Fantasy Banner] Mode: cover width, scale:', coverScale, 'offsetY:', coverOffsetY);
         }
       }
       
@@ -570,7 +562,6 @@
           
           // 如果尺寸发生变化，重新计算 cover 模式
           if (oldWidth !== bgOriginalWidth || oldHeight !== bgOriginalHeight) {
-            console.log('[Fantasy Banner] Image size changed:', oldWidth, 'x', oldHeight, '→', bgOriginalWidth, 'x', bgOriginalHeight);
             calculateCover();
             doResize();
           }
@@ -822,7 +813,6 @@
           drawY *= dpr;
         }
         
-        console.log('[Fantasy Banner] Draw:', drawX, drawY, drawWidth, drawHeight);
         // 正确的 drawImage 参数顺序：(源图像, 源x, 源y, 源宽, 源高, 目标x, 目标y, 目标宽, 目标高)
         displayCtx.drawImage(cvs, 0, 0, cvs.width, cvs.height, drawX, drawY, drawWidth, drawHeight);
         displayCtx.restore();

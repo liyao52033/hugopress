@@ -17,6 +17,24 @@
             ]
         },
         {
+            "source": "/",
+            "headers": [
+                {
+                    "key": "Content-Type",
+                    "value": "text/html; charset=utf-8"
+                }
+            ]
+        },
+        {
+            "source": "/pages/*",
+            "headers": [
+                {
+                    "key": "Content-Type",
+                    "value": "text/html; charset=utf-8"
+                }
+            ]
+        },
+        {
             "source": "/images/*",
             "headers": [
                 {

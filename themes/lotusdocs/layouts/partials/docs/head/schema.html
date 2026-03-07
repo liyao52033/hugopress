@@ -1,50 +1,123 @@
 {{ if .IsPage }}
+{{/* 文章页面 Schema */}}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
-  "headline": "{{ .Title }}",
-  "description": "{{ .Description | default .Summary | plainify | truncate 160 }}",
+  "headline": {{ .Title | jsonify }},
+  "description": {{ .Description | default .Summary | plainify | truncate 160 | jsonify }},
   "author": {
     "@type": "Person",
-    "name": "{{ .Site.Params.author | default "华总" }}"
+    "name": {{ .Site.Params.author | default "华总" | jsonify }}
   },
   "datePublished": "{{ .Date.Format "2006-01-02T15:04:05-07:00" }}",
   "dateModified": "{{ .Lastmod.Format "2006-01-02T15:04:05-07:00" }}",
-  "url": "{{ .Permalink }}",
+  "url": {{ .Permalink | jsonify }},
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "{{ .Permalink }}"
+    "@id": {{ .Permalink | jsonify }}
   },
   "publisher": {
     "@type": "Organization",
-    "name": "{{ .Site.Title }}",
-    "url": "{{ .Site.BaseURL }}"
-  }
-  {{ with .Params.cover }},
+    "name": {{ .Site.Title | jsonify }},
+    "url": {{ .Site.BaseURL | jsonify }}
+  }{{ with .Params.cover }},
   "image": {
     "@type": "ImageObject",
-    "url": "{{ . | absURL }}"
+    "url": {{ . | absURL | jsonify }}
   }{{ end }}
 }
 </script>
 {{ else }}
+{{/* 网站首页 Schema */}}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "name": "{{ .Site.Title }}",
-  "description": "{{ .Site.Params.description }}",
-  "url": "{{ .Site.BaseURL }}",
+  "name": {{ .Site.Title | jsonify }},
+  "description": {{ .Site.Params.description | jsonify }},
+  "url": {{ .Site.BaseURL | jsonify }},
   "author": {
     "@type": "Person",
-    "name": "{{ .Site.Params.author | default "华总" }}"
+    "name": {{ .Site.Params.author | default "华总" | jsonify }}
   },
   "publisher": {
     "@type": "Organization",
-    "name": "{{ .Site.Title }}",
-    "url": "{{ .Site.BaseURL }}"
+    "name": {{ .Site.Title | jsonify }},
+    "url": {{ .Site.BaseURL | jsonify }}
+  },
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "{{ .Site.BaseURL }}search?q={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
   }
+}
+</script>
+{{ end }}
+
+{{/* 网站导航结构 - 帮助 Google 生成站点链接 */}}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "itemListElement": [
+    {
+      "@type": "SiteNavigationElement",
+      "position": 1,
+      "name": "首页",
+      "url": {{ .Site.BaseURL | jsonify }}
+    }{{ if .Site.Params.docsSections }},
+    {
+      "@type": "SiteNavigationElement",
+      "position": 2,
+      "name": "文档",
+      "url": "{{ .Site.BaseURL }}docs/"
+    }{{ end }}{{ if .Site.Params.blogSection }},
+    {
+      "@type": "SiteNavigationElement",
+      "position": 3,
+      "name": "博客",
+      "url": "{{ .Site.BaseURL }}blog/"
+    }{{ end }},
+    {
+      "@type": "SiteNavigationElement",
+      "position": 4,
+      "name": "关于",
+      "url": "{{ .Site.BaseURL }}about/"
+    }
+  ]
+}
+</script>
+
+{{/* 面包屑导航 Schema */}}
+{{ if not .IsHome }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "首页",
+      "item": {{ .Site.BaseURL | jsonify }}
+    }{{ if .Section }},
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": {{ .Section | humanize | jsonify }},
+      "item": "{{ .Site.BaseURL }}{{ .Section }}/"
+    }{{ if not .IsSection }},
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": {{ .Title | jsonify }},
+      "item": {{ .Permalink | jsonify }}
+    }{{ end }}{{ end }}
+  ]
 }
 </script>
 {{ end }}
