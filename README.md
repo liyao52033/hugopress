@@ -171,4 +171,19 @@ footer: false
 根据你的需求，修改上述前置选项。
 
 
+## 脚本说明
+
+```json
+"scripts": {
+    "dev": "node scripts/add-frontmatter.js && hugo server --disableFastRender -D -F",  //自动新增frontmatter并启动开发模式
+    "server:prod": "bash scripts/start.sh", // 生产模式预览
+    "build": "hugo --gc --minify -D -F", // 打包
+    "build:log": "hugo --gc --minify -D -F --logLevel debug", // 详细日志打包
+    "build:prod": "bash scripts/build.sh", // 注入环境变量再打包
+    "clean": "rm -rf resources dist .edgeone", // 清除缓存
+    "proxy": "node scripts/proxy.js", //启动代理
+    "update": "hugo mod get ./...", //更新主题
+    "deploy": "yarn run clean && edgeone pages deploy -n vuepress-vdoing" //部署到edgeone pages，文档 https://cloud.tencent.com/document/product/1552/127423
+  },
+```
 
