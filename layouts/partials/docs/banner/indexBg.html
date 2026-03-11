@@ -189,9 +189,20 @@
     text-shadow: rgba(0, 0, 0, 0.5) 1px 1px 2px;
   }
 
+  .dropdown-item1 {
+    color: #fff !important;
+  }
 
+  .dropdown-menu1 {
+    background-color: var(--bs-gray-dark) !important;
+  }
 
- 
+  .show1 {
+    background-color: var(--bs-gray-dark) !important;
+  }
+
+  
+
   @media screen and (max-width: 768px) {
     .description {
       display: none;
@@ -360,22 +371,48 @@
     const title = document.querySelector(".site-name");
     const nav = document.querySelector(".navbar-nav");
     const navLinks = document.querySelectorAll(".nav-link");
+    const dropdownItems = document.querySelectorAll(".dropdown-item");
+    const dropdownMenus = document.querySelectorAll(".dropdown-menu");
+    const showMenus = document.querySelector(".collapse");
     
     
     if (navColor == 1) {
       if (title) title.classList.remove("site-name1");
       if (nav) nav.classList.remove("navbar1");
+      if(showMenus) showMenus.classList.remove("show1");
       if(navLinks) {
         navLinks.forEach(link => {
           link.classList.remove("nav-link1");
         });
       }
+      if(dropdownItems) {
+        dropdownItems.forEach(item => {
+          item.classList.remove("dropdown-item1");
+        });
+      }
+      if(dropdownMenus) {
+        dropdownMenus.forEach(menu => {
+          menu.classList.remove("dropdown-menu1");
+        });
+      }
+
     } else if (navColor == 2) {
       if (title) title.classList.add("site-name1");
       if (nav) nav.classList.add("navbar1");
+      if(showMenus) showMenus.classList.add("show1");
       if(navLinks) {
         navLinks.forEach(link => {
           link.classList.add("nav-link1");
+        });
+      }
+      if(dropdownItems) {
+        dropdownItems.forEach(item => {
+          item.classList.add("dropdown-item1");
+        });
+      }
+      if(dropdownMenus) {
+        dropdownMenus.forEach(menu => {
+          menu.classList.add("dropdown-menu1");
         });
       }
     }
