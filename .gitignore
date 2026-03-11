@@ -9,6 +9,7 @@ builds
 package-lock.json
 public
 _vendor
+.env
 
 exampleSite/dist
 exampleSite/resources
