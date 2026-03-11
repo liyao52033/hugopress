@@ -58,7 +58,7 @@ ignoreLogs = ['warning-goldmark-raw-html']
 
 [module]
     [[module.imports]]
-        path = "cnb.cool/liyao52033/hugopress"
+        path = "cnb.cool/liyao52033/hugopress/v2"
         version = "v2.0.0"
         disable = false
     [[module.imports]]
