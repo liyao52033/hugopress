@@ -1,12 +1,12 @@
-## 入门指南
 
-### 要求
+
+## 要求
 
 - [Hugo **扩展**版（最低版本：0.150.0）](https://gohugo.io/getting-started/installing/)
 - [git](https://git-scm.com/downloads)
 - [Go 1.25](https://go.dev/doc/install)
 
-### 安装hugo
+## 安装hugo
 
 #### windows
 
@@ -43,7 +43,33 @@ centos
 yum install hugo-extended -y
 ```
 
-### 安装选项
+## 初始化项目
+
+安装 Hugo 后，使用`hugo new`命令创建一个新的 Hugo 项目：
+
+```shell
+hugo new site my-docs-site && cd my-docs-site
+```
+
+现在使用`hugo mod init`命令将您的项目初始化为 Hugo 模块：
+
+```none
+hugo mod init my-docs-site
+```
+
+**注意**：如果您的站点已经有 git 存储库，您可以使用站点 git 存储库的路径来初始化您的站点，例如`hugo mod init github.com/<user>/<my-docs-site>/`。
+
+现在，您可以从以下选项中选择将 Lotus Docs 主题添加到新站点的首选方法：
+
+## 安装依赖
+
+```sh
+yarn install
+```
+
+## 初始化项目
+
+## 安装选项
 
 主题可通过以下方法之一安装：
 
@@ -90,14 +116,14 @@ enableEmoji = true
 
 从你的项目根节点执行以下 `git` 命令：
 
-```
+```sh
 git init
 git submodule add https://cnb.cool/liyao52033/hugopress themes/hugopress
 ```
 
 编辑 `hugo.toml` 配置文件：
 
-```
+```toml
 baseURL = 'http://example.org/'
 languageCode = 'en-us'
 title = 'My New Hugo Site'
@@ -131,13 +157,13 @@ enableEmoji = true
 
 有些情况下，你可能更愿意自己定制和维护主题。在这种情况下，可以用`git`来克隆主题到 `themes/hugopress` 目录中：
 
-```
+```sh
 git clone https://cnb.cool/liyao52033/hugopress themes/hugopress
 ```
 
 编辑 `hugo.toml` 配置文件：
 
-```
+```toml
 baseURL = 'http://example.org/'
 languageCode = 'en-us'
 title = 'My New Hugo Site'
@@ -164,7 +190,7 @@ yarn run dev
 
 这会自动创建fromtmatter并在本地预览您的网站，默认如下，也可以自动修改`scripts/add-frontmatter.js`
 
-```
+```markdown
 ---
 title: "Example Page"
 tags:

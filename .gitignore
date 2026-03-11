@@ -15,7 +15,5 @@ yarn.lock
 .hugo_build.lock
 public
 resources
-static/js/dist
-static/js/theme
 _vendor
 hugo_stats.json
