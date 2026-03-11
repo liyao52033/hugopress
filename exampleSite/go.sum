@@ -1,0 +1,8 @@
+cnb.cool/liyao52033/hugopress/v2 v2.0.1 h1:5V+yHEf8540TDeME9Y2WOsPvTJqroPGnmVxig+sASEk=
+cnb.cool/liyao52033/hugopress/v2 v2.0.1/go.mod h1:lfmbRxLMboTi8VyF2sgh5nvBdYHdT7H7UscmqL/1ID8=
+github.com/divinerites/plausible-hugo v1.22.0 h1:2pZheSaIMc+EtwcEeZv0ioU2qBOEZa1Ii7IaR/9II9k=
+github.com/divinerites/plausible-hugo v1.22.0/go.mod h1:cxr+YB3FUwbLon8KCs4pV4Ankbkq6lJxTQUpNb5KqPo=
+github.com/gohugoio/hugo-mod-bootstrap-scss/v5 v5.20300.20800 h1:j5myhhzYwIHTr5ctK96Elfgp5uRROvrlTzYwwe1nF8o=
+github.com/gohugoio/hugo-mod-bootstrap-scss/v5 v5.20300.20800/go.mod h1:P5GGyhdxi00C5zW7vkRo/IS532gZY/YS2TS395Xaxho=
+github.com/gohugoio/hugo-mod-jslibs-dist/popperjs/v2 v2.21100.20000/go.mod h1:mFberT6ZtcchrsDtfvJM7aAH2bDKLdOnruUHl0hlapI=
+github.com/twbs/bootstrap v5.3.8+incompatible/go.mod h1:fZTSrkpSf0/HkL0IIJzvVspTt1r9zuf7XlZau8kpcY0=

@@ -1,10 +1,10 @@
-
-
 ## 要求
 
 - [Hugo **扩展**版（最低版本：0.150.0）](https://gohugo.io/getting-started/installing/)
-- [git](https://git-scm.com/downloads)
-- [Go 1.25](https://go.dev/doc/install)
+- [git](https://git-scm.com/install/windows)
+- [Go 1.25 ](https://go.dev/dl/)
+
+   根据以上地址下载安装`git`和`go`
 
 ## 安装hugo
 
@@ -45,29 +45,21 @@ yum install hugo-extended -y
 
 ## 初始化项目
 
-安装 Hugo 后，使用`hugo new`命令创建一个新的 Hugo 项目：
-
-```shell
-hugo new site my-docs-site && cd my-docs-site
-```
-
-现在使用`hugo mod init`命令将您的项目初始化为 Hugo 模块：
-
-```none
-hugo mod init my-docs-site
-```
-
-**注意**：如果您的站点已经有 git 存储库，您可以使用站点 git 存储库的路径来初始化您的站点，例如`hugo mod init github.com/<user>/<my-docs-site>/`。
-
-现在，您可以从以下选项中选择将 Lotus Docs 主题添加到新站点的首选方法：
-
-## 安装依赖
+克隆模板
 
 ```sh
-yarn install
+git clone https://cnb.cool/liyao52033/hugo-site
 ```
 
-## 初始化项目
+安装依赖
+
+```sh
+yarn
+```
+
+**注意**：如果您的站点已经有 git 存储库，您可以使用站点 git 存储库的路径来初始化您的站点，将`go.mod`中的module进行修改，例如`module github.com/<user>/<my-docs-site>/`。
+
+现在，您可以从以下选项中选择将 Lotus Docs 主题添加到新站点的首选方法
 
 ## 安装选项
 
@@ -79,7 +71,7 @@ yarn install
 
 先修条件：
 
-- `contentDir`项目文件夹中的存在
+- `contentDir`项目文件夹中的存在，`scripts/add-frontmatter.js中`的`config.contentDir`目录需与此文件夹一致
 
 ### 安装为Hugo模块（推荐）
 
@@ -94,22 +86,8 @@ enableEmoji = true
 
 [module]
     [[module.imports]]
-        path = "cnb.cool/liyao52033/hugopress"
+        path = "cnb.cool/liyao52033/hugopress/v2"
         disable = false
-    [[module.imports]]
-        path = "github.com/gohugoio/hugo-mod-bootstrap-scss/v5"
-        disable = false
-
-[markup]
-    [markup.tableOfContents]
-      endLevel = 3
-      startLevel = 1
-  [markup.goldmark]
-    [markup.goldmark.renderer]
-      unsafe = true # https://jdhao.github.io/2019/12/29/hugo_html_not_shown/
-  [markup.goldmark.parser]
-    [markup.goldmark.parser.attribute]
-      block = true
 ```
 
 ### 作为 Git 子模块安装
@@ -135,22 +113,8 @@ enableEmoji = true
     # or when using a 'theme' as a git submodule
     replacements = "cnb.cool/liyao52033/hugopress -> hugopress"
     [[module.imports]]
-        path = "cnb.cool/liyao52033/hugopress"
+        path = "cnb.cool/liyao52033/hugopress/v2"
         disable = false
-    [[module.imports]]
-        path = "github.com/gohugoio/hugo-mod-bootstrap-scss/v5"
-        disable = false
-
-[markup]
-    [markup.tableOfContents]
-      endLevel = 3
-      startLevel = 1
-  [markup.goldmark]
-    [markup.goldmark.renderer]
-      unsafe = true # https://jdhao.github.io/2019/12/29/hugo_html_not_shown/
-  [markup.goldmark.parser]
-    [markup.goldmark.parser.attribute]
-      block = true
 ```
 
 ### 本地安装
@@ -173,10 +137,7 @@ title = 'My New Hugo Site'
     # when using a 'theme' as a git submodule or git cloned files
     replacements = "cnb.cool/liyao52033/hugopress -> hugopress"
     [[module.imports]]
-        path = "cnb.cool/liyao52033/hugopress"
-        disable = false
-    [[module.imports]]
-        path = "github.com/gohugoio/hugo-mod-bootstrap-scss/v5"
+        path = "cnb.cool/liyao52033/hugopress/v2"
         disable = false
 ```
 
