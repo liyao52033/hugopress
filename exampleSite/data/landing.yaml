@@ -1,0 +1,141 @@
+# Note: Template blocks require a 'weight' parameter so they're correctly ordered on the landing page
+
+# Hero
+hero:
+  enable: true
+  weight: 10
+  template: hero
+
+  backgroundImage:
+    path: "images/templates/hero"
+    filename:
+      desktop: "gradient-desktop.webp"
+      mobile: "gradient-mobile.webp"
+
+  badge:
+    text: v1.5.0
+    color: primary # primary, secondary, success, danger, warning, info, light, dark
+    pill: false # boolean
+    soft: true # boolean
+
+  # titleLogo:
+  #   path: "images/logos"
+  #   filename: "title_logo.png"
+  #   alt: "Lotus Docs Logo"
+  #   height: 80px
+
+  title: "常用组件及代码封装"
+  subtitle: 减少重复造轮子, 快速开发
+
+  image:
+    path: "images" # path to image under configured assets directory. default 'images'
+    filename: "file.svg" # filename of your hero image (including file extension)
+    alt: "Lotus Docs Screenshot" # Optional but recommended
+    boxShadow: true # default 'false' (excludes .svg images)
+    rounded: true # round the image corners? default 'false' (excludes .svg images)
+
+  buttons:
+    # - icon: rocket_launch
+    - icon: 
+      btnText: "快速开始"
+      url: "/pages/fe4521/"
+      btnClass: "primary"
+    # - icon: construction
+    - icon: 
+      btnText: "组件文档"
+      url: "/components/"
+      btnClass: "primary"
+    # - icon: account_circle
+    - icon: 
+      btnText: "个人主页"
+      url: "https://xiaoying.org.cn"
+      btnClass: "outline-primary"
+   
+# Feature Grid
+featureGrid:
+  enable: true
+  weight: 20
+  template: feature grid
+
+  # title: Why choose Lotus Docs?
+  # subtitle: Lotus Docs is a highly configurable Hugo documentation theme. Yet, with the default configuration you can deploy and publish your documentation site in a matter of minutes. Check out some core features below.
+
+  items:
+    - title: 快速
+      # icon: speed
+      description: 基于 Hugo 框架，具备极速编译、跨平台支持、强大内容管理与纯静态部署优势，配合灵活模板与多语言功能，特别适合博客、企业官网和文档站，提供高效、灵活且高可用的建站体验
+
+    - title: 专注内容
+      # icon: trending_up
+      description: 只需 Markdown 即可轻松创建美观的文档站点。
+
+    - title: 前端模板
+      # icon: javascript
+      description: 封装常用组件及hooks, 快速开发前端项目
+
+    - title: SpringBoot模板
+      # icon: code
+      description: 开箱即用常见的 SpringBoot 模板，快速开发后端项目。
+
+    - title: 博客插件
+      # icon: change_history
+      description: 常见vitepress插件, 快速提供博客所需功能
+
+# Image compare
+# imageCompare:
+#   enable: true
+#   weight: 30
+#   template: image compare
+
+#   title: Customise The Lotus Docs Appearance
+#   subtitle: Much of Lotus Docs' appearance can be customised. Dark mode is optional (enabled by default) and you can choose a Google font that suites you via the config parameters.
+
+#   items:
+#     - title: Dark Mode
+#       config: {
+#         startingPoint: 50,
+#         addCircle: true,
+#         addCircleBlur: false,
+#         showLabels: true,
+#         labelOptions: {
+#           before: 'Dark',
+#           after: 'Light',
+#           onHover: false
+#         }
+#       }
+#       imagePath: "images/screenshots"
+#       imageBefore: "lotusdocs_dark_v0.8.webp"
+#       imageAfter: "lotusdocs_light_v0.8.webp"
+
+#     - title: Custom Fonts
+#       config: {
+#         controlColor: "#3C4257",
+#         startingPoint: 50,
+#         addCircle: true,
+#         addCircleBlur: false,
+#         showLabels: true,
+#         labelOptions: {
+#           before: 'Inter',
+#           after: 'Life Saver',
+#           onHover: false
+#         }
+#       }
+#       imagePath: "images/screenshots"
+#       imageBefore: "lotusdocs_google_font_demo_inter_screenshot.webp"
+#       imageAfter: "lotusdocs_google_font_demo_lifesavers_screenshot.webp"
+
+#     - title: Accent Color
+#       config: {
+#         startingPoint: 50,
+#         addCircle: true,
+#         addCircleBlur: true,
+#         showLabels: true,
+#         labelOptions: {
+#           before: 'Blue',
+#           after: 'Cardinal',
+#           onHover: false
+#         }
+#       }
+#       imagePath: "images/screenshots"
+#       imageBefore: "lotusdocs_blue_theme_colour.webp"
+#       imageAfter: "lotusdocs_cardinal_theme_colour.webp"

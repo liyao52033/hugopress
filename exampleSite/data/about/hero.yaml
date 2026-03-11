@@ -1,0 +1,11 @@
+title: "你好👋我是"
+name: "liyao"
+desc: "探索Web边界，记录成长的点滴"
+avatar: "/img/avatar.png"
+buttons:
+  - text: "联系我"
+    link: "mailto:liyao52033@163.com"
+    type: "primary"
+  - text: "主题官网"
+    link: "https://lotusdocs.dev/docs/"
+    type: "info"
