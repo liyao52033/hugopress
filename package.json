@@ -10,7 +10,6 @@
     "build:prod": "bash build.sh",
     "clean": "rm -rf resources dist .edgeone",
     "proxy": "node scripts/proxy.js",
-    "pushcnb": "bash scripts/pushcnb.sh",
     "deploy": "yarn run clean && edgeone pages deploy -n vuepress-vdoing"
   },
   "keywords": [
