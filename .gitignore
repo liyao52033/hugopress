@@ -1,7 +1,6 @@
 Thumbs.db
 dist
 .vscode
-.trae
 .edgeone
 .codebuddy
 .tmp
@@ -20,3 +19,4 @@ static/js/dist
 static/js/theme
 _vendor
 hugo_stats.json
+
