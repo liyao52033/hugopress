@@ -21,6 +21,16 @@
         {{ partial $path $.Page }}
     {{ end }}  */}}
 
+
+    {{ if and (.Site.Params.docsearch.appID) (.Site.Params.docsearch.apiKey) -}}
+        {{ $docsearchJs := resources.Get "docs/js/docsearch.min.js" }}
+        {{if hugo.IsProduction}}
+            {{ $docsearchJs = $docsearchJs | fingerprint "sha256" }}
+        {{end}}
+        <script src="{{ $docsearchJs.RelPermalink }}" async {{ if hugo.IsProduction }}integrity="{{ $docsearchJs.Data.Integrity }}"{{ end }}></script>
+        {{- partialCached "docs/footer/docsearch.html" . -}}
+    {{ end }}
+
     <div class="banner">
         {{ partial "docs/banner/indexBg.html" . }}
         {{ partial "docs/banner/fantasy.html" . }}    

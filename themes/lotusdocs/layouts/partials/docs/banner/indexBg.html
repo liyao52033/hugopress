@@ -206,7 +206,23 @@
     .show1 {
       background-color: var(--bs-gray-dark) !important;
     }
+
+
+    .DocSearch-Button1{
+      background: rgba(62, 62, 63, .25);
+      border: none;
+      color: var(--bs-teal) !important;
+    }
+
   }
+
+  @media screen and (max-width: 992px) {
+    .hamburger-line1 {
+      background-color: var(--bs-teal) !important;
+    }
+  }
+
+
   
 </style>
 
@@ -373,12 +389,21 @@
     const dropdownItems = document.querySelectorAll(".dropdown-item");
     const dropdownMenus = document.querySelectorAll(".dropdown-menu");
     const showMenus = document.querySelector(".collapse");
+    const hamburgerLines = document.querySelectorAll(".hamburger-line");
+    const docsearchButton = document.querySelector(".DocSearch-Button");
     
     
     if (navColor == 1) {
       if (title) title.classList.remove("site-name1");
       if (nav) nav.classList.remove("navbar1");
       if(showMenus) showMenus.classList.remove("show1");
+      if(docsearchButton) docsearchButton.classList.remove("DocSearch-Button1");
+
+      if(hamburgerLines) {
+        hamburgerLines.forEach(line => {
+          line.classList.remove("hamburger-line1");
+        });
+      }
       if(navLinks) {
         navLinks.forEach(link => {
           link.classList.remove("nav-link1");
@@ -399,6 +424,13 @@
       if (title) title.classList.add("site-name1");
       if (nav) nav.classList.add("navbar1");
       if(showMenus) showMenus.classList.add("show1");
+      if(docsearchButton) docsearchButton.classList.add("DocSearch-Button1");
+
+      if(hamburgerLines) {
+        hamburgerLines.forEach(line => {
+          line.classList.add("hamburger-line1");
+        });
+      }
       if(navLinks) {
         navLinks.forEach(link => {
           link.classList.add("nav-link1");
