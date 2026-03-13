@@ -174,7 +174,7 @@ footer: false
 ## 登录页面
 
 在forntmatter上添加登录页面的配置`private: true`即可
-后端接口用的是supabase，需要自建
+后端接口用的是supabase，需要在`edgeone pages`自建
 
 1、先在[supabase官网](https://supabase.com/)注册账号，然后获取`Project URL`和 `API key`
 
@@ -182,7 +182,7 @@ footer: false
 
 ![](https://raw.githubusercontent.com/liyao52033/picx-images-hosting/master/img/20260313140007376.avif)
 
-2、一键部署后端接口
+2、edgeone pages 一键部署后端接口
 
 第一步，点击下面按钮一键部署
 
@@ -194,9 +194,10 @@ footer: false
 SUPABASE_URL=
 SUPABASE_ANON_KEY=
 ACCESS_PASSWORD=
+MAIN_DOMAIN=
 ```
+![](https://raw.githubusercontent.com/liyao52033/picx-images-hosting/master/img/20260313223213104.png)
 
-![](https://raw.githubusercontent.com/liyao52033/picx-images-hosting/master/img/20260313135617371.avif)
 
 3、配置部署后的域名
 
