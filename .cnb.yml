@@ -2,60 +2,19 @@ main:
   push:
     - docker: 
         image: docker.cnb.cool/liyao52033/images/hugo-eo:latest
-      imports: https://cnb.cool/liyao52033/envs/-/blob/main/private.yml
       stages: 
-
         - name: pull-and-merge-private-repo
           image: alpine/git
+          imports: https://cnb.cool/liyao52033/envs/-/blob/main/private.yml
           script: |
-            set -e  # 开启严格模式，任何命令失败立即退出
-            echo "=============== 环境检查 ==============="
-            # 1. 检查当前Git仓库状态（关键：确认工作目录是Git仓库）
-            echo "📌 当前工作目录：$(pwd)"
-            echo "📌 Git仓库状态："
-            git status
-            echo "📌 本地分支列表："
-            git branch -a
-            
-            echo "=============== 配置Git ==============="
-            git config --global user.name "cnb.bMRqLGnLAEA"
-            git config --global user.email "liyao52033@163.com"
-            
-            echo "=============== 拉取私有仓库 ==============="
             PRIVATE_REPO_URL="https://cnb:${PRIVATE_REPO_TOKEN}@cnb.cool/liyao52033/privatemd"
             TEMP_BRANCH="temp-private-merge"
-            
-            # 强制删除旧临时分支（避免残留）
             git branch -D ${TEMP_BRANCH} || true
-            
-            # 拉取私有仓库指定分支（明确指定拉取main分支）
-            echo "📥 拉取私有仓库：${PRIVATE_REPO_URL} main -> ${TEMP_BRANCH}"
             git fetch "${PRIVATE_REPO_URL}" main:${TEMP_BRANCH}
-            # 验证拉取结果：检查临时分支是否存在，且有提交记录
-            if ! git rev-parse --verify ${TEMP_BRANCH} >/dev/null 2>&1; then
-              echo "❌ 临时分支${TEMP_BRANCH}拉取失败！"
-              git fetch --verbose "${PRIVATE_REPO_URL}"  # 输出详细拉取日志
-              exit 1
-            fi
-            
-            echo "=============== 验证私有仓库内容 ==============="
-            # 关键：查看私有仓库临时分支的文件列表（确认拉取到了文件）
-            echo "📂 私有仓库${TEMP_BRANCH}分支文件列表："
-            git ls-tree -r ${TEMP_BRANCH} --name-only
-            
-            echo "=============== 执行合并 ==============="
-            # 切换到当前工作分支（确保合并到正确分支）
             CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-            echo "🔀 强制检出${TEMP_BRANCH}的所有文件到当前分支${CURRENT_BRANCH}"
             git checkout ${TEMP_BRANCH} -- .
             git add .
             git commit -m "Force overwrite with private repo files" --no-edit
-                    
-            echo "=============== 合并后验证 ==============="
-            ls -la content/04.开源项目/20.hugo开发
-            echo "✅ 私有仓库合并流程完成"
-
-
         - name: install-dependencies
           script: |
             echo "Installing dependencies..."
