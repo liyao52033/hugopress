@@ -3,13 +3,17 @@ main:
     - docker: 
         image: docker.cnb.cool/liyao52033/images/hugo-eo:latest
       stages: 
+        - name: set token
+          imports: https://cnb.cool/liyao52033/envs/-/blob/main/private.yml
+          image: tencentcom/git-set-credential:latest
+          settings:
+            loginUserName: cnb
+            loginPassword: ${PRIVATE_REPO_TOKEN}
         - name: add private repo remote
           imports: https://cnb.cool/liyao52033/envs/-/blob/main/private.yml
           script: |
-            git remote add private_repo https://cnb:${PRIVATE_REPO_TOKEN}@cnb.cool/liyao52033/privatemd
+            git remote add private_repo https://cnb.cool/liyao52033/privatemd
             git fetch private_repo main
-            git log -1 --oneline 
-            ls -la
 
         - name: merge private repo into current
           script: |
@@ -39,12 +43,6 @@ main:
             add: ["content/"]   # 把所有已暂存的变更加入提交
           exports:
             branch: COMMIT_BRANCH   # 导出临时分支名供后续步骤使用
-
-        - name: show merged result
-          script: |
-            git log -1 --oneline 
-            echo $COMMIT_BRANCH
-            ls -la content/04.开源项目/20.hugo开发
 
         - name: install-dependencies
           script: |
