@@ -11,13 +11,16 @@ main:
         - name: add private repo remote
           imports: https://cnb.cool/liyao52033/envs/-/blob/main/private.yml
           script: |
-            echo "PRIVATE_REPO_TOKEN is set: ${PRIVATE_REPO_TOKEN:+yes}" 
             git remote add private_repo https://cnb:${PRIVATE_REPO_TOKEN}@cnb.cool/liyao52033/privatemd
             git fetch private_repo main
         - name: merge private repo into current
           script: |
             git checkout main
-            git merge private_repo/main --no-ff -m "Merge private repo main into current main"
+            git merge private_repo/main --no-ff --no-commit || true 
+            conflict_files=$(git diff --name-only --diff-filter=U) 
+            for file in $conflict_files; do git checkout --ours -- "$file" && git add "$file"; done 
+            git commit -m "Merge private_repo/main: resolve all conflicts with pipeline repo (main) as source of truth"
+            git push origin main
         - name: show merged result
           script: |
             git log -1 --oneline
