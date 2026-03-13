@@ -3,11 +3,6 @@ main:
     - docker: 
         image: docker.cnb.cool/liyao52033/images/hugo-eo:latest
       stages: 
-        - name: install-dependencies
-          script: |
-            echo "Installing dependencies..."
-            yarn
-            echo "✅ 依赖安装完成"
         - name: add private repo remote
           imports: https://cnb.cool/liyao52033/envs/-/blob/main/private.yml
           script: |
@@ -25,6 +20,11 @@ main:
           script: |
             git log -1 --oneline
             ls -la
+        - name: install-dependencies
+          script: |
+            echo "Installing dependencies..."
+            yarn
+            echo "✅ 依赖安装完成"
         - name: build with hugo
           imports: https://cnb.cool/liyao52033/envs/-/blob/main/hugo-env.yml
           script: |
