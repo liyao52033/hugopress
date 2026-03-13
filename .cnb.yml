@@ -8,6 +8,8 @@ main:
           script: |
             git remote add private_repo https://cnb:${PRIVATE_REPO_TOKEN}@cnb.cool/liyao52033/privatemd
             git fetch private_repo main
+            git log -1 --oneline 
+            ls -la
 
         - name: merge private repo into current
           script: |
