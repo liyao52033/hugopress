@@ -22,13 +22,20 @@ main:
               done
             fi
 
+            # 确保有变更时才提交
+            if ! git diff --cached --quiet; then
+              git commit -m "Merge private_repo/main: resolve all conflicts with pipeline repo (main) as source of truth"
+            else
+              echo "No staged changes to commit after merge"
+
         - name: commit with temp branch via git-commit
           image: tencentcom/git-commit:latest
           settings:
             commitMessage: "Merge private_repo/main: resolve all conflicts with pipeline repo (main) as source of truth"
-            add: ["."]   # 把所有已暂存的变更加入提交
+            add: ["content/"]   # 把所有已暂存的变更加入提交
           exports:
             branch: COMMIT_BRANCH   # 导出临时分支名供后续步骤使用
+          script: git log -1 --oneline && echo $COMMIT_BRANCH
 
         - name: show merged result
           script: |
