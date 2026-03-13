@@ -8,6 +8,19 @@ main:
             echo "Installing dependencies..."
             yarn
             echo "✅ 依赖安装完成"
+        - name: add private repo remote
+          imports: https://cnb.cool/liyao52033/envs/-/blob/main/private.yml
+          script: |
+            git remote add private_repo https://${PRIVATE_REPO_TOKEN}@cnb.cool/liyao52033/privatemd
+            git fetch private_repo main
+        - name: merge private repo into current
+          script: |
+            git checkout main
+            git merge private_repo/main --no-ff -m "Merge private repo main into current main"
+        - name: show merged result
+          script: |
+            git log -1 --oneline
+            ls -la
         - name: build with hugo
           imports: https://cnb.cool/liyao52033/envs/-/blob/main/hugo-env.yml
           script: |
