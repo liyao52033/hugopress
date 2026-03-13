@@ -4,13 +4,15 @@ main:
         image: docker.cnb.cool/liyao52033/images/hugo-eo:latest
       stages: 
         - name: set token
-          imports: https://cnb.cool/liyao52033/envs/-/blob/main/private.yml
+          # imports: https://cnb.cool/liyao52033/envs/-/blob/main/private.yml
           image: tencentcom/git-set-credential:latest
           settings:
-            loginUserName: cnb
-            loginPassword: ${PRIVATE_REPO_TOKEN}
+            userName: ${CNB_BUILD_USER}
+            userEmail: ${CNB_BUILD_USER_EMAIL}
+            loginUserName: ${CNB_TOKEN_USER_NAME}
+            loginPassword: ${CNB_TOKEN}
+            
         - name: add private repo remote
-          imports: https://cnb.cool/liyao52033/envs/-/blob/main/private.yml
           script: |
             git remote add private_repo https://cnb.cool/liyao52033/privatemd
             git fetch private_repo main
