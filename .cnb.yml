@@ -36,12 +36,11 @@ main:
           script: |
             echo "Deploying to EdgeOne Pages..."
             edgeone pages deploy ./dist -n vuepress-vdoing -t $EDGEONE_PAGES_API_TOKEN
+      stages:
         - name: prepare bg branch
           image: alpine/git
           commands:
             - git fetch origin main
-            - git reset --hard HEAD
-            - git clean -fd  
             - git checkout -b bg origin/main
         - name: sync-to-github
           image: tencentcom/git-sync
