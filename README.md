@@ -178,15 +178,15 @@ footer: false
 
 1、先在[supabase官网](https://supabase.com/)注册账号，然后获取`Project URL`和 `API key`
 
-![image-20260313132433882](https://cnb.xiaoying.org.cn/img/20260313132434056.avif)
+![](https://raw.githubusercontent.com/liyao52033/picx-images-hosting/master/img/20260313140007375.avif)
 
-![image-20260313133441844](https://cnb.xiaoying.org.cn/img/20260313133442005.avif)
+![](https://raw.githubusercontent.com/liyao52033/picx-images-hosting/master/img/20260313140007376.avif)
 
 2、一键部署后端接口
 
 第一步，点击下面按钮一键部署
 
-[![使用 EdgeOne Pages 部署](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://console.cloud.tencent.com/edgeone/pages/new?repository-url=https://github.com/liyao52033/supabase-auth)
+[![使用 EdgeOne Pages 部署](https://raw.githubusercontent.com/liyao52033/picx-images-hosting/master/img/20260313140208088.avif)](https://console.cloud.tencent.com/edgeone/pages/new?repository-url=https://github.com/liyao52033/supabase-auth)
 
 第二步，先选择Git平台，然后配置环境变量，点击`立即创建`
 
