@@ -15,6 +15,6 @@ main:
           git commit -m "Force overwrite with private repo files" --no-edit || true
 
 include:
-    # - .cnb/deploy.yml 
+    - .cnb/deploy.yml 
     - https://cnb.cool/liyao52033/build-template/-/blob/main/.cnb/vscode.yml
     - https://cnb.cool/liyao52033/build-template/-/blob/main/template/codewiki.yml
