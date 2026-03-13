@@ -94,7 +94,7 @@
 
         try {
             // 1. 请求用户信息接口
-            const userRes = await fetch('https://ssl.xiaoying.org.cn/getUser', {
+            const userRes = await fetch('{{ site.Params.login.domain }}/getUser', {
                 method: 'GET',
                 credentials: 'include',
                 signal: controller.signal
@@ -111,7 +111,7 @@
             }
           
             // 2. 刷新Token
-            const refreshRes = await fetch('https://ssl.xiaoying.org.cn/refresh', {
+            const refreshRes = await fetch('{{ site.Params.login.domain }}/refresh', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -122,7 +122,7 @@
 
             // 3. 重试用户信息接口
             if (refreshResult && refreshResult.token) {
-                const retryRes = await fetch('https://ssl.xiaoying.org.cn/getUser', {
+                const retryRes = await fetch('{{ site.Params.login.domain }}/getUser', {
                     method: 'GET',
                     credentials: 'include',
                     signal: controller.signal
