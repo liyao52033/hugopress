@@ -5,39 +5,25 @@ main:
       imports: https://cnb.cool/liyao52033/envs/-/blob/main/private.yml
       stages: 
 
-        - name: add private repo remote
-          script: |
-            git remote add private_repo https://cnb:${PRIVATE_REPO_TOKEN}@cnb.cool/liyao52033/privatemd
-            git fetch private_repo main
-
-        - name: merge private repo into current
-          script: |
-            git checkout main
-            git pull origin main
-            git merge private_repo/main --no-ff --no-commit
-
-            conflict_files=$(git diff --name-only --diff-filter=U)
-            if [ -n "$conflict_files" ]; then
-              for file in $conflict_files; do
-                git checkout --ours -- "$file" && git add "$file"
-              done
-            fi
-
-            # 确保有变更时才提交
-            if ! git diff --cached --quiet; then
-              git commit -m "Merge private_repo/main: resolve all conflicts with pipeline repo (main) as source of truth"
-            else
-              echo "No staged changes to commit after merge"
-            fi
-              
-
-        - name: commit with temp branch via git-commit
-          image: tencentcom/git-commit:latest
+        - name: 创建跨仓库 PR
+          image: cnbcool/create-pr:latest
           settings:
-            commitMessage: "Merge private_repo/main: resolve all conflicts with pipeline repo (main) as source of truth"
-            add: ["content/"]   # 把所有已暂存的变更加入提交
-          exports:
-            branch: COMMIT_BRANCH   # 导出临时分支名供后续步骤使用
+            # 必填：目标分支（当前仓库的分支）
+            target_branch: main
+            # 私有仓库的源分支（如不填默认用当前分支 CNB_BRANCH）
+            head_branch: main
+            # 跨仓库必填：私有仓库的 slug（格式 group_slug/repo_name）
+            head_repo_slug: liyao52033/privatemd
+            # PR 标题
+            title: "【自动创建】私有仓库同步到主仓库"
+            # PR 内容描述
+            body: "此 PR 由流水线自动创建，用于将私有仓库的 temp-branch 合并到主仓库 main 分支"
+            # 评审者（多个用逗号隔开）
+            reviewers: "reviewer1,reviewer2"
+            # 指派人（多个用逗号隔开）
+            assignees: "assignee1"
+            # PR 标签
+            labels: "auto-pr,cross-repo"
 
         - name: install-dependencies
           script: |
