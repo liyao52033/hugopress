@@ -186,7 +186,7 @@ footer: false
 
 第一步，点击下面按钮一键部署
 
-[![使用 EdgeOne Pages 部署](https://raw.githubusercontent.com/liyao52033/picx-images-hosting/master/img/20260313140208088.avif)](https://console.cloud.tencent.com/edgeone/pages/new?repository-url=https://github.com/liyao52033/supabase-auth)
+[![使用 EdgeOne Pages 部署](https://raw.githubusercontent.com/liyao52033/picx-images-hosting/master/img/20260313140458375.svg)](https://console.cloud.tencent.com/edgeone/pages/new?repository-url=https://github.com/liyao52033/supabase-auth)
 
 第二步，先选择Git平台，然后配置环境变量，点击`立即创建`
 
