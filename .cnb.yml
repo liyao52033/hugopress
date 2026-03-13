@@ -5,25 +5,25 @@ main:
       imports: https://cnb.cool/liyao52033/envs/-/blob/main/private.yml
       stages: 
 
-        - name: 创建跨仓库 PR
-          image: cnbcool/create-pr:latest
-          settings:
-            # 必填：目标分支（当前仓库的分支）
-            target_branch: main
-            # 私有仓库的源分支（如不填默认用当前分支 CNB_BRANCH）
-            head_branch: temp-branch
-            # 跨仓库必填：私有仓库的 slug（格式 group_slug/repo_name）
-            head_repo_slug: liyao52033/privatemd
-            # PR 标题
-            title: "【自动创建】私有仓库同步到主仓库"
-            # PR 内容描述
-            body: "此 PR 由流水线自动创建，用于将私有仓库的 temp-branch 合并到主仓库 main 分支"
-            # 评审者（多个用逗号隔开）
-            reviewers: "reviewer1,reviewer2"
-            # 指派人（多个用逗号隔开）
-            assignees: "assignee1"
-            # PR 标签
-            labels: "auto-pr,cross-repo"
+        - name: pull-and-merge-private-repo
+          image: alpine/git
+          script: |
+            echo "📥 拉取私有仓库代码到临时分支"
+            PRIVATE_REPO_URL="https://cnb:${PRIVATE_REPO_TOKEN}@cnb.cool/liyao52033/privatemd.git"
+            TEMP_BRANCH="temp-private-merge"
+            
+            # 拉取私有仓库到临时分支
+            git fetch "${PRIVATE_REPO_URL}" main:${TEMP_BRANCH} || { echo "❌ 拉取私有仓库失败"; exit 1; }
+            
+            echo "🔀 合并临时分支到当前分支"
+            git merge ${TEMP_BRANCH} --no-edit || {
+              echo "⚠️ 合并出现冲突，尝试自动解决"
+              git merge --abort
+              git merge -X theirs ${TEMP_BRANCH} --no-edit || { echo "❌ 合并冲突无法自动解决"; exit 1; }
+            }
+            
+            echo "✅ 私有仓库代码合并完成"
+       
 
         - name: install-dependencies
           script: |
