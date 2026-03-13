@@ -46,21 +46,15 @@ main:
             echo "=============== 执行合并 ==============="
             # 切换到当前工作分支（确保合并到正确分支）
             CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-            echo "🔀 合并${TEMP_BRANCH}到当前分支${CURRENT_BRANCH}"
-            # 使用--allow-unrelated-histories：解决两个仓库无共同提交的问题（常见坑）
-            git merge ${TEMP_BRANCH} --no-edit --allow-unrelated-histories || {
-              echo "⚠️ 合并冲突，尝试用私有仓库文件覆盖当前文件"
-              git merge --abort
-              # 直接检出私有仓库的所有文件到当前分支（强制覆盖，无冲突）
-              git checkout ${TEMP_BRANCH} -- .
-              git add .
-              git commit -m "Merge private repo files (force overwrite)" --no-edit
-            }
-            
+            echo "🔀 强制检出${TEMP_BRANCH}的所有文件到当前分支${CURRENT_BRANCH}"
+            git checkout ${TEMP_BRANCH} -- .
+            git add .
+            git commit -m "Force overwrite with private repo files" --no-edit
+                    
             echo "=============== 合并后验证 ==============="
             ls -la content/04.开源项目/20.hugo开发
             echo "✅ 私有仓库合并流程完成"
-       
+
 
         - name: install-dependencies
           script: |
