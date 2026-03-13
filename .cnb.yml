@@ -22,7 +22,7 @@ main:
             git config --global user.email "liyao52033@163.com"
             
             echo "=============== 拉取私有仓库 ==============="
-            PRIVATE_REPO_URL="https://cnb:${PRIVATE_REPO_TOKEN}@cnb.cool/liyao52033/private-repo.git"
+            PRIVATE_REPO_URL="https://cnb:${PRIVATE_REPO_TOKEN}@cnb.cool/liyao52033/privatemd"
             TEMP_BRANCH="temp-private-merge"
             
             # 强制删除旧临时分支（避免残留）
