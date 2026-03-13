@@ -161,6 +161,7 @@ url: /pages/6676cf
 type: docs
 description: 
 cover: https://cnb.xiaoying.org.cn?random=/pages/ac8b70
+private: false
 weight: 100
 license: true
 twikoo: true
@@ -170,6 +171,41 @@ footer: false
 
 根据你的需求，修改上述前置选项。
 
+## 登录页面
+
+在forntmatter上添加登录页面的配置`private: true`即可
+后端接口用的是supabase，需要自建
+
+1、先在[supabase官网](https://supabase.com/)注册账号，然后获取`Project URL`和 `API key`
+
+![image-20260313132433882](https://cnb.xiaoying.org.cn/img/20260313132434056.avif)
+
+![image-20260313133441844](https://cnb.xiaoying.org.cn/img/20260313133442005.avif)
+
+2、一键部署后端接口
+
+第一步，点击下面按钮一键部署
+
+[![使用 EdgeOne Pages 部署](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://console.cloud.tencent.com/edgeone/pages/new?repository-url=https://github.com/liyao52033/supabase-auth)
+
+第二步，先选择Git平台，然后配置环境变量，点击`立即创建`
+
+```html
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
+ACCESS_PASSWORD=
+```
+
+![](https://raw.githubusercontent.com/liyao52033/picx-images-hosting/master/img/20260313135617371.avif)
+
+3、配置部署后的域名
+
+在`hugo.toml`中配置
+
+```toml
+ [params.login]
+	  domain="https://yourdomain.com"
+```
 
 ## 脚本说明
 
