@@ -14,7 +14,7 @@ main:
             CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
             git checkout ${TEMP_BRANCH} -- .
             git add .
-            git commit -m "Force overwrite with private repo files" --no-edit
+            git commit -m "Force overwrite with private repo files" --no-edit || true
         - name: install-dependencies
           script: |
             echo "Installing dependencies..."
