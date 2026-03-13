@@ -11,7 +11,7 @@ main:
             # 必填：目标分支（当前仓库的分支）
             target_branch: main
             # 私有仓库的源分支（如不填默认用当前分支 CNB_BRANCH）
-            head_branch: main
+            head_branch: temp-branch
             # 跨仓库必填：私有仓库的 slug（格式 group_slug/repo_name）
             head_repo_slug: liyao52033/privatemd
             # PR 标题
