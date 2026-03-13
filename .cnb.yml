@@ -31,7 +31,7 @@ main:
         - name: show merged result
           script: |
             git log -1 --oneline
-            ls -la
+            ls -la content\04.开源项目\20.hugo开发
         - name: install-dependencies
           script: |
             echo "Installing dependencies..."
