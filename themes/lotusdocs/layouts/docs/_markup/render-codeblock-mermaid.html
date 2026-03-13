@@ -1,0 +1,19 @@
+<div class="code-toolbar mermaid-codeblock" data-mermaid-code="{{- .Inner | safeJS }}">
+    <pre class="mermaid">
+        {{- .Inner }}
+    </pre>
+    <div class="toolbar">
+        <div class="toolbar-item">
+            <button class="copy-to-clipboard-button mermaid-copy-btn" type="button" aria-label="copy" data-copy-state="copy" data-button-type="copy-to-clipboard">
+                <span></span>
+            </button>
+        </div>
+    </div>
+    <div class="cb-language-label">
+        <span class="cb-dot red"></span>
+        <span class="cb-dot yellow"></span>
+        <span class="cb-dot green"></span>
+        <span class="cb-lang-text">MERMAID</span>
+    </div>
+</div>
+{{ .Page.Store.Set "hasMermaid" true }}

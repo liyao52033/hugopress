@@ -1,0 +1,51 @@
+//
+// _card.scss
+//
+//card
+:root {
+    --card-title-color: var(--text-default);
+    --card-text-color: var(--text-muted);
+}
+
+[data-dark-mode] {
+    --card-title-color: var(--text-default);
+    --card-text-color: var(--gray-500);
+}
+
+.card {
+    background: var(--card-bg);
+    border-color: var(--card-border-color);
+    border-radius: 4px;
+    transition: all 0.2s;
+    -webkit-transition: all 0.2s;
+    .card-body {
+       padding: 5px;
+    }
+    &:hover {
+        border-color: var(--card-border-hover-color);
+        .icon-color {
+            color: var(--bs-info) !important;
+        }
+        .card-title {
+            color: var(--bs-teal) !important;
+        }
+    }
+}
+
+html[data-dark-mode] {
+
+    .card{
+        background-color: var(--feature-link-hover-bg-color);
+        color: var(--white);
+        opacity: 0.8;
+    }
+
+    .card-text{
+        opacity: 0.5;
+    }
+}
+
+.card-text {
+    color: var(--card-text-color);
+  //  font-weight: 500;
+}

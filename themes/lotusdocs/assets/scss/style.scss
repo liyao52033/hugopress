@@ -1,0 +1,63 @@
+/* Template Name: LotusLabs Docs
+   Author: Colin Wilson
+   E-mail: colin.wilson@proton.me
+   Created: October 2022
+   Version: 1.0.0
+   File Description: Main CSS file of the Landing Page template
+*/
+
+//Custom Font Variables (using CSS custom properties)
+$font-family-secondary: var(--font-family-secondary);
+$font-family-sans-serif: var(--font-family-sans-serif);
+$font-family-monospace: var(--font-family-monospace);
+
+//Fonts
+// @import "custom/fonts/fonts";
+
+//Core files
+@import "bootstrap/functions";
+@import "bootstrap/variables";
+@import "variables";
+@import "bootstrap/mixins";
+@import "bootstrap/bootstrap";
+
+// Plugins
+// @import "custom/plugins/icons/google-material";
+{{ if and (.Site.Params.docsearch.appID) (.Site.Params.docsearch.apiKey) -}}
+   @import "custom/plugins/docsearch/style";
+{{ end }}
+
+// Structure
+@import "custom/structure/general";
+@import "custom/structure/topbar";
+// @import "custom/structure/content";
+// @import "custom/structure/sidebar-layouts";
+// @import "custom/structure/doc-nav";
+// @import "custom/structure/toc-layouts";
+@import "custom/structure/footer";
+
+// // Components
+@import "custom/components/buttons";
+@import "custom/components/badge";
+@import "custom/components/backgrounds";
+// @import "custom/components/alerts";
+// @import "custom/components/card";
+
+// // Pages
+// @import "custom/pages/blog";
+
+// 首页相关
+@import "custom/pages/features";
+@import "custom/pages/helper";
+@import "custom/pages/hero";
+@import "custom/pages/blogger"; 
+@import "custom/pages/friend";
+@import "custom/pages/homepage";
+
+// 关于页相关
+@import "custom/pages/about";
+
+// 归档页相关
+@import "custom/pages/archives";
+
+

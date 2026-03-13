@@ -1,0 +1,133 @@
+.archive-list {
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.year-card {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--dashboard-border);
+}
+
+.year-card .card-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #fff;
+  transition: background-color 0.3s ease;
+  background: linear-gradient(135deg, #0891B2 0%, #22D3EE 100%);
+}
+
+html[data-theme] .year-card .card-header {
+  background: linear-gradient(135deg, #22D3EE 0%, #0891B2 100%);
+}
+
+.month-card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  border-left: 4px solid var(--dashboard-primary);
+  padding-left: 0.5rem;
+}
+
+.article-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border: 1px solid var(--dashboard-border);
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.list-item:hover {
+  background: var(--dashboard-bg);
+  border-color: var(--dashboard-primary);
+}
+
+.list-item:focus {
+  outline: 2px solid var(--dashboard-primary);
+  outline-offset: 2px;
+}
+
+.list-content {
+  flex: 1;
+}
+
+.list-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+}
+
+.list-title a {
+  color: var(--dashboard-text);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.list-title a:hover {
+  color: var(--dashboard-primary);
+}
+
+.list-title a:focus {
+  outline: 2px solid var(--dashboard-primary);
+  outline-offset: 2px;
+}
+
+.list-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.list-meta .category {
+  padding: 0.125rem 0.5rem;
+  background: var(--dashboard-bg);
+  border-radius: 0.25rem;
+  color: var(--dashboard-primary);
+}
+
+.list-stats {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.year-card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.no-articles {
+  text-align: center;
+  padding: 2rem;
+  color: #94a3b8;
+}
+
+@media (max-width: 767px) {
+  .archive-list {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .list-item {
+    padding: 0.75rem;
+  }
+}

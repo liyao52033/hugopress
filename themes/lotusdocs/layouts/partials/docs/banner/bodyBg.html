@@ -1,0 +1,201 @@
+{{/*  背景图片路径数组，支持本地和远程URL  */}}
+{{ $bgImages := site.Params.indexImg.bodyBgImg | default slice }}
+{{/*  背景图切换间隔（秒）  */}}
+{{ $bgInterval := site.Params.indexImg.bodyBgImgInterval | default 600 }}
+{{/*  响应式图片断点配置  */}}
+{{ $breakpoints := dict "480" "480x" "800" "800x" "1200" "1200x" "1920" "1920x" }}
+
+{{/*  处理图片：使用 responsive-image partial 生成多尺寸版本  */}}
+{{ $processedImages := slice }}
+{{ range $bgImages }}
+    {{ $imgData := partial "responsive-image.html" (dict "src" . "breakpoints" $breakpoints "quality" 70 "format" "webp") }}
+    {{ $processedImages = $processedImages | append $imgData }}
+{{ end }}
+
+{{ if gt (len $processedImages) 0 }}
+{{/*  使用 img 标签替代 background-image，支持 fetchpriority 和更好的性能控制  */}}
+<div id="body-bg-container" class="body-bg-container">
+    {{ range $index, $imgData := $processedImages }}
+        <img class="body-bg-img{{ if eq $index 0 }} active{{ end }}"
+             src="{{ $imgData.src }}"
+             {{ if $imgData.srcset }}srcset="{{ $imgData.srcset }}"{{ end }}
+             sizes="100vw"
+             alt=""
+             fetchpriority="{{ if eq $index 0 }}high{{ else }}low{{ end }}"
+             decoding="{{ if eq $index 0 }}sync{{ else }}async{{ end }}"
+             loading="{{ if eq $index 0 }}eager{{ else }}lazy{{ end }}"
+             data-index="{{ $index }}"
+             aria-hidden="true">
+    {{ end }}
+</div>
+
+<style>
+    .body-bg-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        min-height: 100vh;
+        z-index: -9;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .body-bg-img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+        will-change: opacity;
+    }
+
+    .body-bg-img.active {
+        opacity: 1;
+    }
+
+    body, .page-content, .sidebar  {
+        background: transparent !important;
+    }
+
+    .sidebar-brand {
+        background: hsla(255, 100%, 100%, 0.8) !important;
+        backdrop-filter: saturate(180%) blur(5px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-brand > a {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+
+    @media(min-width:992px){
+        .sidebar-content {
+            background: hsla(255, 100%, 100%, 0.8) !important;
+            height: 100% !important;
+            padding: 0 0 5rem 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-footer{
+            background: transparent !important;
+        }
+    }
+
+
+    .docs-content, .docs-toc {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+    }
+
+    .twikoo {
+        background: #fff;
+        padding: 1rem 2.5rem 2rem;
+        border-radius: .75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+        backdrop-filter: blur(10px);
+    }
+
+    .docs-toc {
+        margin-left: 1rem;
+        width: 16rem;
+        top: 6.2rem;
+        height: fit-content;
+        max-height: calc(100vh - 8rem);
+    }
+
+    .page-wrapper .page-content .layout-spacing {
+        padding: 60px 14px 24px !important;
+    }
+
+    html[data-dark-mode] {
+        .docs-content, .docs-toc, .twikoo {
+            background: var(--body-bg) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .sidebar-brand {
+            background: var(--top-header-bg) !important;
+        }
+
+        .sidebar-content {
+            background: var(--sidebar-bg) !important;
+        }
+    }
+
+</style>
+
+<script>
+    // 使用 requestIdleCallback 推迟非关键脚本执行，避免阻塞 LCP
+    const initBodyBg = () => {
+        const bgImages = document.querySelectorAll('.body-bg-img');
+        const bgInterval = parseInt('{{ $bgInterval }}') || 600;
+
+        // 单张图片时无需切换逻辑
+        if (bgImages.length <= 1) return;
+
+        const STORAGE_KEY = 'bodyBgCurrentIndex';
+        const LAST_CHANGE_KEY = 'bodyBgLastChange';
+
+        let currentIndex = 0;
+
+        // 尝试从 localStorage 恢复状态
+        try {
+            const savedIndex = parseInt(localStorage.getItem(STORAGE_KEY));
+            const lastChangeTime = parseInt(localStorage.getItem(LAST_CHANGE_KEY)) || Date.now();
+            const elapsedSeconds = Math.floor((Date.now() - lastChangeTime) / 1000);
+
+            if (!isNaN(savedIndex) && elapsedSeconds > 0) {
+                const intervalsPassed = Math.floor(elapsedSeconds / bgInterval);
+                currentIndex = (savedIndex + intervalsPassed) % bgImages.length;
+            }
+        } catch (e) {
+            // localStorage 不可用
+        }
+
+        // 切换到计算出的图片
+        if (currentIndex !== 0 && bgImages[currentIndex]) {
+            bgImages.forEach(img => img.classList.remove('active'));
+            bgImages[currentIndex].classList.add('active');
+        }
+
+        // 保存状态
+        try {
+            localStorage.setItem(STORAGE_KEY, currentIndex);
+            localStorage.setItem(LAST_CHANGE_KEY, Date.now());
+        } catch (e) {}
+
+        // 定时切换
+        setInterval(() => {
+            bgImages[currentIndex].classList.remove('active');
+            currentIndex = (currentIndex + 1) % bgImages.length;
+            bgImages[currentIndex].classList.add('active');
+            try {
+                localStorage.setItem(STORAGE_KEY, currentIndex);
+                localStorage.setItem(LAST_CHANGE_KEY, Date.now());
+            } catch (e) {}
+        }, bgInterval * 1000);
+    };
+
+    // 推迟到浏览器空闲时执行，确保不阻塞关键渲染路径
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(initBodyBg, { timeout: 2000 });
+    } else {
+        // 降级方案：使用 setTimeout 推迟执行
+        setTimeout(initBodyBg, 100);
+    }
+</script>
+{{ end }}

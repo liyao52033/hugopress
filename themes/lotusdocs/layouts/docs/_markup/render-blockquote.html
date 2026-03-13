@@ -1,0 +1,32 @@
+{{- if eq .Type "alert" }}
+  {{- $alerts := dict }}
+  {{- $alerts = merge $alerts (dict "caution"   (dict "color" "red"    "icon" "error"     "title" "Caution")) }}
+  {{- $alerts = merge $alerts (dict "important" (dict "color" "blue"   "icon" "info"      "title" "Important")) }}
+  {{- $alerts = merge $alerts (dict "note"      (dict "color" "blue"   "icon" "info"      "title" "Note")) }}
+  {{- $alerts = merge $alerts (dict "tip"       (dict "color" "green"  "icon" "lightbulb" "title" "Tip")) }}
+  {{- $alerts = merge $alerts (dict "warning"   (dict "color" "orange" "icon" "warning"   "title" "Warning")) }}
+
+  {{- $alertTypes := slice }}
+  {{- range $k, $_ := $alerts }}
+    {{- $alertTypes = $alertTypes | append $k }}
+  {{- end }}
+  {{- $alertTypes = $alertTypes | sort }}
+
+  {{- $alertType := strings.ToLower .AlertType }}
+  {{- if in $alertTypes $alertType }}
+    {{- partial "docs/alert.html" (dict
+      "color" (or ((index $alerts $alertType).color) "blue")
+      "icon"  (or ((index $alerts $alertType).icon)  "info")
+      "title" (or .AlertTitle ((index $alerts $alertType).title))
+      "text"  .Text
+      "class" .Attributes.class
+      )
+    }}
+  {{- else }}
+    {{- errorf `Invalid blockquote alert type. Received %s. Expected one of %s (case-insensitive). See %s.` .AlertType (delimit $alertTypes ", " ", or ") .Page.String }}
+  {{- end }}
+{{- else }}
+  <blockquote {{- with .Attributes.class }}class="{{ . }}"{{- end }}>
+    {{ .Text }}
+  </blockquote>
+{{- end }}

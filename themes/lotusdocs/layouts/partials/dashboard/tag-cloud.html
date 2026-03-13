@@ -1,0 +1,66 @@
+<div class="tag-cloud">
+    <div class="tag-header">
+        <h3 class="tag-title">热门标签</h3>
+    </div>
+    <div class="tag-content">
+        {{ if .Site.Taxonomies.tags }}
+        {{ $tags := .Site.Taxonomies.tags }}
+        {{ $sortedTags := slice }}
+        {{ range $key, $value := $tags }}
+            {{ $sortedTags = $sortedTags | append (dict "name" $key "count" (len $value)) }}
+        {{ end }}
+        {{ $sortedTags = sort $sortedTags "count" "desc" }}
+        {{ $maxCount := 0 }}
+        {{ range $sortedTags }}
+            {{ if gt .count $maxCount }}
+                {{ $maxCount = .count }}
+            {{ end }}
+        {{ end }}
+        {{ range first 5 $sortedTags }}
+        <a href='{{ "/tags/" | relLangURL }}{{ .name | urlize }}' 
+           class="tag-item" >
+            {{ .name }}
+            <span class="tag-count">{{ .count }}</span>
+        </a>
+        {{ end }}
+        {{ if gt (len $sortedTags) 5 }}
+        <a href='{{ "/tags/" | relLangURL }}' class="tag-item tag-more">
+            查看更多 →
+        </a>
+        {{ end }}
+        {{ else }}
+        <p class="no-tags">暂无标签</p>
+        {{ end }}
+    </div>
+    <div class="category-tree">
+        <h3 class="category-title">分类导航</h3>
+        {{ if .Site.Taxonomies.categories }}
+        <ul class="category-list">
+            {{ $categories := .Site.Taxonomies.categories }}
+            {{ $sortedCategories := slice }}
+            {{ range $key, $value := $categories }}
+                {{ $sortedCategories = $sortedCategories | append (dict "name" $key "count" (len $value)) }}
+            {{ end }}
+            {{ $sortedCategories = sort $sortedCategories "count" "desc" }}
+            {{ range first 5 $sortedCategories }}
+            <li class="category-item">
+                <a href='{{ "/categories/" | relLangURL }}{{ .name | urlize }}' class="category-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 1024 1024">
+                        <path fill="currentColor" d="M832 384H576L512 256H192c-17.7 0-32 14.3-32 32v576c0 17.7 14.3 32 32 32h640c17.7 0 32-14.3 32-32V416c0-17.7-14.3-32-32-32zm-64 512H256V384h192l64 128h256v384z"/>
+                    </svg>
+                    {{ .name }}
+                    <span class="category-count">{{ .count }}</span>
+                </a>
+            </li>
+            {{ end }}
+        </ul>
+        {{ if gt (len $sortedCategories) 5 }}
+        <div class="category-more">
+            <a href='{{ "/categories/" | relLangURL }}' class="category-more-link">查看更多 →</a>
+        </div>
+        {{ end }}
+        {{ else }}
+        <p class="no-categories">暂无分类</p>
+        {{ end }}
+    </div>
+</div>

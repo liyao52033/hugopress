@@ -1,0 +1,405 @@
+baseURL = 'https://xiaoying.org.cn/'
+languageCode = "zh-CN"
+title = '编程随笔'
+publishDir = "dist"
+contentDir = "content"
+enableEmoji = true
+# git ls-files展示的不是原始文件路径而是一堆数字的话执行git config core.quotepath false
+enableGitInfo = true 
+ignoreLogs = ['warning-goldmark-raw-html']
+
+[taxonomies]
+  category = "categories"  
+  tag = "tags"
+
+[build]
+  [build.buildStats]
+    enable = true
+  [[build.cachebusters]]
+    source = 'hugo_stats.json'
+    target = 'assets\scss\.scss'
+  [[build.cachebusters]]
+    source = '(postcss|tailwind)\.config\.js'
+    target = '(css|styles|scss|sass)'
+  [[build.cachebusters]]
+    source = 'assets/.*\.(js|ts|jsx|tsx)'
+    target = 'js'
+  [[build.cachebusters]]
+    source = 'assets/.*\.(.*)$'
+    target = '$1'
+
+# [caches]
+#   [caches.assets]
+#     dir = ':resourceDir/_gen'
+#     maxAge = -1
+#   [caches.getresource]
+#     dir = ':cacheDir/:project'
+#     maxAge = -1
+#   [caches.images]
+#     dir = ':resourceDir/_gen'
+#     maxAge = -1
+#   [caches.misc]
+#     dir = ':cacheDir/:project'
+#     maxAge = -1
+#   [caches.modulequeries]
+#     dir = ':cacheDir/modules'
+#     maxAge = '24h'
+#   [caches.modules]
+#     dir = ':cacheDir/modules'
+#     maxAge = -1
+
+# Hugo 会根据以下顺序查找 lastmod 的值：
+# 1、Front Matter 中的 lastmod 字段：如果存在，优先使用。
+# 2、文件的最后修改时间：如果没有在 Front Matter 中指定，且启用了 enableGitInfo，则使用文件的最后修改时间。
+# 3、Git 仓库中的作者日期：如果启用了 enableGitInfo，则使用 Git 仓库中该文件的最后提交的作者日期。
+[frontmatter]
+  lastmod = ["lastmod", ":fileModTime", ":git"]
+
+
+[module]
+    # uncomment line below for temporary local development of module,
+    # when using a 'theme' as a git submodule or git cloned files
+    replacements = "github.com/colinwilson/lotusdocs -> lotusdocs"
+    [[module.imports]]
+        path = "github.com/colinwilson/lotusdocs"
+        disable = false
+    [[module.imports]]
+        path = "github.com/gohugoio/hugo-mod-bootstrap-scss/v5"
+        disable = false
+    [[module.imports]]
+        path = "github.com/divinerites/plausible-hugo"
+        disable = false
+
+
+
+# goldmark选项参考：https://gohugo.io/configuration/markup/#goldmark
+[markup]
+  defaultMarkdownHandler = "goldmark"
+  [markup.tableOfContents]
+    startLevel = 2  
+    endLevel = 4
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+    [markup.goldmark.parser]
+       autoDefinitionTermID = true
+       autoHeadingID = true
+       autoIDType = 'github-ascii'  #在浏览器地址栏将中文锚点转化为英文，参考 https://gohugo.io/configuration/markup/#parserautoidtype
+      [markup.goldmark.parser.attribute]
+        block = true  
+    [markup.goldmark.extensions]
+      table = true
+  [markup.admonition]
+    enabled = true  
+
+[imaging]
+    resampleFilter = "CatmullRom"
+    quality = 75
+    anchor = "Smart"
+
+[params]
+    # SEO 基础配置
+    description = "Web前端技术博客，积跬步以至千里，致敬每个爱学习的你。分享前端、后端、嵌入式开发技术经验。"
+    author = "华总"
+    keywords = ["前端开发", "Vue3", "SpringBoot", "技术博客", "编程教程", "嵌入式开发", "Hugo", "TypeScript"]
+    
+    # 社交分享图片（用于 Open Graph 和 Twitter Cards）
+    images = ["https://xiaoying.org.cn/logo.png"]
+    
+    # 字体配置 - 选择一种配置启用，其他保持注释状态
+    # 说明：
+    # - 本地字体：Inter, Fira Code（已下载到本地，支持预加载）
+    # - 中文字体：使用系统字体栈，无需下载
+    # - Google Fonts：如需使用，取消下方 google_fonts 注释
+
+    # 选项1：Inter + Fira Code（英文优化，推荐）
+    # sans_serif_font = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Ubuntu', sans-serif"
+    # secondary_font = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Ubuntu', sans-serif"
+    # mono_font = "'Fira Code', 'JetBrains Mono', 'Source Code Pro', 'Consolas', 'Monaco', 'Courier New', monospace"
+    # google_fonts = [
+    #   ["Inter", "300, 400, 600, 700"],
+    #   ["Fira Code", "500, 700"]
+    # ]
+
+    # 选项2：完整中文优化字体配置（使用系统字体）
+    # secondary_font = "'Noto Sans SC', 'Source Han Sans SC', 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif"
+    # sans_serif_font = "'Noto Sans SC', 'Source Han Sans SC', 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif"
+    # mono_font = "'JetBrains Mono', 'Fira Code', 'Source Code Pro', 'Consolas', 'Monaco', 'Courier New', monospace"
+
+    # 选项2：经典衬线字体（优雅正式，与无衬线字体差异明显）
+    # secondary_font = "'Times New Roman', 'SimSun', serif"
+    # sans_serif_font = "'Times New Roman', 'SimSun', serif"
+    # mono_font = "'Courier New', monospace"
+
+    # 选项3：粗体字体（醒目突出）
+    # secondary_font = "'Arial Black', 'Microsoft YaHei', sans-serif"
+    # sans_serif_font = "'Verdana', 'Microsoft YaHei', sans-serif"
+    # mono_font = "'Consolas', monospace"
+
+    # 选项4：细体现代字体
+    # secondary_font = "'Segoe UI Light', 'Microsoft YaHei Light', sans-serif"
+    # sans_serif_font = "'Segoe UI', 'Microsoft YaHei', sans-serif"
+    # mono_font = "'Cascadia Code', 'Consolas', monospace"
+
+    # 选项5：斜体字
+    # sans_serif_font = "'Comic Sans MS', 'Microsoft YaHei', sans-serif"    
+    # secondary_font  = "'Comic Sans MS', 'Microsoft YaHei', sans-serif"   
+    # mono_font       = "'Courier New', 'Consolas', monospace" 
+
+    reading_speed = 500                            # 这里设置你想要的每分钟字数，比如300字符/分钟
+
+    [params.plausible]
+      enable = true
+      domain = "xiaoying.org.cn"
+      gitstar = false
+      dash_link = "https://plausible.io/share/xiaoying.org.cn?auth=XVapVCgsQoU0VWChQumjI"
+      dash_bgcolor = "transparent"
+      dash_disable = false
+
+    # algolia搜索
+    [params.docsearch] 
+      appID = ""
+      apiKey = ""
+      indexName = ""
+      [params.docsearch.askAi]
+        indexName = ""
+        assistantId = ""
+
+    # 浏览器模糊搜索
+    [params.flexsearch]
+      enabled = true
+      tokenize            = "full"
+      optimize            = true
+      cache               = 100
+      minQueryChar        = 1 # default is 0 (disabled)
+      maxResult           = 10 # default is 5
+      searchSectionsIndex = "ALL"
+
+    [params.twikoo]
+      enabled = true
+      envId = "https://twikoo.xiaoying.org.cn"
+    
+    [params.docs]
+        darkMode = true    
+
+        # 代码块相关
+        prism = true   
+         # 是否显示行号
+        linenos = true
+        # 是否启用点击行号高亮
+        clickhighlight = false
+        # 以下两个属性只能在Markdown代码块使用，linenos,clickhighlight也可以在Markdown使用
+        # 高亮起始行号，默认从代码块第一行开始计算
+        # linenostart = 1  
+        # 高亮行,连续数字可以合并，例如[3,"5-7"]，
+        # hl_lines = []    
+        # 使用示例``js {hl_lines=[3,"5-7"], linenostart = 2, linenos=false, clickhighlight=false}
+       
+                                 
+        startTime = "2023-08-15"    # 博客创建时间
+        prismTheme = "lucario"     # (optional) - Set theme for PrismJS. Options include: lotusdocs (default), solarized-light, twilight, lucario
+        pathName        = "docs"                            # path name for documentation site | default "docs"
+
+        # themeColor      = "cyan"                            # (optional) - Set theme accent colour. Options include: blue (default), green, red, yellow, emerald, cardinal, magenta, cyan
+    
+        # gitinfo
+        repoURL         = "https://github.com/liyao52033/hugopress"  # Git repository URL for your site [support for GitHub, GitLab, and BitBucket]
+        repoBranch      = "main"
+        # editPage        = true                                # enable 'Edit this page' feature - default false
+        lastMod         = true                                # enable 'Last modified' date on pages - default false
+        # lastModRelative = true                                # format 'Last modified' time as relative - default false
+
+         # ToC
+        toc             = true                                # enable table of contents? default is true
+        tocMobile       = true                                # enable table of contents in mobile view? default is true
+        scrollSpy       = true                                # enable scrollspy on ToC? default is true
+
+        sidebarIcons = true                                # enable sidebar icons? default false
+
+        # front matter
+        descriptions = true                                # enable front matter descriptions under content title?
+        titleIcon = true                                # enable front matter icon title prefix? default is false
+
+        # content navigation
+        navDesc = true                                # include front matter descriptions in Prev/Next navigation cards
+        navDescTrunc = 30                                  # Number of characters by which to truncate the Prev/Next descriptions
+
+        listDescTrunc = 100                                 # Number of characters by which to truncate the list card description
+        homeDescTrunc = 80                                 # Number of characters by which to truncate the home card description
+
+        # Link behaviour
+        intLinkTooltip  = true                                # Enable a tooltip for internal links that displays info about the destination? default false         
+        extLinkNewTab   = true
+        
+
+
+    # config.toml
+  [params.indexImg]
+    navColor = 2
+    switchNavColor = true
+    bgTimeColor = true
+    bgTimeColorArray = ["transparent", "transparent", "transparent", "transparent"]
+    descFade = true
+    desc = "Web前端技术博客，积跬步以至千里，致敬每个爱学习的你"
+    descFontSize = "1.4rem"
+    descFadeInTime = 200
+    descFadeOutTime = 100
+    descNextTime = 800
+    bubble = false
+    bubblePosition = 0
+    bubbleNum = 200
+    bodyBgImg = ['body/bg.jpg', 'https://cnb.xiaoying.org.cn?random=one', 'https://img.xxdevops.cn/blog/wallpaper/bg14.avif']
+    bodyBgImgInterval = 86400
+
+    [params.footer]
+      since = 2025
+      copyright = "<a href='https://github.com/liyao52033/' target='_blank' rel='noopener noreferrer'>liyao52033</a> All Rights Reserved"
+      customText = ""
+      docsCopyright = "© :YEAR: Lotus Labs. Built with <a href='https://lotusdocs.dev/docs/quickstart/' target='_blank' rel='noopener noreferrer'>**Lotus Docs**</a>"
+
+    [params.social]
+        github = "liyao52033/hugopress"        
+        rss = true                    # show rss icon with link     
+        
+    [params.blogger]
+      avatar = "https://img.xiaoying.org.cn/img/20250725164502996.png"
+      backgroundImage = "https://img.xxdevops.cn/blog/wallpaper/bg14.avif"  # 博主卡片背景图（可选，留空则使用纯色背景）
+      circleBgImg = "https://img.xiaoying.org.cn/img/20250725164502996.png"
+      circleBgMask = false
+      name = "liyao"
+      shape = "circle-rotate"
+      slogan = "分享技术，交流经验，共同成长"
+      [params.blogger.status]
+        icon = "😪"
+        size = 18.0  # 右下角表情图标大小（像素）
+        title = "困"
+      # 社交链接配置（显示在名字下方，slogan上方）
+      [[params.blogger.social]]
+        name = "GitHub"
+        icon = "github"  # GitHub 图标
+        url = "https://github.com/liyao52033"  # 你的 GitHub 地址
+      [[params.blogger.social]]
+            name = "CNB"
+            icon = "cnb"  #
+            url = "https://cnb.cool/liyao52033"  
+      [[params.blogger.social]]
+            name = "RSS"
+            icon = "rss"  # RSS 图标
+            url = "/index.xml"  # RSS 链接
+      [[params.blogger.social]]
+            name = "脚本工具箱"
+            icon = "twitter"  
+            url = "https://kejilion.sh/index-zh-CN.html"  
+
+    # ========================================
+    # 友链配置 (Friend Links)
+    # ========================================
+    [params.friendLink]
+        limit = 6
+        interval = 5000
+        # 指定首页友链卡片显示哪些分组（title）的友链
+        # 留空或注释掉表示显示所有分组
+        # 可以指定一个或多个分组，例如：
+        # groups = ["Teek道友"]  # 只显示 Teek道友 分组
+        # groups = ["Teek道友", "VitePress"]  # 显示多个分组
+        # groups = ["Teek道友"]  # 空数组表示显示所有分组（默认行为）
+    
+[menu]
+    [[menu.primary]]
+      name  = "编程"
+      url = "/code/"
+      identifier = "code"
+      weight = 10
+        # 子菜单项
+      [[menu.primary]]
+        name  = "前端"
+        url = "/front/"
+        identifier = "vue"
+        parent = "code"
+        weight = 20
+      [[menu.primary]]
+        name  = "后端"
+        url = "/springboot/"
+        identifier = "springboot"
+        parent = "code" 
+        weight = 30
+      [[menu.primary]]
+        name  = "嵌入式"
+        url = "/embedded/"
+        identifier = "c"
+        parent = "code"
+        weight = 40
+      [[menu.primary]]
+        name  = "python"
+        url = "/python/"
+        identifier = "python"
+        parent = "code" 
+        weight = 50
+
+    [[menu.primary]]
+        name  = "组件"
+        url = "/components/"
+        identifier = "components"
+        weight = 20
+      [[menu.primary]]
+        name  = "指南"
+        url = "/docs/guide/"
+        identifier = "qianduan"
+        parent = "components" 
+        weight = 40
+      [[menu.primary]]
+        name  = "使用"
+        url = "/components/"
+        identifier = "vue-components"
+        parent = "components" 
+        weight = 50
+      [[menu.primary]]
+        name  = "后端组件"
+        url = "/backend/"
+        identifier = "java"
+        parent = "components" 
+        weight = 60
+
+    [[menu.primary]]
+        name  = "项目实战"
+        url = "/projects-practice/"
+        identifier = "projects"
+        weight = 30
+      [[menu.primary]]
+        name  = "星球项目"
+        url = "/projects/"
+        identifier = "code-generator"
+        parent = "projects" 
+        weight = 50
+      [[menu.primary]]
+        name  = "开源项目"
+        url = "/opensource/"
+        identifier = "opensource"
+        parent = "projects" 
+        weight = 60
+    
+    [[menu.primary]]
+        name  = "资源"
+        url = "/tools/"
+        identifier = "tool"
+        weight = 90
+
+    [[menu.primary]]
+      name  = "关于"
+      url = "/about/"
+      identifier = "about"
+      weight = 100
+      # 子菜单项
+      [[menu.primary]]
+        name  = "联系我们"
+        url = "/about/"
+        identifier = "contact"
+        parent = "about"
+        weight = 10
+      [[menu.primary]]
+        name  = "文章归档"
+        url = "/archives/"
+        identifier = "team"
+        parent = "about" 
+        weight = 20
+

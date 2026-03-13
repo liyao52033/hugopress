@@ -1,0 +1,52 @@
+<script>
+  (function () {
+    function initDocSearch() {
+      try {
+        if (typeof window.docsearch === 'function' && document.getElementById('docsearch')) {
+          window.docsearch({
+            container: '#docsearch',
+            appId: '{{ .Site.Params.docsearch.appID }}',
+            apiKey: '{{ .Site.Params.docsearch.apiKey }}',
+            indexName: '{{ .Site.Params.docsearch.indexName }}',
+            askAi: {
+              indexName: '{{ .Site.Params.docsearch.askAi.indexName }}', 
+              assistantId: '{{ .Site.Params.docsearch.askAi.assistantId }}'
+            },
+          });
+          return true;
+        }
+      } catch (e) {
+        if (window.console && console.debug) console.debug('docsearch init error:', e);
+      }
+      return false;
+    }
+
+    // 等待 docsearch 脚本加载完成的轮询函数
+    function waitForDocSearch(maxAttempts) {
+      maxAttempts = maxAttempts || 50; // 最多等待 5 秒 (50 * 100ms)
+      var attempts = 0;
+      
+      function check() {
+        attempts++;
+        if (initDocSearch()) {
+          return; // 初始化成功
+        }
+        if (attempts < maxAttempts) {
+          setTimeout(check, 100); // 100ms 后重试
+        } else {
+          console.warn('[DocSearch] 等待超时，未能初始化');
+        }
+      }
+      
+      // DOM 就绪后开始检查
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', check);
+      } else {
+        check();
+      }
+    }
+
+    // 启动等待流程
+    waitForDocSearch();
+  })();
+</script>

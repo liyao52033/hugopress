@@ -1,0 +1,48 @@
+//
+// dropdown.scss
+//
+
+:root {
+    --dropdown-link-color: var(--text-default);
+    --dropdown-bg: var(--body-bg);
+    --dropdown-border-color: var(--alert-border-color);
+    --dropdown-border-radius: 0 0 4px 4px;
+
+    --dropdown-link-hover-color: var(--primary);
+}
+
+[data-dark-mode] {
+    --dropdown-link-color: var(--text-default);
+    --dropdown-bg: var(--body-bg);
+    --dropdown-border-color: var(--alert-border-color);
+    --dropdown-border-radius: 0 0 4px 4px;
+
+    --dropdown-link-hover-color: var(--primary-300);
+}
+
+.dropdown-menu {
+    --bs-dropdown-min-width: 7rem;
+    --#{$prefix}dropdown-link-color: var(--dropdown-link-color);
+    --#{$prefix}dropdown-bg: var(--dropdown-bg);
+    --#{$prefix}dropdown-border-color: var(--dropdown-border-color);
+
+    --#{$prefix}dropdown-link-hover-bg: none;
+    --#{$prefix}dropdown-link-hover-color: var(--dropdown-link-hover-color);
+
+    --#{$prefix}dropdown-border-radius: var(--dropdown-border-radius);
+
+    border-top: none;
+}
+
+
+html[data-dark-mode] {
+    .top-header {
+        .nav-link {
+            color: #c2e3ff94 !important;
+        }
+
+        .hamburger-line {
+            background-color: #3C4257;
+        }
+    }
+}

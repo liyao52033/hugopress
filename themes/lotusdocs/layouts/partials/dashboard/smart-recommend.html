@@ -1,0 +1,45 @@
+<div class="smart-recommend">
+    <div class="recommend-header">
+        <h3 class="recommend-title">你可能喜欢</h3>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 1024 1024">
+            <path fill="currentColor" d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"/>
+            <path fill="currentColor" d="M712 304c-4.4 0-8 3.6-8 8v400c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8V312c0-4.4-3.6-8-8-8h-56zm-228 0c-4.4 0-8 3.6-8 8v400c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8V312c0-4.4-3.6-8-8-8h-56zm-228 0c-4.4 0-8 3.6-8 8v400c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8V312c0-4.4-3.6-8-8-8h-56z"/>
+        </svg>
+    </div>
+    <div class="recommend-list" id="recommend-list">
+        {{ $pages := where .Site.RegularPages "Type" "docs" }}
+        {{ $random := slice }}
+        {{ range $pages }}
+            {{ $random = $random | append . }}
+        {{ end }}
+        {{ range first 5 $random }}
+        <div class="recommend-item" data-tags='{{ with .Params.tags }}{{ jsonify . }}{{ else }}[]{{ end }}' data-url="{{ .Permalink }}">
+            <h4 class="recommend-item-title">
+                <a href="{{ .Permalink }}">{{ .Title }}</a>
+            </h4>
+            <div class="recommend-item-meta">
+                <span class="recommend-date">{{ .Date.Format "01-02" }}</span>
+                {{ if .Params.categories }}
+                <span class="recommend-category">{{ index .Params.categories 0 }}</span>
+                {{ end }}
+            </div>
+        </div>
+        {{ end }}
+    </div>
+    {{/*  <div class="recommend-footer">
+        <a href="{{ "/docs/" | relLangURL }}" class="recommend-more">查看更多 →</a>
+    </div>  */}}
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const recommendList = document.getElementById("recommend-list");
+        const recommendItems = recommendList.querySelectorAll(".recommend-item");
+        recommendItems.forEach(item => {
+            const tags = JSON.parse(item.dataset.tags);
+            item.addEventListener("click", function() {
+                window.location.href = item.dataset.url;
+            });
+        });
+    });
+</script>

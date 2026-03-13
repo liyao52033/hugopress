@@ -1,0 +1,19 @@
+{{/* 本地托管的 Google Fonts 预加载和加载 */}}
+{{ if .Site.Params.google_fonts }}
+
+{{/* 预加载本地字体文件 - 在 CSS 加载前开始下载 */}}
+{{ range .Site.Params.google_fonts }}
+{{ $family := index (.) 0 }}
+{{ $weights := split (index (.) 1) "," }}
+{{ range $weights }}
+{{ $weight := trim . " " }}
+{{ $font_slug := lower (replace $family " " "-") }}
+<link rel="preload" as="font" href="{{ printf "/docs/fonts/%s-latin-%s.woff2" $font_slug $weight | absURL }}" type="font/woff2" crossorigin>
+{{ end }}
+{{ end }}
+
+{{/* 异步加载本地字体 CSS - 使用 media="print" 技巧 */}}
+<link rel="preload" href="{{ "/docs/fonts/fonts.css" | absURL }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="{{ "/docs/fonts/fonts.css" | absURL }}"></noscript>
+
+{{ end }}

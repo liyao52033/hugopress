@@ -1,0 +1,826 @@
+<div class="fantasy">
+    <canvas id="cvs" class="hidden" width="1980" height="1080"></canvas>
+    <canvas id="screenImage" class="hidden" width="234" height="357"></canvas>
+    <canvas id="rili" class="hidden" width="600" height="600"></canvas>
+    <canvas id="display"></canvas>
+</div>
+
+  {{/* 使用 responsive-image partial 处理图片 */}}
+  {{ $bg := partial "responsive-image.html" (dict "src" "images/fantasy/bg.png" "quality" 70 "format" "webp") }}
+  {{ $mask := partial "responsive-image.html" (dict "src" "images/fantasy/mask.png" "quality" 70 "format" "webp") }}
+  {{ $light := partial "responsive-image.html" (dict "src" "images/fantasy/light.png" "quality" 70 "format" "webp") }}
+  {{ $caidai := partial "responsive-image.html" (dict "src" "images/fantasy/caidai.png" "quality" 70 "format" "webp") }}
+  {{ $two := partial "responsive-image.html" (dict "src" "images/fantasy/22.png" "quality" 70 "format" "webp") }}
+  {{ $screen := partial "responsive-image.html" (dict "src" "images/fantasy/screen.png" "quality" 70 "format" "webp") }}
+  {{ $screenLight := partial "responsive-image.html" (dict "src" "images/fantasy/screenLight.png" "quality" 70 "format" "webp") }}
+  {{ $phoneLight := partial "responsive-image.html" (dict "src" "images/fantasy/phoneLight.png" "quality" 70 "format" "webp") }}
+  {{ $screenMask := partial "responsive-image.html" (dict "src" "images/fantasy/Screenmask.png" "quality" 70 "format" "webp") }}
+
+  <style>
+  .fantasy {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100%;
+    z-index: -9;
+    overflow: hidden;
+  }
+  .hidden {
+    display: none;
+  }
+  #display {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  /* 图片大小 */
+  .banner {
+    margin-top: 0 !important;
+    height: 100vh;
+    background-attachment: fixed !important;
+  }
+  /* 图片中间的签名和标题位置 */
+  .banner-conent {
+    margin-top: 15vh !important;
+  }
+
+  @media screen and (max-width: 768px) {
+    .fantasy {
+      /* 移除背景图，避免与canvas重复 */
+      background: none;
+    }
+    /* 确保canvas在移动端填满整个视口 */
+    #display {
+      width: 100% !important;
+      height: 100vh !important;
+    }
+  }
+
+  </style>
+
+  <script>
+  
+  // 定义图片路径变量（从Hugo资源管道传入）
+  const imagePaths = {
+    bg: "{{ $bg.src }}",
+    mask: "{{ $mask.src }}",
+    light: "{{ $light.src }}",
+    caidai: "{{ $caidai.src }}",
+    two: "{{ $two.src }}",
+    screen: "{{ $screen.src }}",
+    screenLight: "{{ $screenLight.src }}",
+    phoneLight: "{{ $phoneLight.src }}",
+    screenMask: "{{ $screenMask.src }}"
+  };
+
+  // 等待DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 只有一个 fantasy 元素，防止重复加载多个图片
+    if (document.getElementsByClassName("fantasy").length == 1) {
+      // 清除banner颜色
+      clearBannerColor();
+
+      // 如果是首页（可根据Hugo的页面参数调整判断逻辑）
+      const isIndexPage = document.body.classList.contains('home') || window.location.pathname === '/';
+      if (isIndexPage) {
+        mountedElement();
+      }
+
+      init();
+    }
+
+    function clearBannerColor() {
+      let bannerColor = document.getElementsByClassName("banner-color")[0];
+      if (bannerColor) {
+        bannerColor.parentNode.removeChild(bannerColor);
+      }
+    }
+
+    function mountedElement() {
+      let fantasy = document.getElementsByClassName("fantasy")[0];
+      let banner = document.getElementsByClassName("banner")[0];
+      // 去掉黑色栅格背景
+      banner.style.background = "";
+      fantasy && banner && banner.appendChild(fantasy);
+    }
+
+    function init() {
+      var cvs = document.getElementById("cvs");
+      if (!cvs) {
+        return;
+      }
+      // 优化：使用 alpha: false 和 desynchronized 提升性能
+      var ctx = cvs.getContext("2d", {
+        alpha: false,
+        desynchronized: true
+      });
+
+      var display = document.getElementById("display");
+      var displayCtx = display.getContext("2d", {
+        alpha: false,
+        desynchronized: true
+      });
+
+      var screenImage = document.getElementById("screenImage");
+      var screenImageCtx = screenImage.getContext("2d");
+
+      var rili = document.getElementById("rili");
+      var riliCtx = rili.getContext("2d");
+
+      var songInfo = {};
+      var AllTimeBak = 0;
+      var NowBak = 0;
+      var DrawWarning = false;
+      var EnMonth = false;
+
+      // ========== 性能优化：缓存变量 ==========
+      var staticBgCanvas = null;
+      var staticBgCtx = null;
+      var isStaticBgReady = false;
+      var imageBitmaps = {};
+      var audioSampleCount = 32; // 从128降到32，减少计算量
+
+      // 预设置字体缓存，避免在render中重复设置
+      // 字体大小会根据缩放比例动态调整
+      function setScaledFont() {
+        var scaledSize = Math.max(16, Math.round(32 * scaleRatio));
+        ctx.font = scaledSize + "pt Impact";
+      }
+      setScaledFont();
+
+      // 绘制日历
+      function drawRili() {
+        riliCtx.clearRect(0, 0, 600, 600);
+        var date = new Date();
+        var year = date.getYear();
+        var mouth = date.getMonth();
+        var today = date.getDate();
+        var week = date.getDay();
+
+        var cardSize = 40;
+
+        var array_three = [4, 6, 9, 11];
+        var array_threeone = [1, 3, 5, 7, 8, 10, 12];
+        var array_week = ["SUN", "MON", "TUES", "WED", "THUR", "FRI", "SAT"];
+
+        var firstDraw;
+        var wIdx = (today - 1) % 7;
+
+        if (week >= wIdx) {
+          firstDraw = week - wIdx;
+        } else {
+          firstDraw = week - wIdx + 7;
+        }
+
+        var dayIndex = 1;
+        var countDay = 30;
+
+        if (array_three.indexOf(mouth + 1) > -1) {
+          countDay = 30;
+        } else if (array_threeone.indexOf(mouth + 1) > -1) {
+          countDay = 31;
+        } else {
+          if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0)
+            countDay = 29;
+          else countDay = 28;
+        }
+
+        var row = 6;
+
+        function drawTodaybg(i, j) {
+          riliCtx.save();
+
+          riliCtx.beginPath();
+          riliCtx.strokeStyle = "#900";
+          riliCtx.arc(
+            45 + i * cardSize * 1.7 + cardSize / 1.18,
+            50 + j * cardSize + cardSize / 2,
+            cardSize / 2 - 10,
+            -Math.PI,
+            Math.PI * 1
+          );
+          riliCtx.stroke();
+          riliCtx.closePath();
+
+          riliCtx.beginPath();
+          riliCtx.arc(
+            45 + i * cardSize * 1.7 + cardSize / 1.18,
+            50 + j * cardSize + cardSize / 2,
+            cardSize / 2 - 9,
+            -Math.PI,
+            Math.PI * 0.9
+          );
+          riliCtx.stroke();
+          riliCtx.closePath();
+
+          riliCtx.beginPath();
+          riliCtx.arc(
+            45 + i * cardSize * 1.7 + cardSize / 1.18,
+            50 + j * cardSize + cardSize / 2,
+            cardSize / 2 - 8,
+            -Math.PI,
+            Math.PI * 0.8
+          );
+          riliCtx.stroke();
+          riliCtx.closePath();
+
+          riliCtx.beginPath();
+          riliCtx.arc(
+            45 + i * cardSize * 1.7 + cardSize / 1.18,
+            50 + j * cardSize + cardSize / 2,
+            cardSize / 2 - 7,
+            -Math.PI,
+            Math.PI * 0.7
+          );
+          riliCtx.stroke();
+          riliCtx.closePath();
+
+          riliCtx.beginPath();
+          riliCtx.arc(
+            45 + i * cardSize * 1.7 + cardSize / 1.18,
+            50 + j * cardSize + cardSize / 2,
+            cardSize / 2 - 6,
+            -Math.PI,
+            Math.PI * 0.6
+          );
+          riliCtx.stroke();
+          riliCtx.closePath();
+
+          riliCtx.restore();
+        }
+
+        var isNum = /^\d+(\d+)?$/;
+
+        function drawDate(txt, i, j) {
+          riliCtx.textAlign = "center";
+          riliCtx.fillStyle = "rgb(69,68,84)";
+          riliCtx.font = cardSize / 1.5 + "px Impact";
+          var yOffest = 3;
+
+          if ((j == 0 || j == 6) && isNum.test(txt)) {
+            riliCtx.fillStyle = "#900";
+          }
+
+          riliCtx.fillText(
+            txt.toString(),
+            45 + j * cardSize * 1.7 + cardSize / 1.18,
+            50 + i * cardSize + (cardSize / 3) * 2 + yOffest
+          );
+
+          if (txt == today) {
+            drawTodaybg(j, i);
+          }
+        }
+
+        riliCtx.fillStyle = "rgb(69,68,84)";
+        riliCtx.font = "900 26pt SimHei";
+        riliCtx.textAlign = "center";
+        var monthCN = [
+          "一", "二", "三", "四", "五", "六",
+          "七", "八", "九", "十", "十一", "十二",
+        ];
+        var monthEN = [
+          " January", "February", "  March", "  April",
+          "   May", "  June", "  July", " August",
+          "September", " October", "November", " December",
+        ];
+
+        if (EnMonth) {
+          riliCtx.scale(1.1, 1);
+          riliCtx.fillText(monthEN[mouth], 245, 32);
+          riliCtx.resetTransform();
+        } else {
+          riliCtx.scale(1.1, 1);
+          riliCtx.fillText(monthCN[mouth] + "月", 260, 32);
+          riliCtx.resetTransform();
+
+          riliCtx.font = "20pt SimHei";
+          riliCtx.textAlign = "end";
+          riliCtx.fillText(today + "日", 520, 38);
+        }
+
+        for (var i = 0; i < row; i++) {
+          for (var j = 0; j < 7; j++) {
+            riliCtx.strokeRect(
+              45 + j * cardSize * 1.7,
+              50 + i * cardSize,
+              cardSize * 1.7,
+              cardSize
+            );
+          }
+        }
+
+        dayIndex = 1;
+
+        for (var i = 0; i < row; i++) {
+          for (var j = 0; j < 7; j++) {
+            if (i == 0) {
+              drawDate(array_week[j], i, j);
+              continue;
+            }
+
+            if (i == 1 && j < firstDraw) {
+              continue;
+            }
+
+            if (dayIndex > countDay) {
+              break;
+            }
+
+            drawDate(dayIndex++, i, j);
+          }
+        }
+      }
+
+      var riliInterval = setInterval(drawRili, 3600000);
+      drawRili();
+
+      // Canvas剪切蒙版实现
+      var screenMask = new Image();
+      screenMask.src = imagePaths.screenMask;
+
+      var screen = new Image();
+      screen.src = imagePaths.screen;
+
+      var iv = setInterval(() => {
+        if (screen.complete && screenMask.complete) {
+          screenImageCtx.drawImage(screen, -300, -50, 1280, 720);
+          screenImageCtx.globalCompositeOperation = "destination-atop";
+          screenImageCtx.drawImage(screenMask, 0, 0);
+          screenImageCtx.globalCompositeOperation = "source-over";
+          clearInterval(iv);
+        }
+      }, 14);
+
+      // ========== 自适应缩放相关变量（移到前面） ==========
+      var scaleRatio = 1;
+      var bgOriginalWidth = 1980;
+      var bgOriginalHeight = 1080;
+      var isScaleReady = false;
+      
+      // 用于 cover 模式计算的变量（填满屏幕，可能裁剪）
+      var coverScale = 1;
+      var coverOffsetX = 0;
+      var coverOffsetY = 0;
+
+      // 屏幕大小自适应（使用实际图片比例）
+      var resizeTimeout;
+      var lastWidth = window.innerWidth;
+      
+      // 计算 cover 模式的缩放和偏移（类似 CSS background-size: cover）
+      function calculateCover() {
+        // 确保使用实际的图片尺寸
+        var actualWidth = bgOriginalWidth;
+        var actualHeight = bgOriginalHeight;
+        
+        // 如果图片已加载，使用实际尺寸（添加安全检查）
+        if (typeof bg !== 'undefined' && bg.complete && bg.naturalWidth > 0) {
+          actualWidth = bg.naturalWidth;
+          actualHeight = bg.naturalHeight;
+        }
+        
+        var imgRatio = actualHeight / actualWidth;
+        var screenRatio = window.innerHeight / window.innerWidth;
+        
+        if (screenRatio > imgRatio) {
+          // 屏幕比图片更高，按高度缩放，左右裁剪
+          coverScale = window.innerHeight / actualHeight;
+          coverOffsetX = (window.innerWidth - actualWidth * coverScale) / 2;
+          coverOffsetY = 0;
+        } else {
+          // 屏幕比图片更宽，按宽度缩放，上下裁剪
+          coverScale = window.innerWidth / actualWidth;
+          coverOffsetX = 0;
+          coverOffsetY = (window.innerHeight - actualHeight * coverScale) / 2;
+        }
+      }
+      
+      // 实际的resize处理函数
+      function doResize() {
+        var dpr = window.devicePixelRatio || 1;
+        var isMobile = window.matchMedia("(max-width: 768px)").matches;
+        
+        // 计算 cover 模式参数
+        calculateCover();
+        
+        // 设置显示 canvas 尺寸（使用 CSS 像素）
+        display.width = window.innerWidth;
+        display.height = window.innerHeight;
+        
+        // 移动端使用 DPR 提高分辨率
+        if (isMobile) {
+          display.width = window.innerWidth * dpr;
+          display.height = window.innerHeight * dpr;
+        }
+        display.style.width = window.innerWidth + 'px';
+        display.style.height = window.innerHeight + 'px';
+      }
+      
+      window.onresize = function () {
+        // 只检测宽度变化，高度变化不处理（避免移动端地址栏显示/隐藏导致的resize）
+        var widthChanged = Math.abs(window.innerWidth - lastWidth) > 10;
+        
+        if (!widthChanged) {
+          return;
+        }
+        
+        lastWidth = window.innerWidth;
+        
+        // 防抖延迟，避免频繁重绘
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(doResize, 200);
+      };
+
+      // 立即执行一次，确保初始化正确
+      doResize();
+
+      // 加载图片
+      var bg = new Image();
+      bg.src = imagePaths.bg;
+
+      var mask = new Image();
+      mask.src = imagePaths.mask;
+
+      var light = new Image();
+      light.src = imagePaths.light;
+
+      var caidai = new Image();
+      caidai.src = imagePaths.caidai;
+
+      var two = new Image();
+      two.src = imagePaths.two;
+
+      var screenLight = new Image();
+      screenLight.src = imagePaths.screenLight;
+
+      var phoneLight = new Image();
+      phoneLight.src = imagePaths.phoneLight;
+
+      var phoneText = [
+        {"time":0,"text":"凌晨啦!"},
+        {"time":6,"text":"早上好!"},
+        {"time":8,"text":"上午好!"},
+        {"time":11,"text":"你吃了吗"},
+        {"time":13,"text":"下午好鸭!"},
+        {"time":16,"text":"傍晚咯!"},
+        {"time":19,"text":"晚安!"}
+      ];
+
+      var noRili = false;
+      var updateSongInfoHandler = -1;
+
+      // 优化：减少数据数组大小到64
+      var data = new Array(64);
+      var animData = new Array(64);
+      var SoundPlaying = false;
+
+      for (var i = 0; i < 64; i++) {
+        data[i] = animData[i] = 0;
+      }
+
+      // Normalize
+      var peakValue = 1;
+
+      // 优化音频监听：只处理32个采样点
+      if (window.wallpaperRegisterAudioListener) {
+        window.wallpaperRegisterAudioListener(function (audioData) {
+          var max = 0;
+          // 只采样前64个点中的偶数索引
+          for (var i = 0; i < 64; i += 2) {
+            if (audioData[i] > max) max = audioData[i];
+          }
+          peakValue = peakValue * 0.99 + max * 0.01;
+
+          // 只填充32个数据点
+          for (var i = 0; i < 32; i++) {
+            data[31 - i] = audioData[i * 2] / peakValue;
+          }
+          for (var i = 0; i < 32; i++) {
+            data[63 - i] = audioData[126 - i * 2] || 0;
+          }
+        });
+      } else {
+        var iva;
+        let audio = document.getElementsByClassName("aplayer-button")[0];
+        if (audio) {
+          audio.onclick = () => {
+            let play = document.getElementsByClassName("aplayer-play")[0];
+            if (play) {
+              iva = setInterval(() => {
+                for (var i = 0; i < 32; i++) {
+                  peakValue = peakValue * 0.99 + 1 * 0.01;
+                  data[31 - i] = ((Math.random() * 0.4) / peakValue) * Math.random();
+                }
+                for (var i = 0; i < 32; i++) {
+                  data[63 - i] = Math.random() * 0.2 * Math.random();
+                }
+              }, 130);
+            } else {
+              clearInterval(iva);
+              for (var i = 0; i < 64; i++) {
+                data[i] = animData[i] = 0;
+              }
+            }
+          };
+        }
+      }
+
+      // 工具函数
+      function min(a, b) { return a > b ? b : a; }
+      function max(a, b) { return a > b ? a : b; }
+
+      // 颜色变化
+      var targetColor = { r: 80, g: 120, b: 169 };
+      var currentColor = { r: 80, g: 120, b: 169 };
+      var lightColor = { r: 0, g: 34, b: 77, a: 0 };
+
+      var night = false;
+      var debug = false;
+
+      // 计算缩放比例（基于背景图片实际尺寸）
+      function calculateScaleRatio() {
+        if (bg.complete && bg.naturalWidth > 0) {
+          var oldWidth = bgOriginalWidth;
+          var oldHeight = bgOriginalHeight;
+          
+          bgOriginalWidth = bg.naturalWidth;
+          bgOriginalHeight = bg.naturalHeight;
+          // 使用宽度比例作为基准（保持与原始设计一致）
+          scaleRatio = bgOriginalWidth / 1980;
+          isScaleReady = true;
+
+          // 更新 canvas 尺寸以匹配图片
+          cvs.width = bgOriginalWidth;
+          cvs.height = bgOriginalHeight;
+
+          // 重新创建预渲染 canvas
+          if (staticBgCanvas) {
+            staticBgCanvas.width = bgOriginalWidth;
+            staticBgCanvas.height = bgOriginalHeight;
+          }
+          
+          // 如果尺寸发生变化，重新计算 cover 模式
+          if (oldWidth !== bgOriginalWidth || oldHeight !== bgOriginalHeight) {
+            calculateCover();
+            doResize();
+          }
+        }
+      }
+
+      // 坐标转换函数：将原始坐标（基于1980x1080）转换为实际坐标
+      function x(origX) { return origX * scaleRatio; }
+      function y(origY) { return origY * scaleRatio; }
+
+      // 预渲染静态背景
+      function prerenderStaticBg() {
+        if (!isScaleReady) {
+          calculateScaleRatio();
+        }
+
+        if (!staticBgCtx) {
+          staticBgCanvas = document.createElement('canvas');
+          staticBgCanvas.width = bgOriginalWidth;
+          staticBgCanvas.height = bgOriginalHeight;
+          staticBgCtx = staticBgCanvas.getContext('2d', { alpha: false });
+        }
+
+        // 绘制静态元素（使用缩放后的坐标）
+        if (bg.complete) staticBgCtx.drawImage(bg, 0, 0);
+        if (mask.complete) staticBgCtx.drawImage(mask, x(954), y(99));
+        if (caidai.complete) staticBgCtx.drawImage(caidai, x(949), y(25));
+        if (two.complete) staticBgCtx.drawImage(two, x(1319), y(345));
+
+        isStaticBgReady = true;
+      }
+
+      // 主渲染函数 - 已优化
+      function render() {
+        // 移动端判断
+        var isMobile = window.matchMedia("(max-width: 768px)").matches;
+        
+        // 优化：只处理32个采样点
+        for (var i = 0; i < audioSampleCount; i++) {
+          animData[i] += (data[i] - animData[i]) * 0.3;
+          animData[i] = min(animData[i], 1);
+        }
+
+        // 颜色渐变计算
+        currentColor.r += (targetColor.r - currentColor.r) * 0.01;
+        currentColor.r = min(max(currentColor.r, 0), 255);
+        currentColor.g += (targetColor.g - currentColor.g) * 0.01;
+        currentColor.g = min(max(currentColor.g, 0), 255);
+        currentColor.b += (targetColor.b - currentColor.b) * 0.01;
+        currentColor.b = min(max(currentColor.b, 0), 255);
+
+        // 确保缩放比例已计算
+        if (!isScaleReady) {
+          calculateScaleRatio();
+        }
+
+        // 清空画布（使用实际尺寸）
+        ctx.clearRect(0, 0, bgOriginalWidth, bgOriginalHeight);
+
+        // 使用预渲染的静态背景或降级绘制
+        if (isStaticBgReady) {
+          ctx.drawImage(staticBgCanvas, 0, 0);
+        } else {
+          ctx.drawImage(bg, 0, 0);
+          // 移动端隐藏装饰图片，只保留背景
+          if (!isMobile) {
+            ctx.drawImage(mask, x(954), y(99));
+            ctx.drawImage(caidai, x(949), y(25));
+            ctx.drawImage(two, x(1319), y(345));
+          }
+          // 尝试预渲染
+          if (bg.complete && mask.complete && caidai.complete && two.complete) {
+            prerenderStaticBg();
+          }
+        }
+
+        // 获取时间字符串
+        var time = new Date();
+        var timeStr = (time.getHours() < 10 ? "0" : "") + time.getHours().toString() + ":" +
+                      (time.getMinutes() < 10 ? "0" : "") + time.getMinutes();
+        // 桌面端显示秒
+        if (!isMobile) {
+          timeStr += ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds().toString();
+        }
+
+        // 桌面端：绘制时间在电视机上
+        if (!isMobile) {
+          ctx.save();
+          ctx.fillStyle = "#97adbb";
+          var scaledFontSize = Math.max(16, Math.round(32 * scaleRatio));
+          ctx.font = scaledFontSize + "pt Impact";
+          ctx.transform(1, 2.05 * (Math.PI / 180), 0, 1, 0, 0);
+          ctx.fillText(timeStr, x(725), y(318));
+          ctx.restore();
+        }
+
+        // 日历本（使用缩放后的坐标）- 移动端隐藏
+        if (!isMobile) {
+          ctx.save();
+          ctx.transform(0.9645, 0, 0, 0.96, x(967), y(100));
+          ctx.rotate(6 * (Math.PI / 180));
+
+          if (!noRili) {
+            ctx.drawImage(rili, 0, 0);
+            ctx.restore();
+            ctx.save();
+            ctx.transform(0.9645, 0, 9 * (Math.PI / 180), 1, x(825), y(160));
+            ctx.rotate(7 * (Math.PI / 180));
+          }
+
+          targetColor = { r: 80, g: 120, b: 169 };
+          if (night) targetColor = { r: 255, g: 75, b: 80 };
+
+          // 绘制分隔线（使用缩放后的坐标）
+          if (!noRili) {
+            ctx.fillStyle = "rgba(0,0,0,0.5)";
+            ctx.fillRect(x(-10), y(320), x(650), y(2));
+          }
+
+          // 音频可视化条 - 优化：只绘制32条（使用缩放后的坐标）
+          ctx.fillStyle = "rgb(" + currentColor.r + "," + currentColor.g + "," + currentColor.b + ")";
+
+          var barSpacing = noRili ? x(7.5) : x(10);
+          var startX = noRili ? x(40) : x(10);
+          var baseY = noRili ? y(30) : y(20);
+          var maxHeight = y(300);
+
+          for (var i = 0; i < audioSampleCount; i++) {
+            var height = maxHeight * animData[i];
+            ctx.fillRect(
+              startX + barSpacing * i,
+              baseY + (maxHeight - height),
+              x(4),
+              height
+            );
+          }
+
+          ctx.restore();
+        }
+
+        // 光照效果（使用缩放后的坐标）- 移动端隐藏
+        if (!isMobile) {
+          ctx.globalCompositeOperation = "overlay";
+          ctx.drawImage(light, x(971), y(197));
+          ctx.globalCompositeOperation = "source-over";
+        }
+
+        // 夜间光照
+        if (night && lightColor.a < 0.7) {
+          lightColor.a = min(lightColor.a + 0.005, 0.7);
+        } else if (!night) {
+          lightColor.a = max(lightColor.a - 0.005, 0.0);
+        }
+
+        if (lightColor.a > 0) {
+          ctx.globalCompositeOperation = "hard-light";
+          ctx.fillStyle = "rgba(" + lightColor.r + "," + lightColor.g + "," + lightColor.b + "," + lightColor.a + ")";
+          ctx.fillRect(0, 0, bgOriginalWidth, bgOriginalHeight);
+          ctx.globalCompositeOperation = "source-over";
+
+          ctx.globalAlpha = lightColor.a / 0.7;
+          // 调整phoneLight位置和大小，对准背景图中的手机屏幕
+          // 放大1.2倍以覆盖整个手机屏幕
+
+          // - x 坐标增大 → 向右移动
+         // - x 坐标减小 → 向左移动
+         // - y 坐标增大 → 向下移动
+        //  - y 坐标减小 → 向上移动
+          var phoneLightScale = 1.2;
+          ctx.drawImage(phoneLight, x(840), y(430), phoneLight.width * phoneLightScale * scaleRatio, phoneLight.height * phoneLightScale * scaleRatio);
+          ctx.globalAlpha = 1;
+        }
+
+        // 屏幕 - 桌面端显示电视机图片，移动端不显示（电视机在背景图中）
+        if (!isMobile) {
+          ctx.drawImage(screenImage, 0, 0);
+          if (lightColor.a > 0) {
+            ctx.globalAlpha = lightColor.a / 0.7;
+            ctx.drawImage(screenLight, 0, 0);
+            ctx.globalAlpha = 1;
+          }
+        }
+        
+        // 移动端：在背景图的电视机上绘制时间
+        if (isMobile) {
+          ctx.save();
+          ctx.fillStyle = "#97adbb";
+          var tvFontSize = Math.max(28, Math.round(48 * scaleRatio));
+          ctx.font = tvFontSize + "pt Impact";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          // 背景图中电视机屏幕的大致位置（蓝色小电视）
+          // 根据截图调整坐标，让时间显示在电视机黑色屏幕中央
+          ctx.fillText(timeStr, x(795), y(330));
+          ctx.restore();
+        }
+
+        // 时间判断和问候语
+        night = true;
+        var greeting = "凌晨啦!";
+        phoneText.forEach((v) => {
+          if (time.getHours() >= v.time) greeting = v.text;
+        });
+
+        if (time.getHours() >= 6 && time.getHours() <= 18) night = false;
+        night = debug ? !night : night;
+
+        // 手机问候语 - 参照时间逻辑，使用scaleRatio缩放
+        ctx.save();
+        ctx.fillStyle = "#000";
+        // 动态调整字体大小，移动端更大
+        var phoneFontSize = Math.max(12, Math.round(31.02 * scaleRatio));
+        if (isMobile) {
+          phoneFontSize = Math.max(18, Math.round(50 * scaleRatio));
+        }
+        ctx.font = phoneFontSize + "pt SimHei";
+        // 使用缩放后的坐标和变换
+        ctx.transform(1.0911, -35 * (Math.PI / 180), 0, 0.5868, x(1132.94), y(564.07));
+        ctx.rotate(56.5 * (Math.PI / 180));
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#fff";
+        // 偏移量135和80是在变换后的坐标系中，不需要再缩放
+        // 使用textBaseline: "middle"实现垂直居中
+        ctx.fillText(greeting, 135, 80);
+        ctx.restore();
+
+        // 恢复默认字体设置
+        ctx.font = "32pt Impact";
+        ctx.textAlign = "start";
+
+        // 最终绘制到显示画布（使用 cover 模式，填满屏幕）
+        displayCtx.save();
+        
+        // 使用 cover 模式绘制（填满屏幕，居中裁剪）
+        // 注意：display canvas 已经考虑了 DPR，所以不需要再乘以 DPR
+        var drawWidth = bgOriginalWidth * coverScale;
+        var drawHeight = bgOriginalHeight * coverScale;
+        var drawX = coverOffsetX;
+        var drawY = coverOffsetY;
+        
+        // 如果是移动端，需要调整坐标
+        var isMobile = window.matchMedia("(max-width: 768px)").matches;
+        var dpr = window.devicePixelRatio || 1;
+        if (isMobile) {
+          drawWidth *= dpr;
+          drawHeight *= dpr;
+          drawX *= dpr;
+          drawY *= dpr;
+        }
+        
+        // 正确的 drawImage 参数顺序：(源图像, 源x, 源y, 源宽, 源高, 目标x, 目标y, 目标宽, 目标高)
+        displayCtx.drawImage(cvs, 0, 0, cvs.width, cvs.height, drawX, drawY, drawWidth, drawHeight);
+        displayCtx.restore();
+        
+        window.requestAnimationFrame(render);
+      }
+
+      window.requestAnimationFrame(render);
+    }
+  });
+  </script>

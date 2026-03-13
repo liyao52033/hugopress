@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+{{ $.Scratch.Delete "social_list" }}
+{{ $.Scratch.Set "pathName" (printf "%s" (.Site.Params.docs.pathName | default "docs")) }}
+<!-- social_list -->
+{{ $social_params := slice "github" "twitter" "bluesky" "instagram" "rss" }}
+{{ range $social_params }}
+    {{ if isset site.Params.social . }}
+        {{ $.Scratch.Add "social_list" (slice .) }}
+    {{ end }}
+{{ end }}
+<html lang="{{ site.LanguageCode }}">
+    
+    {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "head.html") . -}}
+    <body>
+        {{- partial "docs/banner/bodyBg.html" . -}}
+        <div class="content">
+            <div class="page-wrapper toggled">
+                {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "sidebar.html") . -}}
+                    <!-- Start Page Content -->
+                    <main class="page-content bg-transparent">
+                        {{ if hugo.IsMultilingual }}
+                            {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "top-header.html") . -}}
+                        {{ else }}
+                            {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "top-header.html") . .RelPermalink -}}
+                        {{ end }}
+                            <div class="container-fluid">
+                                <div class="layout-spacing">
+                                    {{ $currentPage := . -}}
+                                    {{/* 计算字数：从原始Markdown中提取中文字符 */}}
+                                    {{ $rawContent := .RawContent }}
+                                    {{ $chineseChars := replaceRE `[^\p{Han}]` "" $rawContent }}
+                                    {{ $chineseCount := len $chineseChars }}
+                                    {{ $.Scratch.Set "chineseCount" $chineseCount }}
+                                    <div class="row flex-xl-nowrap">
+                                        {{ if site.Params.docs.toc | default true }}
+                                        <div class="docs-toc col-xl-3 {{ if .IsNode }}visually-hidden{{ else }}{{end}} {{ if and (ne .Params.toc false) (ne .TableOfContents "<nav id=\"TableOfContents\"></nav>") }}{{ else }}visually-hidden{{ end }} {{ if site.Params.docs.toc | default true }}{{ else }}visually-hidden{{ end }} d-xl-block">
+                                            {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "toc.html") . -}}
+                                        </div>
+                                        {{ end }}
+                                        {{ if site.Params.docs.tocMobile | default true }}
+                                        <div class="docs-toc-mobile {{ if .IsNode }}visually-hidden{{ else }}{{end}} {{ if and (ne .Params.toc false) (ne .TableOfContents "<nav id=\"TableOfContents\"></nav>") }}{{ else }}visually-hidden{{ end }} {{ if site.Params.docs.tocMobile | default true }}{{ else }}visually-hidden{{ end }} d-print-none d-xl-none">
+                                            <button id="toc-dropdown-btn" class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-offset="0,0" aria-expanded="false">
+                                               本页导航
+                                            </button>
+                                            {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "toc-mobile.html") . -}}
+                                        </div>
+                                        {{ end -}}
+                                        <div class="docs-content col-12 {{ if .IsNode }}{{ else }}{{ if site.Params.docs.toc | default true }}{{ if and (ne .Params.toc false) (ne .TableOfContents "<nav id=\"TableOfContents\"></nav>") }}col-xl-9{{else}}{{end}}{{ else }}{{ end }}{{ end }} mt-4">
+                                            {{ if site.Params.docs.breadcrumbs | default true }}
+                                                <div class="d-md-flex justify-content-between align-items-center mb-2">
+                                                    {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "breadcrumbs.html") $currentPage -}}
+                                                </div>
+                                            {{ end }}
+                                            <div class="d-flex align-items-center">
+                                                {{ if .Site.Params.docs.titleIcon | default false }}
+                                                <i class="material-icons title-icon">{{- .Params.icon | default "article" }}</i>
+                                                {{ end }}
+                                                <h1 class="content-title">
+                                                    {{ $currentPage.Title }}
+                                                    {{ if .Draft }}
+                                                        <span class="badge bg-default fs-6 mb-1 align-middle">DRAFT</span>
+                                                    {{ end }}
+                                                </h1>
+                                            </div>
+                                            {{ if eq $currentPage.Kind "page" }}
+                                                {{ if and (.Params.description) (site.Params.docs.descriptions | default false) }}
+                                                    {{/* <p class="lead mb-3 mt-3">{{ $currentPage.Description | markdownify }}</p> */}}
+                                                    {{/* <div class="card mt-3 mb-3">
+                                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                                            <h5 class="card-title mb-0"><img src="/icons/ai.svg" class="me-1"></img>文章摘要</h5>
+                                                            <span class="badge bg-secondary">本地</span>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <p class="lead mb-2 mt-2" style="color:#7d38cd;line-height: 2rem;">{{ $currentPage.Description | markdownify }}</p>
+                                                        </div>
+                                                        <div class="card-footer d-flex flex-wrap gap-2">
+                                                            <a href="/categories" class="btn btn-outline-secondary btn-sm">分类</a>
+                                                            <a href="/tags/" class="btn btn-outline-secondary btn-sm">标签</a>
+                                                            <a href="/archives/" class="btn btn-outline-secondary btn-sm">归档</a>
+                                                            <a href="/" class="btn btn-outline-secondary btn-sm" >前往主页</a>
+                                                        </div>
+                                                    </div> */}}
+
+                                                    {{ partial "docs/AiSummary.html" . }}
+
+                                                {{ end }}
+                                            {{end}}
+                                            <div id="content" class="main-content" {{ if eq .Site.Params.docs.toc true -}}data-bs-spy="scroll" data-bs-root-margin="0px 0px -65%" data-bs-target="#toc-mobile"{{ end }}>
+                                                {{ block "main" . }}{{ end }}
+                                            </div>
+                                            <div>
+                                                {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "doc-nav.html") . -}}
+                                                {{ if not (eq .Params.twikoo false) }}
+                                                    {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "footer/twikoo.html") . -}}
+                                                {{ end }}
+                                           
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{ if .Params.footer }}
+                                 <div style="margin-bottom: 2rem;">
+                                    {{- partialCached "footer.html" . -}}
+                                 </div>
+                            {{ end}}
+                    </main>
+            </div>
+        </div>
+
+        {{/* common CSS and JS */}}
+        {{- partialCached "basic.html" . -}}
+        
+        {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "scripts.html") . -}}
+
+        <!-- Dark Mode Switch JS -->
+        {{ if eq .Site.Params.docs.darkMode true -}}
+            {{ $darkModeSwitch := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/darkmode-switch.js") | js.Build | minify }}
+            <script>{{ $darkModeSwitch.Content | safeJS }}</script>
+        {{ end -}}
+
+        <!-- DocSearch Config -->
+        {{ if and (.Site.Params.docsearch.appID) (.Site.Params.docsearch.apiKey) -}}
+            {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "footer/docsearch.html") . -}}
+        {{ end }}
+
+        <!-- FlexSearch Config -->
+        {{ if or (not (isset .Site.Params.flexsearch "enabled")) (eq .Site.Params.flexsearch.enabled true) -}}
+            {{ if and (.Site.Params.docsearch.appID) (.Site.Params.docsearch.apiKey) -}}
+            {{ else }}
+                {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "footer/flexsearch.html") . -}}
+            {{ end }}
+        {{ end }}
+
+    </body>
+</html>

@@ -1,0 +1,58 @@
+{{/* 定义图标映射 */}}
+{{ $icon_map := dict
+  "red" "error"
+  "blue" "info"
+  "green" "lightbulb"
+  "orange" "warning"
+}}
+
+{{/* 定义颜色类映射 */}}
+{{ $color_class := dict
+  "red" "danger"
+  "blue" "primary"
+  "green" "success"
+  "orange" "warning"
+}}
+
+{{/* 定义背景颜色映射 */}}
+{{ $bg_colors := dict
+  "red" "rgba(220,53,69,0.15)"
+  "blue" "rgba(13,110,253,0.15)"
+  "green" "rgba(25,135,84,0.15)"
+  "orange" "rgba(255,193,7,0.15)"
+}}
+
+{{/* 获取参数，设置默认值 */}}
+{{ $color := or .color "blue" }}
+{{ $icon := or .icon (index $icon_map $color) }}
+{{ $text := .text }}
+{{ $title := or .title (strings.Title (index $color_class $color)) }}
+{{ $class := or .class "" }}
+
+{{/* 获取对应的alert类型 */}}
+{{ $alert_type := index $color_class $color }}
+{{ $bg_color := index $bg_colors $color }}
+
+<div class="alert alert-{{ $alert_type }} {{ $class }}" role="alert" style="padding:0.5rem 1rem;">
+  <!-- 图标 + 标题在同一行 -->
+  <div class="d-flex align-items-start mb-1">
+    <span
+      class="material-icons d-flex align-items-center justify-content-center rounded-circle text-{{ $alert_type }}"
+      style="width:2rem; height:2rem; font-size:1.25rem; flex-shrink:0; background-color: {{ $bg_color }};">
+      {{ $icon }}
+    </span>
+
+    <span class="alert-title fw-semibold fs-5 mt-0 ms-2">{{ $title }}</span>
+  </div>
+
+  <!-- 描述内容在下一行 -->
+  {{ with $text }}
+    {{ if strings.Contains . "<" }}
+      <div class="ms-7">{{ . | safeHTML }}</div>
+    {{ else }}
+      <div class="ms-7">{{ . | $.Page.RenderString }}</div>
+    {{ end }}
+  {{ else }}
+  {{ errorf "No text content provided for alert component" }}
+  {{ end }}
+</div>

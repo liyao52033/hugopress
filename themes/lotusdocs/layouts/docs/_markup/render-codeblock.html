@@ -1,0 +1,65 @@
+{{ if eq .Page.Site.Params.docs.prism true }}
+{{- $attributes := .Attributes }}
+{{- $ordinal := .Ordinal }}
+
+<!-- 创建代码块的 SHA1 哈希 -->
+{{ $innerRemoveLB := replaceRE "\r\n?|\n" "" .Inner | string }}
+{{ $innerHash := substr (sha1 (printf "%s%s" $innerRemoveLB $ordinal)) 0 7 }}
+
+{{- $classes := slice (printf "language-%s" .Type) .Attributes.class }}
+
+{{/* 优先级: Markdown > hugo.toml */}}
+{{ $prismConfig := site.Params.docs }}
+{{ $options := .Options }}
+{{- if isset .Attributes "clickhighlight" -}}
+{{- $options = merge $options (dict "clickhighlight" (index .Attributes "clickhighlight")) -}}
+{{- end -}}
+
+{{ $linenos := cond (isset $options "linenos") $options.linenos $prismConfig.linenos }}
+{{ $start := cond (isset $options "linenostart") $options.linenostart 1 }}
+{{ $clickhighlight := cond (isset $options "clickhighlight") $options.clickhighlight $prismConfig.clickhighlight }}
+
+<!-- 行号高亮 -->
+{{- if isset $options "hl_lines" }}
+{{- $hl_lines := $options.hl_lines }}
+{{ $offset := $start }}
+{{ $data := newScratch }}
+{{ range $value := $hl_lines }}
+{{ $value = uniq $value }}
+{{ if lt (len $value) 2 }}
+{{ $value = slice (add $offset (index $value 0)) }}
+{{ else }}
+{{ $value = slice (delimit (slice (add $offset (index $value 0)) (add $offset (index $value 1))) "-") }}
+{{ end }}
+{{ $data.Add "lines" $value }}
+{{ end }}
+{{ $lines := delimit ($data.Get "lines") "," }}
+{{- $attributes = merge $attributes (dict "data-wrapline" $lines) }}
+{{- $attributes = merge $attributes (dict "data-line-offset" (string (sub $offset 1))) }}
+{{ end }}
+
+<!-- 行号显示开关 -->
+{{- $attributes = merge $attributes (dict "data-linenos" (string $linenos)) }}
+
+<!-- 行号起始值 -->
+{{- if $start }}
+{{- $attributes = merge $attributes (dict "data-start" (string $start)) }}
+{{ end }}
+
+<!-- 点击高亮开关 -->
+{{- $attributes = merge $attributes (dict "data-click-highlight" (string $clickhighlight)) }}
+
+{{- $classes = $classes | append "wrap-line-numbers" }}
+{{- $attributes = merge $attributes (dict "class" (delimit $classes " ")) -}}
+
+<div class="prism-codeblock">
+  <pre id="{{ $innerHash }}" {{ range $k, $v :=$attributes }} {{ printf " %s=%q" $k $v | safeHTMLAttr }} {{- end -}}>
+      <code>
+        {{- .Inner | strings.TrimPrefix "\n" | strings.TrimSuffix "\n" -}}
+      </code>
+    </pre>
+</div>
+{{ else }}
+{{ $result := transform.HighlightCodeBlock . }}
+{{ $result.Wrapped }}
+{{ end }}

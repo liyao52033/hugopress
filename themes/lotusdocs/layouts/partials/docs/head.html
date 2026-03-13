@@ -1,0 +1,119 @@
+<head>
+    <meta charset="utf-8" />
+    <title>
+        {{- $url := replace .Permalink ( printf "%s" .Site.BaseURL) "" }}
+        {{- if eq $url "/" }}
+            {{- .Site.Title }}
+        {{- else }}
+            {{- if .Params.heading }}
+                {{ .Params.heading }}
+            {{ else }}
+                {{- if eq .Title .Site.Title }}
+                    {{- .Title }}
+                {{- else }}
+                    {{- .Title }} | {{ .Site.Params.docs.Title | default (.Site.Title) }}
+                {{- end }}
+            {{- end }}
+        {{- end -}}
+    </title>
+    {{- if not hugo.IsProduction }}
+        <meta name="robots" content="noindex">
+    {{- end }}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{- with .Description | default ($.Param "description") }}
+        <meta name="description" content="{{ . }}">
+    {{- end }}
+    <meta name="keywords" content="{{ with .Site.Params.keywords }}{{ delimit . ", " }}{{ else }}前端开发, Vue3, SpringBoot, 技术博客{{ end }}" />
+    <meta name="author" content="{{ .Site.Params.author | default "华总" }}" />
+    <meta name="website" content="{{ .Site.BaseURL }}" />
+    <script async src="//at.alicdn.com/t/c/font_5002477_3r8q6p0a9n8.js"></script>
+
+    <!-- favicon -->
+    {{ block "favicon" . }}{{ partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "head/favicon.html") . }}{{ end }}
+    {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "head/opengraph") . }}
+    {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "head/twitter_cards") . }}
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ .Permalink }}" />
+
+    <!-- Schema.org structured data -->
+    {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "head/schema") . }}
+
+    <!-- Atom feed autodiscovery -->
+    {{- with .Site.Title }}
+        <link rel="alternate" type="application/atom+xml" title="Atom feed for {{ . }}" href="/index.xml" />
+    {{- end }}
+
+    <!-- 预加载本地字体文件 -->
+    {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "preload") . }}
+
+    <!-- Google Fonts -->
+    {{- partialCached "google-fonts" . }}
+    <!-- Font Variables -->
+    <style>
+        :root {
+            /* 自定义字体变量 */
+            --font-family-secondary: {{ .Site.Params.secondary_font | default "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Ubuntu'" }};
+            --font-family-sans-serif: {{ .Site.Params.sans_serif_font | default "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Ubuntu'" }};
+            --font-family-monospace: {{ .Site.Params.mono_font | default "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace" }};
+
+            /* Bootstrap 字体变量 */
+            --bs-font-sans-serif: {{ .Site.Params.sans_serif_font | default "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Ubuntu'" }};
+            --bs-font-monospace: {{ .Site.Params.mono_font | default "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace" }};
+        }
+    </style>
+
+    <!-- Custom CSS -->
+    {{- $options := dict "enableSourceMap" true }}
+    {{- if hugo.IsProduction}}
+        {{- $options := dict "enableSourceMap" false "outputStyle" "compressed" }}
+    {{- end }}
+    {{- $style := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/style.scss") }}
+    {{- $style = $style | resources.ExecuteAsTemplate (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/style.scss") . | css.Sass $options }}
+    {{- $bundle := (slice $style) | resources.Concat (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/bundle.css")  }}
+    {{- if hugo.IsProduction }}
+        {{- $bundle = $bundle | minify | fingerprint "sha384" }}
+    {{- end -}}
+    
+    <link rel="preload" href="{{ $bundle.RelPermalink }}" as="style" {{ if hugo.IsProduction }}integrity="{{ $bundle.Data.Integrity }}" {{ end -}}
+    crossorigin>  <!-- 预加载：告诉浏览器提前下载 -->
+    <link rel="stylesheet" href="{{ $bundle.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $bundle.Data.Integrity }}" {{ end -}} crossorigin="anonymous">
+
+    <!-- Katex CSS -->
+    {{- if .Params.katex -}}
+        {{- $options := dict "enableSourceMap" true }}
+        {{- if hugo.IsProduction}}
+            {{- $options := dict "enableSourceMap" false "outputStyle" "compressed" }}
+        {{- end -}}
+        {{- $katexCSS := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/custom/pages/katex.scss") }}
+        {{- $katexCSS = $katexCSS | resources.ExecuteAsTemplate (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/custom/pages/katex.scss") . | css.Sass $options }}
+        {{- if hugo.IsProduction }}
+            {{- $katexCSS = $katexCSS | minify | fingerprint "sha384" }}
+        {{- end -}}
+        <link rel="stylesheet" href="{{ $katexCSS.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $katexCSS.Data.Integrity }}" {{ end -}} crossorigin="anonymous">
+    {{- end -}}
+    <!-- Katex JS -->
+    {{- if .Params.katex -}}
+        {{ $katex := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/katex.js") }}
+        {{ $katexAutoRender := resources.Get (printf "/%s/%s" ($.Scratch.Get "pathName") "js/auto-render.js") }}
+        {{ $params := dict }}
+        {{ $sourceMap := cond hugo.IsProduction "" "inline" }}
+        {{ $opts := dict "sourceMap" $sourceMap "minify" hugo.IsProduction "target" "esnext" "params" $params "treeShaking" true }}
+        {{ $katex = $katex | js.Build $opts }}
+        {{ $katexAutoRender = $katexAutoRender | js.Build $opts }}
+        {{ if hugo.IsProduction }}
+            {{ $katex = $katex | fingerprint "sha384" }}
+            {{ $katexAutoRender = $katexAutoRender | fingerprint "sha384" }}
+        {{- end -}}
+        <!-- Katex JS - 延迟加载，不阻塞渲染 -->
+        <script src="{{ $katex.RelPermalink }}" async {{ if hugo.IsProduction }}integrity="{{ $katex.Data.Integrity }}" {{ end -}}></script>
+        <script src="{{ $katexAutoRender.RelPermalink }}" async {{ if hugo.IsProduction }}integrity="{{ $katexAutoRender.Data.Integrity }}" {{ end -}}></script>
+    {{ end -}}
+    <!-- Katex Config -->
+    {{ if .Params.katex }}
+        {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "footer/katex.html") . -}}
+    {{ end }}
+
+    {{ partial "plausible_head.html" . }}
+
+</head>

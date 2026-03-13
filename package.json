@@ -1,0 +1,31 @@
+{
+  "name": "hugo-teek",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node scripts/add-frontmatter.js && hugo server --disableFastRender -D -F",
+    "server:prod": "bash start.sh",
+    "build": "hugo --gc --minify -D -F",
+    "build:log": "hugo --gc --minify -D -F --logLevel debug",
+    "build:prod": "bash build.sh",
+    "clean": "rm -rf resources dist .edgeone",
+    "proxy": "node scripts/proxy.js",
+    "pushcnb": "bash scripts/pushcnb.sh",
+    "deploy": "yarn run clean && edgeone pages deploy -n vuepress-vdoing"
+  },
+  "keywords": [
+    "hugo"
+  ],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@fullhuman/postcss-purgecss": "^7.0.2",
+    "autoprefixer": "^10.4.22",
+    "echarts": "^6.0.0",
+    "gray-matter": "^4.0.3",
+    "http-proxy": "^1.18.1",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1"
+  }
+}

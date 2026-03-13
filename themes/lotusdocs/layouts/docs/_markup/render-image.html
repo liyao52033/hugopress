@@ -1,0 +1,68 @@
+{{/* 自定义图片渲染短代码：render-image.html */}}
+{{ $dest := .Destination }}
+{{ $text := .PlainText }}
+{{ $url := urls.Parse $dest }}
+
+{{/* 判断是否远程图片 */}}
+{{ $isRemote := false }}
+{{ with $url.Scheme }}{{ $isRemote = true }}{{ end }}
+
+{{/* ================= 远程图床图片 ================= */}}
+{{ if $isRemote }}
+    <img class="post-image zoomable" src="{{ $dest }}?w=1600" srcset="
+        {{ $dest }}?w=480 480w,
+        {{ $dest }}?w=768 768w,
+        {{ $dest }}?w=1024 1024w,
+        {{ $dest }}?w=1600 1600w,
+        {{ $dest }}?w=2400 2400w
+    " sizes="100vw" alt="{{ $text }}" loading="lazy">
+
+{{/* ================= 本地图片 ================= */}}
+{{ else }}
+    {{/* 1. 优先从页面 bundle 获取图片（推荐，可被处理） */}}
+    {{ $image := .Page.Resources.GetMatch $dest }}
+
+    {{/* 2. 如果页面 bundle 找不到，再从 assets 目录获取 */}}
+    {{ if not $image }}
+        {{ $image = resources.Get $dest }}
+    {{ end }}
+
+    {{/* 3. 严格判断：只有当 $image 是 Resource 对象时，才进行处理 */}}
+    {{ if and $image (ne (printf "%T" $image) "string") }}
+        {{ if eq $image.MediaType.SubType "svg" }}
+            <div class="svg-container zoomable">
+                {{ $image.Content | safeHTML }}
+            </div>
+        {{ else }}
+            {{/* 定义官方规范的处理参数 */}}
+            {{ $sizes := slice "480" "768" "1024" "1600" }}
+            {{ $webpQuality := 75 }}
+            {{ $avifQuality := 60 }}
+            {{ $resampleFilter := "lanczos" }}
+            {{ $anchor := "Center" }}
+
+            {{/* 生成多尺寸 WebP 图片 */}}
+            {{ $webpImages := dict }}
+            {{ range $size := $sizes }}
+                {{ $processSpec := printf "resize %sx %s webp q%d %s" $size $resampleFilter $webpQuality $anchor }}
+                {{ $filter := images.Process $processSpec }}
+                {{ with $image.Filter $filter }}
+                    {{ $webpImages = merge $webpImages (dict $size .) }}
+                {{ end }}
+            {{ end }}
+
+            {{/* 构建响应式图片 */}}
+            <picture class="zoomable">
+                <source type="image/webp"
+                    srcset='{{ range $size, $img := $webpImages }}{{ $img.RelPermalink }} {{ $size }}w{{ if not (eq $size (index $sizes (sub (len $sizes) 1))) }}, {{ end }}{{ end }}'
+                    sizes="100vw">
+
+                <img class="post-image" src="{{ index $webpImages "1024" | default $image.RelPermalink }}" alt="{{ $text }}"
+                    loading="lazy" width="{{ $image.Width }}" height="{{ $image.Height }}" decoding="async">
+            </picture>
+        {{ end }}
+    {{ else }}
+        {{/* 4. 降级处理：如果找不到可处理的资源，直接输出原始图片 */}}
+        <img class="post-image" src="{{ $dest }}" alt="{{ $text }} (图片处理失败)" loading="lazy">
+    {{ end }}
+{{ end }}
