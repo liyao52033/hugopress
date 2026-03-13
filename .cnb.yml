@@ -27,6 +27,8 @@ main:
               git commit -m "Merge private_repo/main: resolve all conflicts with pipeline repo (main) as source of truth"
             else
               echo "No staged changes to commit after merge"
+            fi
+              
 
         - name: commit with temp branch via git-commit
           image: tencentcom/git-commit:latest
