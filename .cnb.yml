@@ -37,11 +37,11 @@ main:
             add: ["content/"]   # 把所有已暂存的变更加入提交
           exports:
             branch: COMMIT_BRANCH   # 导出临时分支名供后续步骤使用
-          script: git log -1 --oneline && echo $COMMIT_BRANCH
 
         - name: show merged result
           script: |
-            git log -1 --oneline
+            git log -1 --oneline 
+            echo $COMMIT_BRANCH
             ls -la content/04.开源项目/20.hugo开发
 
         - name: install-dependencies
