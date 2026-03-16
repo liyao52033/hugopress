@@ -1,0 +1,111 @@
+{{ $mermaid := resources.Get (printf "%s/%s" ($.Scratch.Get "pathName") "js/mermaid.min.js") }}
+{{ if hugo.IsProduction }}
+    {{ $mermaid = $mermaid | fingerprint "sha384" }}
+{{ end }}
+<script src="{{ $mermaid.RelPermalink }}" {{ if hugo.IsProduction
+    }}integrity="{{ $mermaid.Data.Integrity }}" {{ end }}></script>
+
+<script>
+    const config = {
+        startOnLoad: true,
+        logLevel: "error",
+        align: "center",
+        theme: "null"
+    };
+    mermaid.initialize(config);
+    
+    // 初始化复制功能
+    function initMermaidCopy() {
+        document.querySelectorAll('.mermaid-copy-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                var codeBlock = btn.closest('.mermaid-codeblock');
+                
+                // 从data-mermaid-code属性中获取原始代码
+                var codeText = codeBlock.getAttribute('data-mermaid-code') || '';
+                codeText = codeText.trim();
+                
+                // 复制到剪贴板
+                navigator.clipboard.writeText(codeText).then(function() {
+                    // 复制成功，更改按钮状态
+                    btn.setAttribute('data-copy-state', 'copy-success');
+                    
+                    // 2秒后恢复原始状态
+                    setTimeout(function() {
+                        btn.setAttribute('data-copy-state', 'copy');
+                    }, 2000);
+                }).catch(function(err) {
+                    console.error('复制失败:', err);
+                    btn.setAttribute('data-copy-state', 'copy-error');
+                    
+                    setTimeout(function() {
+                        btn.setAttribute('data-copy-state', 'copy');
+                    }, 2000);
+                });
+            });
+        });
+    }
+    
+    // 为 mermaid 图表添加折叠功能
+    function initMermaidCollapse() {
+        const LIMIT = 300; // 高度限制
+        
+        document.querySelectorAll('.mermaid-codeblock').forEach(function(codeBlock) {
+            var preElement = codeBlock.querySelector('pre.mermaid');
+            if (!preElement) return;
+            
+            // 等待 mermaid 渲染完成
+            setTimeout(function() {
+                var svgElement = preElement.querySelector('svg');
+                if (svgElement) {
+                    var rect = svgElement.getBoundingClientRect();
+                    var height = rect.height;
+                    
+                    // 检查是否需要折叠
+                    if (height > LIMIT) {
+                        // 添加折叠状态类
+                        codeBlock.classList.add('code-collapsed');
+                        preElement.style.overflow = 'hidden';
+                        preElement.style.maxHeight = LIMIT + 'px';
+                        
+                        // 创建展开按钮
+                        var btn = document.createElement('button');
+                        btn.className = 'cb-toggle-btn';
+                        btn.type = 'button';
+                        btn.textContent = '展开';
+                        codeBlock.appendChild(btn);
+                        
+                        // 添加点击事件
+                        btn.addEventListener('click', function() {
+                            codeBlock.classList.remove('code-collapsed');
+                            btn.style.display = 'none';
+                            
+                            // 展开时移除高度限制
+                            preElement.style.overflow = 'auto';
+                            preElement.style.maxHeight = 'none';
+                        });
+                    }
+                }
+            }, 500);
+        });
+    }
+    
+    // 当文档加载完成后初始化
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            // 延迟更长时间确保 mermaid 完全渲染完成
+            setTimeout(function() {
+                initMermaidCopy();
+                initMermaidCollapse();
+            }, 1000);
+        });
+    } else {
+        // 文档已经加载完成，延迟更长时间确保 mermaid 完全渲染完成
+        setTimeout(function() {
+            initMermaidCopy();
+            initMermaidCollapse();
+        }, 1000);
+    }
+</script>

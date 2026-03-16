@@ -184,17 +184,7 @@
 
 
     {{ if .Page.Store.Get "hasMermaid" }}
-        {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "meramid.html") . -}}
-        {{- $options := dict "enableSourceMap" true }}
-        {{- if hugo.IsProduction}}
-            {{- $options := dict "enableSourceMap" false "outputStyle" "compressed" }}
-        {{- end -}}
-        {{ $mermaidCss := resources.Get (printf "%s/%s" ($.Scratch.Get "pathName") "scss/custom/plugins/mermaid/_mermaid.scss") }}
-        {{- $mermaidCss = $mermaidCss | resources.ExecuteAsTemplate (printf "/%s/%s" ($.Scratch.Get "pathName") "scss/custom/plugins/mermaid/_mermaid.scss") . | css.Sass $options }}
-        {{- if hugo.IsProduction }}
-            {{- $mermaidCss = $mermaidCss | minify | fingerprint "sha384" }}
-        {{- end -}}
-        <link rel="stylesheet" href="{{ $mermaidCss.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $mermaidCss.Data.Integrity }}" {{ end -}} crossorigin="anonymous">
+        {{- partial (printf "%s/%s" ($.Scratch.Get "pathName") "mermaid.html") . -}}
     {{ end }}
 
 

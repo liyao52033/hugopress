@@ -372,3 +372,41 @@ $btn-link-hover-color: var(--#{$prefix}link-hover-color);
     --sidebar-light-icon: #f8f9fa;
     --sidebar-scrollbar-thumb-color: var(--gray-800);
 }
+
+
+
+// @view-transition {
+//     navigation: auto;
+// }
+
+// @keyframes move-out {
+//     from {
+//         transform: translateY(0%);
+//     }
+
+//     to {
+//         transform: translateY(-100%);
+//     }
+// }
+
+// @keyframes move-in {
+//     from {
+//         transform: translateY(100%);
+//     }
+
+//     to {
+//         transform: translateY(0%);
+//     }
+// }
+
+// ::view-transition-old(root) {
+//     animation: move-out 0.2s ease-out both;
+//     will-change: transform;
+//     transform: translateZ(0);
+// }
+
+// ::view-transition-new(root) {
+//     animation: move-in 0.2s ease-out both;
+//     will-change: transform;
+//     transform: translateZ(0);
+// }

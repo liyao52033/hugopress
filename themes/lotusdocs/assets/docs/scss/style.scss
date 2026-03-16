@@ -72,7 +72,5 @@ $code-block-padding-top: {{ if eq .Site.Params.docs.prism true -}}0{{ else }}1.2
 {{ if or (not (isset .Site.Params.flexsearch "enabled")) (eq .Site.Params.flexsearch.enabled true) -}}@import "custom/plugins/flexsearch/flexsearch";{{ end }}
 
 // Mermaid
-// @import "custom/plugins/mermaid/mermaid";
-
-
+@import "custom/plugins/mermaid/mermaid";
 

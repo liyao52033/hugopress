@@ -27,17 +27,22 @@ footer: false
 
 
 ## 背景
+
 发布到中央仓库时需要javadoc注释，所以写了这个maven插件用于在构建阶段自动生成注释。该插件同时支持Java 8和Java 17版本。
 
 ## 特性
 
-1. **同时支持Java 8和Java 17及以上**
-2. **模块化设计**：将代码按职责拆分为多个类，提高代码的可维护性和可扩展性
-3. **配置灵活性**：增加了多个配置选项，允许用户自定义Javadoc生成行为
-4. **错误处理**：改进了异常处理机制，提高代码的健壮性
-5. **代码复用**：提取重复代码为通用方法，减少代码冗余
+1. **同时支持 Java 8 和 Java 17 及以上**
+2. **AI 智能生成**：支持所有主流 AI 服务提供商
+3. **多提供商支持**：一键切换 OpenAI、DeepSeek、Moonshot、智谱 AI、百度、阿里、Ollama 等
+4. **环境变量支持**：支持从环境变量读取 API Key，避免在 pom.xml 中暴露敏感信息
+5. **节省 Token**：自动跳过已有注释的方法，避免重复生成浪费 token
+6. **模块化设计**：将代码按职责拆分为多个类，提高代码的可维护性和可扩展性
+7. **降级方案**：AI 调用失败时自动降级到规则生成，确保插件稳定运行
 
-## 使用方法
+## 安装方法
+
+### 项目中使用
 
 {{< alert type="info" >}}
 
@@ -45,7 +50,170 @@ footer: false
 
 {{</alert >}}
 
-### 单独使用
+在项目的 `pom.xml` 文件中添加以下依赖
+
+```xml
+<dependency>
+    <groupId>io.github.liyao52033</groupId>
+    <artifactId>autofill-javadoc-maven-plugin</artifactId>
+    <version>1.3.0</version>
+</dependency>
+```
+
+### 命令行使用
+
+####  使用环境变量（推荐）
+
+首先导入环境变量
+
+```sh
+export AI_API_KEY=your-api-key
+```
+
+然后使用
+
+```sh
+mvn io.github.liyao52033:autofill-javadoc-maven-plugin:1.3.0:autofill -DenableAi=true -DaiProvider=DEEPSEEK -DsourceDir=src/main/java
+```
+
+#### 使用预设提供商 
+
+```sh
+mvn io.github.liyao52033:autofill-javadoc-maven-plugin:1.3.0:autofill -DenableAi=true -DaiApiKey=your-api-key -DaiProvider=DEEPSEEK -DsourceDir=src/main/java
+```
+
+#### 自定义配置
+
+```sh
+mvn io.github.liyao52033:autofill-javadoc-maven-plugin:1.3.0:autofill -DenableAi=true -DaiApiKey=your-api-key 
+-DaiApiUrl=https://api.deepseek.com/v1/chat/completions -DaiModel=deepseek-chat -DsourceDir=src/main/java
+```
+
+## 配置选项
+
+### 基本配置
+
+包含以下配置选项，可以在 Maven 配置中自定义：
+
+```xml
+<configuration>
+    <sourceDir>src/main/java</sourceDir> <!-- 源代码目录 -->
+    <addClassJavadoc>true</addClassJavadoc> <!-- 是否添加类注释 -->
+    <addMethodJavadoc>true</addMethodJavadoc> <!-- 是否添加方法注释 -->
+    <addParamJavadoc>true</addParamJavadoc> <!-- 是否添加参数注释 -->
+    <addReturnJavadoc>true</addReturnJavadoc> <!-- 是否添加返回值注释 -->
+    <addThrowsJavadoc>true</addThrowsJavadoc> <!-- 是否添加异常注释 -->
+    <excludePatterns>
+        <excludePattern>.*\/generated\/.*</excludePattern> <!-- 排除生成的代码 -->
+        <excludePattern>.*Test\.java</excludePattern> <!-- 排除测试文件 -->
+    </excludePatterns> <!-- 排除特定文件的模式列表 -->
+    <includePrivateMethods>false</includePrivateMethods> <!-- 是否包含私有方法 -->
+</configuration>
+```
+
+### AI 配置（可选）
+
+支持所有主流 AI 服务提供商。
+
+#### 方式一：使用环境变量（推荐，更安全）
+
+将 API Key 存储在环境变量中，避免在 pom.xml 中暴露敏感信息：
+
+```bash
+# 设置环境变量（Linux/Mac）
+export AI_API_KEY=your-api-key-here
+
+# 或者设置特定提供商的环境变量
+export DEEPSEEK_API_KEY=your-deepseek-api-key
+export OPENAI_API_KEY=your-openai-api-key
+```
+
+```xml
+<configuration>
+    <!-- 启用 AI 生成 -->
+    <enableAi>true</enableAi>
+    
+    <!-- AI 提供商名称（可选，默认 OPENAI） -->
+    <aiProvider>DEEPSEEK</aiProvider>
+    
+    <!-- 跳过已有注释的方法（默认 true，节省 token） -->
+    <skipExistingJavadoc>true</skipExistingJavadoc>
+</configuration>
+```
+
+#### 方式二：使用预设提供商
+
+```xml
+<configuration>
+    <enableAi>true</enableAi>
+    <aiApiKey>your-api-key-here</aiApiKey>
+    <aiProvider>DEEPSEEK</aiProvider>
+    <skipExistingJavadoc>true</skipExistingJavadoc>
+</configuration>
+```
+
+#### 方式三：自定义配置
+
+```xml
+<configuration>
+    <enableAi>true</enableAi>
+    <aiApiKey>your-api-key-here</aiApiKey>
+    <aiApiUrl>https://api.deepseek.com/v1/chat/completions</aiApiUrl>
+    <aiModel>deepseek-chat</aiModel>
+</configuration>
+```
+
+**支持的 AI 提供商**：
+
+| 提供商        | aiProvider 值 | 默认模型       | API 地址                       |
+| ------------- | ------------- | -------------- | ------------------------------ |
+| OpenAI        | `OPENAI`      | gpt-3.5-turbo  | https://api.openai.com         |
+| DeepSeek      | `DEEPSEEK`    | deepseek-chat  | https://api.deepseek.com       |
+| 月之暗面      | `MOONSHOT`    | moonshot-v1-8k | https://api.moonshot.cn        |
+| 智谱 AI       | `ZHIPU`       | glm-4          | https://open.bigmodel.cn       |
+| Ollama (本地) | `OLLAMA`      | mistral        | http://localhost:11434         |
+| 百度文心      | `BAIDU`       | ernie-bot-4    | https://aip.baidubce.com       |
+| 阿里通义      | `ALIBABA`     | qwen-turbo     | https://dashscope.aliyuncs.com |
+| 自定义        | `CUSTOM`      | gpt-3.5-turbo  | 需指定 aiApiUrl                |
+
+**降级方案**：当 AI 调用失败时（网络问题、API 限流等），插件会自动降级到基于规则的生成模式，确保插件稳定运行。
+
+### 配置选项详细说明
+
+#### 基本配置
+
+| 配置项                  | 说明                                  | 默认值          |
+| ----------------------- | ------------------------------------- | --------------- |
+| `sourceDir`             | 指定源代码目录                        | `src/main/java` |
+| `addClassJavadoc`       | 是否为类/接口/枚举添加 Javadoc 注释   | `true`          |
+| `addMethodJavadoc`      | 是否为方法添加 Javadoc 注释           | `true`          |
+| `addParamJavadoc`       | 是否为方法参数添加 Javadoc 注释       | `true`          |
+| `addReturnJavadoc`      | 是否为方法返回值添加 Javadoc 注释     | `true`          |
+| `addThrowsJavadoc`      | 是否为方法抛出的异常添加 Javadoc 注释 | `true`          |
+| `includePrivateMethods` | 是否为私有方法生成 Javadoc 注释       | `true`          |
+
+#### 高级配置
+
+- **excludePatterns**: 排除特定文件的正则表达式模式列表。插件将跳过匹配这些模式的文件，不对其进行处理。这对于排除自动生成的代码、测试文件或其他不需要文档的文件非常有用。
+  - 每个`<excludePattern>`元素应包含一个有效的正则表达式
+  - 文件路径将与这些模式进行匹配，匹配成功的文件将被跳过
+  - 默认为空列表，即不排除任何文件
+
+#### AI 配置
+
+| 配置项                | 说明                     | 默认值                                                       |
+| --------------------- | ------------------------ | ------------------------------------------------------------ |
+| `enableAi`            | 是否启用 AI 生成方法描述 | `false`                                                      |
+| `aiApiKey`            | AI API 密钥              | 从环境变量读取（AI_API_KEY, DEEPSEEK_API_KEY, OPENAI_API_KEY） |
+| `aiApiUrl`            | AI API 地址              | 根据 aiProvider 自动设置                                     |
+| `aiModel`             | AI 模型名称              | 根据 aiProvider 自动设置                                     |
+| `aiProvider`          | AI 提供商名称            | `OPENAI`                                                     |
+| `skipExistingJavadoc` | 是否跳过已有注释的方法   | `true`                                                       |
+
+
+## 使用方法
+
+### 基础用法（规则生成模式）
 
 ```xml
 <build>
@@ -63,23 +231,161 @@ footer: false
                 </execution>
             </executions>
             <configuration>
-                <sourceDir>src/main/java</sourceDir> <!-- 指定源代码目录 -->
-                <addClassJavadoc>true</addClassJavadoc> <!-- 是否添加类注释 -->
-                <addMethodJavadoc>true</addMethodJavadoc> <!-- 是否添加方法注释 -->
-                <addParamJavadoc>true</addParamJavadoc> <!-- 是否添加参数注释 -->
-                <addReturnJavadoc>true</addReturnJavadoc> <!-- 是否添加返回值注释 -->
-                <addThrowsJavadoc>true</addThrowsJavadoc> <!-- 是否添加异常注释 -->
-                <!-- 高级配置选项 -->
+                <sourceDir>src/main/java</sourceDir>
+                <addMethodJavadoc>true</addMethodJavadoc>
+                <addParamJavadoc>true</addParamJavadoc>
+                <addReturnJavadoc>true</addReturnJavadoc>
+                <addThrowsJavadoc>true</addThrowsJavadoc>
                 <excludePatterns>
-                    <excludePattern>.*\/generated\/.*</excludePattern> <!-- 排除生成的代码 -->
-                    <excludePattern>.*Test\.java</excludePattern> <!-- 排除测试文件 -->
+                    <excludePattern>.*\/generated\/.*</excludePattern>
+                    <excludePattern>.*Test\.java</excludePattern>
                 </excludePatterns>
-                <includePrivateMethods>false</includePrivateMethods> <!-- 是否包含私有方法 -->
+                <includePrivateMethods>false</includePrivateMethods>
             </configuration>
         </plugin>
     </plugins>
 </build>
 ```
+
+### AI 增强模式
+
+使用 AI 自动生成更智能、更准确的方法描述：
+
+#### 使用 OpenAI
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>io.github.liyao52033</groupId>
+            <artifactId>autofill-javadoc-maven-plugin</artifactId>
+            <version>1.2.0</version>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>autofill</goal>
+                    </goals>
+                    <phase>generate-sources</phase> 
+                </execution>
+            </executions>
+            <configuration>
+                <enableAi>true</enableAi>
+                <aiApiKey>sk-xxx</aiApiKey>
+                <aiProvider>OPENAI</aiProvider>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
+
+#### 使用 DeepSeek（推荐国内用户）
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>io.github.liyao52033</groupId>
+            <artifactId>autofill-javadoc-maven-plugin</artifactId>
+            <version>1.2.0</version>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>autofill</goal>
+                    </goals>
+                    <phase>generate-sources</phase> 
+                </execution>
+            </executions>
+            <configuration>
+                <enableAi>true</enableAi>
+                <aiApiKey>your-deepseek-api-key</aiApiKey>
+                <aiProvider>DEEPSEEK</aiProvider>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
+
+#### 使用 Moonshot（Kimi）
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>io.github.liyao52033</groupId>
+            <artifactId>autofill-javadoc-maven-plugin</artifactId>
+            <version>1.2.0</version>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>autofill</goal>
+                    </goals>
+                    <phase>generate-sources</phase> 
+                </execution>
+            </executions>
+            <configuration>
+                <enableAi>true</enableAi>
+                <aiApiKey>your-moonshot-api-key</aiApiKey>
+                <aiProvider>MOONSHOT</aiProvider>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
+
+#### 使用智谱 AI
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>io.github.liyao52033</groupId>
+            <artifactId>autofill-javadoc-maven-plugin</artifactId>
+            <version>1.2.0</version>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>autofill</goal>
+                    </goals>
+                    <phase>generate-sources</phase> 
+                </execution>
+            </executions>
+            <configuration>
+                <enableAi>true</enableAi>
+                <aiApiKey>your-zhipu-api-key</aiApiKey>
+                <aiProvider>ZHIPU</aiProvider>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
+
+#### 使用本地 Ollama
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>io.github.liyao52033</groupId>
+            <artifactId>autofill-javadoc-maven-plugin</artifactId>
+            <version>1.2.0</version>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>autofill</goal>
+                    </goals>
+                    <phase>generate-sources</phase> 
+                </execution>
+            </executions>
+            <configuration>
+                <enableAi>true</enableAi>
+                <aiProvider>OLLAMA</aiProvider>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
+
+
 
 ### 与maven-javadoc-plugin集成发布到中央仓库
 
@@ -125,6 +431,9 @@ footer: false
       </executions>
       <configuration>
         <sourceDir>src/main/java</sourceDir> <!-- 指定源代码目录 -->
+        <enableAi>true</enableAi>
+        <aiApiKey>your-deepseek-api-key</aiApiKey>
+        <aiProvider>DEEPSEEK</aiProvider>
       </configuration>
     </plugin>
     <plugin>
@@ -170,69 +479,6 @@ footer: false
 </build>
 ```
 
-## 项目结构
-
-项目结构如下：
-
-```
-src/main/java/com/liyao/autofillDoc/
-├── JavadocAutofillMojo.java          # 主类，Maven插件入口
-├── config/
-│   └── JavadocAutofillConfig.java    # 配置类，存储插件配置参数
-├── exception/
-│   └── JavadocProcessingException.java # 异常处理类
-├── service/
-│   ├── FileProcessingService.java    # 文件处理服务
-│   ├── JavadocProcessor.java         # Javadoc处理器
-│   └── MethodDescriptionService.java # 方法描述生成服务
-└── util/
-    └── JavadocUtils.java             # 工具类
-```
-
-## 新增配置选项
-
-包含以下配置选项，可以在Maven配置中自定义：
-
-```xml
-<configuration>
-    <sourceDir>src/main/java</sourceDir> <!-- 源代码目录 -->
-    <addClassJavadoc>true</addClassJavadoc> <!-- 是否添加类注释 -->
-    <addMethodJavadoc>true</addMethodJavadoc> <!-- 是否添加方法注释 -->
-    <addParamJavadoc>true</addParamJavadoc> <!-- 是否添加参数注释 -->
-    <addReturnJavadoc>true</addReturnJavadoc> <!-- 是否添加返回值注释 -->
-    <addThrowsJavadoc>true</addThrowsJavadoc> <!-- 是否添加异常注释 -->
-    <excludePatterns>
-        <excludePattern>.*\/generated\/.*</excludePattern> <!-- 排除生成的代码 -->
-        <excludePattern>.*Test\.java</excludePattern> <!-- 排除测试文件 -->
-    </excludePatterns> <!-- 排除特定文件的模式列表 -->
-    <includePrivateMethods>false</includePrivateMethods> <!-- 是否包含私有方法 -->
-</configuration>
-```
-
-### 配置选项详细说明
-
-#### 基本配置
-
-- **sourceDir**: 指定源代码目录，一般为`src/main/java`
-- **addClassJavadoc**: 是否为类/接口/枚举添加Javadoc注释，默认为`true`
-- **addMethodJavadoc**: 是否为方法添加Javadoc注释，默认为`true`
-- **addParamJavadoc**: 是否为方法参数添加Javadoc注释，默认为`true`
-- **addReturnJavadoc**: 是否为方法返回值添加Javadoc注释，默认为`true`
-- **addThrowsJavadoc**: 是否为方法抛出的异常添加Javadoc注释，默认为`true`
-
-#### 高级配置
-
-- **excludePatterns**: 排除特定文件的正则表达式模式列表。插件将跳过匹配这些模式的文件，不对其进行处理。这对于排除自动生成的代码、测试文件或其他不需要文档的文件非常有用。
-  - 每个`<excludePattern>`元素应包含一个有效的正则表达式
-  - 文件路径将与这些模式进行匹配，匹配成功的文件将被跳过
-  - 默认为空列表，即不排除任何文件
-
-- **includePrivateMethods**: 是否为私有方法生成Javadoc注释
-  - 设置为`true`时，插件将为所有方法（包括私有方法）生成注释
-  - 设置为`false`时，插件将跳过私有方法，只为非私有方法生成注释
-  - 默认为`true`
-
-  
 ## 错误处理
 
 提供了完整的错误处理机制，当处理文件过程中出现异常时，插件会：
