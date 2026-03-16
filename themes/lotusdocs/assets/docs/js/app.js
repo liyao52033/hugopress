@@ -17,61 +17,8 @@
  *     05.  DD Menu              *
  *     06.  Active Sidebar Menu  *
  *     07.  ScrollSpy            *
- *     08.  Debounce Handler     *
  ================================*/
 
-// 防抖函数 - 防止快速连续点击导致动画冲突
-// function debounce(func, wait) {
-//     let timeout;
-//     let isNavigating = false;
-
-//     return function executedFunction(...args) {
-//         if (isNavigating) {
-//             return false;
-//         }
-
-//         const later = () => {
-//             timeout = null;
-//             isNavigating = false;
-//         };
-
-//         clearTimeout(timeout);
-//         isNavigating = true;
-//         timeout = setTimeout(later, wait);
-
-//         return func.apply(this, args);
-//     };
-// }
-
-// // 全局导航状态管理
-// let isNavigating = false;
-// let navigationTimeout = null;
-
-// // 为导航链接添加防抖处理
-// function setupNavigationDebounce() {
-//     const navLinks = document.querySelectorAll('a[href]:not([href^="javascript:void(0)"]):not([href^="#"])');
-
-//     navLinks.forEach(link => {
-//         link.addEventListener('click', function (event) {
-//             if (isNavigating) {
-//                 event.preventDefault();
-//                 event.stopPropagation();
-//                 return false;
-//             }
-
-//             isNavigating = true;
-
-//             // 200ms后重置导航状态（与CSS动画时间匹配）
-//             clearTimeout(navigationTimeout);
-//             navigationTimeout = setTimeout(() => {
-//                 isNavigating = false;
-//             }, 200);
-
-//             // 允许正常的导航行为
-//             return true;
-//         }, { capture: true });
-//     });
-// }
 
 // Menu
 // Toggle menu
@@ -244,7 +191,7 @@ if (document.getElementById("navigation")) {
 if (document.getElementById("sidebar")) {
     var elements = document.getElementById("sidebar").getElementsByTagName("button");
     for (var i = 0, len = elements.length; i < len; i++) {
-        elements[i].onclick = debounce(function (elem) {
+        elements[i].onclick = function (elem) {
             // 只处理没有href或href为javascript:void(0)的按钮（折叠/展开按钮）
             var href = elem.target.getAttribute("href");
             if (!href || href === "javascript:void(0)") {
@@ -252,7 +199,7 @@ if (document.getElementById("sidebar")) {
                 elem.target.nextElementSibling.classList.toggle("d-block");
             }
             // 对于有实际链接的按钮，让浏览器正常处理导航
-        }, 300);
+        }
     }
 }
 
@@ -312,8 +259,3 @@ var sanitizeHTML = function (str) {
         return '&#' + c.charCodeAt(0) + ';';
     });
 };
-
-// 初始化导航防抖处理
-document.addEventListener('DOMContentLoaded', function () {
-    setupNavigationDebounce();
-});
