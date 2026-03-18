@@ -688,7 +688,7 @@
 
                 if (cached) {
                     const { data, timestamp } = JSON.parse(cached);
-                    if (Date.now() - timestamp < CACHE_DURATION) {
+                    if (Date.now() - timestamp < CACHE_DURATION * 7) {
                         locationInfo = data;
                     } else {
                         localStorage.removeItem(CACHE_KEY);
@@ -752,6 +752,8 @@
         if (refreshBtn) {
             refreshBtn.addEventListener('click', async () => {
                 refreshBtn.classList.add('spinning');
+                localStorage.removeItem(CACHE_KEY);
+                localStorage.removeItem(CACHE_KEY_WEATHER);
                 await fetchWeather(true);
                 setTimeout(() => {
                     refreshBtn.classList.remove('spinning');
