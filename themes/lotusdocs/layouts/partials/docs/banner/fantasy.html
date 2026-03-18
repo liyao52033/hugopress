@@ -367,6 +367,7 @@
       // 屏幕大小自适应（使用实际图片比例）
       var resizeTimeout;
       var lastWidth = window.innerWidth;
+      var lastHeight = window.innerHeight;
       
       // 计算 cover 模式的缩放和偏移（类似 CSS background-size: cover）
       function calculateCover() {
@@ -418,14 +419,26 @@
       }
       
       window.onresize = function () {
-        // 只检测宽度变化，高度变化不处理（避免移动端地址栏显示/隐藏导致的resize）
+        // 检测宽度和高度变化
         var widthChanged = Math.abs(window.innerWidth - lastWidth) > 10;
+        var heightChanged = Math.abs(window.innerHeight - lastHeight) > 10;
         
-        if (!widthChanged) {
-          return;
+        // 移动端不处理高度变化（避免地址栏显示/隐藏导致的频繁触发）
+        var isMobile = window.matchMedia("(max-width: 768px)").matches;
+        if (isMobile) {
+          // 移动端只处理宽度变化
+          if (!widthChanged) {
+            return;
+          }
+        } else {
+          // 桌面端处理宽度和高度变化
+          if (!widthChanged && !heightChanged) {
+            return;
+          }
         }
         
         lastWidth = window.innerWidth;
+        lastHeight = window.innerHeight;
         
         // 防抖延迟，避免频繁重绘
         clearTimeout(resizeTimeout);
