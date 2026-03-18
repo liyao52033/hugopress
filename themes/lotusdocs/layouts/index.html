@@ -53,7 +53,7 @@
             </div>
 
             <div class="dashboard-sidebar">
-                {{ partial "dashboard/weather-card.html" . }}
+                {{ if hugo.IsProduction }}  {{ partial "dashboard/weather-card.html" . }} {{end}}
                 {{ partial "dashboard/blogger.html" . }}
                 {{ partial "dashboard/smart-recommend.html" . }}
                 {{ partial "dashboard/tag-cloud.html" . }}

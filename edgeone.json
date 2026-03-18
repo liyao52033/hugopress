@@ -48,6 +48,24 @@
                     "value": "max-age=31536000"
                 }
             ]
+        },
+        {
+            "source": "/ws/location/v1/ip/",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-cache"
+                }
+            ]
+        },
+        {
+            "source": "/ws/weather/v1",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-cache"
+                }
+            ]
         }
     ]
 }
