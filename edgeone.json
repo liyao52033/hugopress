@@ -50,20 +50,20 @@
             ]
         },
         {
-            "source": "/ws/location/v1/ip/",
+            "source": "/ws/location/*",
             "headers": [
                 {
                     "key": "Cache-Control",
-                    "value": "no-cache"
+                    "value": "max-age=0, private, must-revalidate"
                 }
             ]
         },
         {
-            "source": "/ws/weather/v1",
+            "source": "/ws/weather/*",
             "headers": [
                 {
                     "key": "Cache-Control",
-                    "value": "no-cache"
+                    "value": "max-age=0, private, must-revalidate"
                 }
             ]
         }
