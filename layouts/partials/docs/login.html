@@ -74,14 +74,14 @@
                 document.body.classList.remove('route-guarding');
                 document.getElementById('route-guard-mask').remove();
             } else {
-                window.location.replace('/login')
+                window.location.replace('/login/')
                 localStorage.setItem('redirectUrl', window.location.href);
             }
         } catch (error) {
             // 验证失败: 跳转登录
             authCompleted = true;
             localStorage.setItem('redirectUrl', window.location.href);
-            setTimeout(() =>  window.location.replace('/login'), 50);
+            setTimeout(() =>  window.location.replace('/login/'), 50);
         } finally {
             isVerifying = false;
         }

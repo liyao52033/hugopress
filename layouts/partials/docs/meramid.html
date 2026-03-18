@@ -5,13 +5,6 @@
 <script src="{{ $mermaid.RelPermalink }}" {{ if hugo.IsProduction
     }}integrity="{{ $mermaid.Data.Integrity }}" {{ end }}></script>
 
-{{ $svgPanZoom := resources.Get (printf "%s/%s" ($.Scratch.Get "pathName") "js/svg-pan-zoom.min.js") }}
-{{ if hugo.IsProduction }}
-    {{ $svgPanZoom = $svgPanZoom | fingerprint "sha384" }}
-{{ end }}
-<script src="{{ $svgPanZoom.RelPermalink }}" {{ if hugo.IsProduction
-    }}integrity="{{ $svgPanZoom.Data.Integrity }}" {{ end }}></script>
-
 <script>
     const config = {
         startOnLoad: true,
@@ -20,68 +13,6 @@
         theme: "null"
     };
     mermaid.initialize(config);
-    
-    // 等待 mermaid 渲染完成后再初始化 svg-pan-zoom
-    function initSvgPanZoom() {
-        document.querySelectorAll('.mermaid').forEach(function(mermaidElement) {
-            var svgElement = mermaidElement.querySelector('svg');
-            if (svgElement) {
-                // 检查 SVG 元素尺寸是否有效
-                var rect = svgElement.getBoundingClientRect();
-                if (rect.width > 0 && rect.height > 0) {
-                    try {
-                        
-                        // 移除 SVG 的固定 height 属性，让CSS控制高度
-                        {{/*  if (svgElement.hasAttribute('height')) {
-                            svgElement.removeAttribute('height');
-                        }
-                        if (svgElement.hasAttribute('viewBox')) {
-                            // 保留原有的 viewBox，但确保高度自适应
-                        }  */}}
-                        
-                        // 初始化 svg-pan-zoom，启用自动适应
-                        var panZoomInstance = svgPanZoom(svgElement, {
-                            zoomEnabled: true,
-                            panEnabled: true,
-                            dblClickZoomEnabled: false, // 禁用默认的双击缩放
-                            mouseWheelZoomEnabled: true,
-                            controlIconsEnabled: false, // 不使用默认控制按钮
-                            preventMouseEventsDefault: true,
-                            zoomScaleSensitivity: 0.2,
-                            minZoom: 0.1, // 允许缩很小
-                            maxZoom: 5, // 限制最大缩放
-                            fit: true, // 启用自动适应
-                            contain: true, // 限制平移范围
-                            center: true, // 自动居中
-                            refreshRate: 'auto' // 优化性能
-                        });
-                        
-                        // 添加自定义双击事件，实现重置视图功能
-                        var lastClickTime = 0;
-                        svgElement.addEventListener('click', function(e) {
-                            var currentTime = new Date().getTime();
-                            var timeDiff = currentTime - lastClickTime;
-                            
-                            if (timeDiff < 300) { // 300ms内的点击视为双击
-                                e.preventDefault();
-                                panZoomInstance.reset(); // 重置视图
-                            }
-                            lastClickTime = currentTime;
-                        });
-                        
-                        // 延迟一点时间后调整大小
-                        setTimeout(function() {
-                            panZoomInstance.resize();
-                            panZoomInstance.fit();
-                            panZoomInstance.center();
-                        }, 100);
-                    } catch (error) {
-                        console.error('Error initializing svg-pan-zoom:', error);
-                    }
-                }
-            }
-        });
-    }
     
     // 初始化复制功能
     function initMermaidCopy() {
@@ -117,20 +48,64 @@
         });
     }
     
+    // 为 mermaid 图表添加折叠功能
+    function initMermaidCollapse() {
+        const LIMIT = 300; // 高度限制
+        
+        document.querySelectorAll('.mermaid-codeblock').forEach(function(codeBlock) {
+            var preElement = codeBlock.querySelector('pre.mermaid');
+            if (!preElement) return;
+            
+            // 等待 mermaid 渲染完成
+            setTimeout(function() {
+                var svgElement = preElement.querySelector('svg');
+                if (svgElement) {
+                    var rect = svgElement.getBoundingClientRect();
+                    var height = rect.height;
+                    
+                    // 检查是否需要折叠
+                    if (height > LIMIT) {
+                        // 添加折叠状态类
+                        codeBlock.classList.add('code-collapsed');
+                        preElement.style.overflow = 'hidden';
+                        preElement.style.maxHeight = LIMIT + 'px';
+                        
+                        // 创建展开按钮
+                        var btn = document.createElement('button');
+                        btn.className = 'cb-toggle-btn';
+                        btn.type = 'button';
+                        btn.textContent = '展开';
+                        codeBlock.appendChild(btn);
+                        
+                        // 添加点击事件
+                        btn.addEventListener('click', function() {
+                            codeBlock.classList.remove('code-collapsed');
+                            btn.style.display = 'none';
+                            
+                            // 展开时移除高度限制
+                            preElement.style.overflow = 'auto';
+                            preElement.style.maxHeight = 'none';
+                        });
+                    }
+                }
+            }, 500);
+        });
+    }
+    
     // 当文档加载完成后初始化
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
             // 延迟更长时间确保 mermaid 完全渲染完成
             setTimeout(function() {
-                initSvgPanZoom();
                 initMermaidCopy();
-            }, 500);
+                initMermaidCollapse();
+            }, 1000);
         });
     } else {
         // 文档已经加载完成，延迟更长时间确保 mermaid 完全渲染完成
         setTimeout(function() {
-            initSvgPanZoom();
             initMermaidCopy();
-        }, 500);
+            initMermaidCollapse();
+        }, 1000);
     }
 </script>
