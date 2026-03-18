@@ -19,3 +19,6 @@ echo "正在运行 Hugo 构建..."
 HUGO_ENVIRONMENT=production yarn run build
 
 echo "✅ 打包完成"
+
+cp edgeone.json dist/edgeone.json
+cp -r edge-functions dist/edge-functions

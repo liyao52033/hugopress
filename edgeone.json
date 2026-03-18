@@ -1,7 +1,4 @@
 {
-    "buildCommand": "yarn run build:prod",
-    "installCommand": "yarn install",
-    "outputDirectory": "./dist",
     "headers": [
         {
             "source": "/*",

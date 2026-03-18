@@ -234,22 +234,22 @@ ignoreLogs = ['warning-goldmark-raw-html']
 
 
     # config.toml
-  [params.indexImg]
-    navColor = 2
-    switchNavColor = true
-    bgTimeColor = true
-    bgTimeColorArray = ["transparent", "transparent", "transparent", "transparent"]
-    descFade = true
-    desc = "Web前端技术博客，积跬步以至千里，致敬每个爱学习的你"
-    descFontSize = "1.4rem"
-    descFadeInTime = 200
-    descFadeOutTime = 100
-    descNextTime = 800
-    bubble = false
-    bubblePosition = 0
-    bubbleNum = 200
-    bodyBgImg = ['body/bg.jpg', 'https://cnb.xiaoying.org.cn?random=one', 'https://img.xxdevops.cn/blog/wallpaper/bg14.avif']
-    bodyBgImgInterval = 86400
+    [params.indexImg]
+      navColor = 2
+      switchNavColor = true
+      bgTimeColor = true
+      bgTimeColorArray = ["transparent", "transparent", "transparent", "transparent"]
+      descFade = true
+      desc = "Web 前端技术博客，积跬步以至千里，致敬每个爱学习的你"
+      descFontSize = "1.4rem"
+      descFadeInTime = 200
+      descFadeOutTime = 100
+      descNextTime = 800
+      bubble = false
+      bubblePosition = 0
+      bubbleNum = 200
+      bodyBgImg = ['body/bg.jpg', 'https://cnb.xiaoying.org.cn?random=one', 'https://img.xxdevops.cn/blog/wallpaper/bg14.avif']
+      bodyBgImgInterval = 86400
 
     [params.footer]
       since = 2025
@@ -295,7 +295,7 @@ ignoreLogs = ['warning-goldmark-raw-html']
     # 友链配置 (Friend Links)
     # ========================================
     [params.friendLink]
-        limit = 6
+        limit = 4
         interval = 5000
         # 指定首页友链卡片显示哪些分组（title）的友链
         # 留空或注释掉表示显示所有分组
@@ -303,6 +303,11 @@ ignoreLogs = ['warning-goldmark-raw-html']
         # groups = ["Teek道友"]  # 只显示 Teek道友 分组
         # groups = ["Teek道友", "VitePress"]  # 显示多个分组
         # groups = ["Teek道友"]  # 空数组表示显示所有分组（默认行为）
+
+     # 天气 API 配置
+    [params.weather]
+        enabled = true
+        apiKey = "NUIBZ-T3YW3-BYN3X-OCL46-7SFC2-XBBS2"
     
 [menu]
     [[menu.primary]]

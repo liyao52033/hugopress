@@ -53,6 +53,7 @@
             </div>
 
             <div class="dashboard-sidebar">
+                {{ partial "dashboard/weather-card.html" . }}
                 {{ partial "dashboard/blogger.html" . }}
                 {{ partial "dashboard/smart-recommend.html" . }}
                 {{ partial "dashboard/tag-cloud.html" . }}
@@ -61,6 +62,15 @@
             </div>
         </div>
     </div>
+
+    {{ if .Site.Params.weather.enabled }}
+    <script>
+        window.WeatherConfig = {
+            apiKey: '{{ .Site.Params.weather.apiKey | safeJS }}',
+            cacheDuration:  '{{ .Site.Params.weather.cacheDuration }}'
+        };
+    </script>
+    {{ end }}
 
   
     {{- partial "footer.html" . -}}
