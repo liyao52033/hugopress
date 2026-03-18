@@ -31,6 +31,8 @@ main:
             export HUGO_PARAMS_FOOTER_ICP=$HUGO_PARAMS_FOOTER_ICP
             node scripts/add-frontmatter.js
             yarn run build:log
+            cp edgeone.json dist/edgeone.json
+            cp -r edge-functions dist/edge-functions
         - name: deploy-to-edgeone-pages
           imports:  https://cnb.cool/liyao52033/envs/-/blob/main/envs.yml
           script: |
