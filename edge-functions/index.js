@@ -1,4 +1,4 @@
-export default async function onRequest(context) {
+export default async function onRequestGet(context) {
     const { request } = context;
     const url = new URL(request.url);
 

@@ -1,6 +1,6 @@
 ---
 type: login
-url: /login
+url: /login/
 title: login
 date: 2025-10-02T15:22:25.000Z
 description: 登录页面，提供用户身份验证功能，支持账号密码登录和第三方登录方式，确保用户信息安全和个人数据保护。
