@@ -664,9 +664,17 @@
             const alarmsContainer = document.getElementById('weather-alarms');
 
             if (alarmsListEl && alarmsContainer) {
-                if (alarms.length > 0) {
+                const uniqueAlarms = alarms.filter((alarm, index, self) =>
+                    index === self.findIndex(a =>
+                        a.type_name === alarm.type_name &&
+                        a.level_name === alarm.level_name &&
+                        a.pub_content === alarm.pub_content
+                    )
+                );
+
+                if (uniqueAlarms.length > 0) {
                     alarmsContainer.style.display = 'block';
-                    alarmsListEl.innerHTML = alarms.map(alarm => `
+                    alarmsListEl.innerHTML = uniqueAlarms.map(alarm => `
                         <div class="alarm-item">
                             <div class="alarm-title">${alarm.type_name}${alarm.level_name}预警</div>
                             <div class="alarm-content">${alarm.pub_content}</div>
@@ -733,11 +741,11 @@
                         updateWeatherUI(null, null);
                         return;
                     }
-                   
+
                 }
 
                 updateWeatherUI(weatherData, locationInfo);
-              
+
             } catch (error) {
                 console.error('获取天气信息失败:', error);
                 updateWeatherUI(null, null);
