@@ -667,8 +667,7 @@
                 const uniqueAlarms = alarms.filter((alarm, index, self) =>
                     index === self.findIndex(a =>
                         a.type_name === alarm.type_name &&
-                        a.level_name === alarm.level_name &&
-                        a.pub_content === alarm.pub_content
+                        a.level_name === alarm.level_name 
                     )
                 );
 
