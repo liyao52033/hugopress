@@ -61,7 +61,10 @@ const purgecss = require('@fullhuman/postcss-purgecss').default({
             'error',
             'success',
             'warning',
-            'info'
+            'info',
+            'alarm-item',
+            'alarm-title',
+            'alarm-content'
         ],
         // deep: 深度匹配 - 匹配类名、ID或标签名的一部分
         // 特点：使用正则表达式，匹配包含模式的字符串
