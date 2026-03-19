@@ -662,6 +662,8 @@
 
             const alarmsListEl = document.getElementById('alarms-list');
             const alarmsContainer = document.getElementById('weather-alarms');
+            const alarmTitleEl = document.getElementById('alarm-title');
+            const alarmContentEl = document.getElementById('alarm-content');
 
             if (alarmsListEl && alarmsContainer) {
                 const uniqueAlarms = alarms.filter((alarm, index, self) =>
@@ -673,12 +675,11 @@
 
                 if (uniqueAlarms.length > 0) {
                     alarmsContainer.style.display = 'block';
-                    alarmsListEl.innerHTML = uniqueAlarms.map(alarm => `
-                        <div class="alarm-item">
-                            <div class="alarm-title">${alarm.type_name}${alarm.level_name}预警</div>
-                            <div class="alarm-content">${alarm.pub_content}</div>
-                        </div>
-                    `).join('');
+                    alarmsListEl.innerHTML = uniqueAlarms.map(alarm => { 
+                        alarmTitleEl.textContent = `${alarm.type_name}${alarm.level_name}预警`;
+                        alarmContentEl.textContent = alarm.pub_content;
+                        return alarmTitleEl.outerHTML + alarmContentEl.outerHTML;
+                    }).join('');
                 } else {
                     alarmsContainer.style.display = 'none';
                 }
