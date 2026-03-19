@@ -1540,13 +1540,13 @@
 
         .weather-alarms {
             border-top: 1px solid var(--dashboard-border);
-            padding-top: .5rem;
+            padding-top: 1rem;
 
             .alarms-header {
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
-                margin-bottom: 0.5rem;
+                margin-bottom: 1rem;
                 font-size: 0.875rem;
                 font-weight: 600;
                 color: var(--dashboard-text);
