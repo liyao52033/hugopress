@@ -1,9 +1,5 @@
 {{- with $.Params.cover -}}
-{{- $coverURL := . -}}
-{{- if strings.Contains $coverURL "?" -}}
-{{- $coverURL = index (strings.Split $coverURL "?") 0 -}}
-{{- end -}}
-{{- $coverURL = printf "%s?w=1200&h=630&q=80&fit=cover" $coverURL -}}
+{{- $coverURL := partial "docs/head/normalize-cover-url.html" . -}}
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="{{ $coverURL | absURL }}"/>
 {{- else -}}

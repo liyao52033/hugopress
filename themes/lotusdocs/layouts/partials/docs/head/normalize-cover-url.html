@@ -1,0 +1,8 @@
+{{- $coverURL := . -}}
+{{- if $coverURL -}}
+  {{- if strings.Contains $coverURL "?" -}}
+    {{- $coverURL = index (strings.Split $coverURL "?") 0 -}}
+  {{- end -}}
+  {{- $coverURL = printf "%s?w=1200&h=630&q=80&fit=cover" $coverURL -}}
+  {{- $coverURL -}}
+{{- end -}}
