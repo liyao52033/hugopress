@@ -1,5 +1,5 @@
 //
-// features.scss
+// features.scss (Shared)
 //
 
 :root {
@@ -14,6 +14,105 @@
     --feature-link-hover-bg-color: var(--gray-900);
 }
 
+@each $name, $value in $theme-colors {
+    .features {
+        &.feature-#{$name} {
+            .icon {
+                background: rgba($value, 0.05);
+            }
+
+            .no-icon {
+                background: transparent;
+            }
+
+            .image {
+                &:before {
+                    background: linear-gradient(45deg, transparent, rgba($value, 0.1));
+                }
+            }
+
+            .read-more,
+            .color {
+                color: $value !important;
+            }
+
+            &.feature-clean {
+                .icons {
+                    color: $value !important;
+
+                    i {
+                        background-color: rgba($value, 0.1);
+                    }
+                }
+
+                .title {
+                    &:hover {
+                        color: $value !important;
+                    }
+                }
+            }
+
+            &.feature-full-bg {
+                .icon-color {
+                    color: $value !important;
+                }
+
+                &:hover {
+                    background-color: $value !important;
+                }
+            }
+
+            &.key-feature {
+                .icon {
+                    background: linear-gradient(45deg, transparent, rgba($value, 0.15));
+                    color: $value;
+                }
+            }
+
+            &.course-feature {
+                .full-img {
+                    color: $value !important;
+                }
+            }
+
+            &.explore-feature {
+                &:hover {
+
+                    .icons,
+                    .title {
+                        color: $value !important;
+                    }
+                }
+            }
+
+            .btn-soft {
+                background-color: rgba($value, 0.05) !important;
+                border: 1px solid rgba($value, 0.05) !important;
+                color: #{$value} !important;
+                box-shadow: 0 3px 5px 0 rgba($value, 0.1);
+
+                &:hover,
+                &:focus,
+                &:active,
+                &.active,
+                &.focus {
+                    background-color: #{$value} !important;
+                    border-color: #{$value} !important;
+                    color: $white !important;
+                }
+            }
+
+            &:hover {
+                .image {
+                    &:before {
+                        background: rgba($value, 0.1);
+                    }
+                }
+            }
+        }
+    }
+}
+
 .features {
     .icon {
         background: rgba(var(--primary), 0.1);
@@ -21,6 +120,14 @@
 
     .image {
         &:before {
+            content: "";
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            width: 64px;
+            height: 64px;
+            border-radius: 6px;
+            transform: rotate(33.75deg);
             background: linear-gradient(45deg, transparent, rgba(var(--primary), 0.1));
         }
     }
@@ -31,12 +138,19 @@
     }
 
     &.feature-clean {
+        background-color: var(--body-bg, $body-bg);
+
         .icons {
             color: var(--primary) !important;
+
             i {
                 background-color: rgba(var(--primary), 0.1);
+                height: 65px;
+                width: 65px;
+                line-height: 65px;
             }
         }
+
         .title {
             &:hover {
                 color: var(--primary-800) !important;
@@ -46,12 +160,14 @@
 
     &.feature-full-bg {
         .icon-color {
-            color: var(--feature-icon-color) ;
+            color: var(--feature-icon-color);
         }
+
         .icon-faint {
             color: var(--feature-icon-faint) !important;
             transition: all 0.5s ease;
         }
+
         &:hover {
             background-color: var(--feature-link-hover-bg-color) !important;
         }
@@ -63,6 +179,7 @@
             color: var(--primary);
         }
     }
+
     &.course-feature {
         .full-img {
             color: var(--primary) !important;
@@ -71,6 +188,7 @@
 
     &.explore-feature {
         &:hover {
+
             .icons,
             .title {
                 color: var(--primary) !important;
@@ -83,7 +201,12 @@
         border: 1px solid rgba(var(--primary), 0.05) !important;
         color: var(--primary) !important;
         box-shadow: 0 3px 5px 0 rgba(var(--primary), 0.1);
-        &:hover, &:focus, &:active, &.active, &.focus{
+
+        &:hover,
+        &:focus,
+        &:active,
+        &.active,
+        &.focus {
             background-color: var(--primary) !important;
             border-color: var(--primary) !important;
             color: var(--white) !important;
@@ -93,37 +216,15 @@
     &:hover {
         .image {
             &:before {
+                animation: spinner-border 5s linear infinite !important;
                 background: rgba(var(--primary), 0.1);
             }
         }
     }
-}
 
-.features {
-    .image {
-        &:before {
-            content: "";
-            position: absolute;
-            bottom: 5px;
-            left: 5px;
-            width: 64px;
-            height: 64px;
-            border-radius: 6px;
-            transform: rotate(33.75deg);
-        }
-    }
-    &.feature-clean {
-        background-color: var(--body-bg);
-        .icons {
-            i {
-                height: 65px;
-                width: 65px;
-                line-height: 65px;
-            }
-        }
-    }
     .ride-image {
         transform: rotate(-45deg);
+
         img {
             border-radius: 100% 100% 100% 0;
         }
@@ -131,21 +232,16 @@
 
     &.key-feature {
         transition: all 0.3s ease;
+
         &:hover {
             transform: scale(1.05);
             box-shadow: var(--shadow-md) !important;
         }
     }
 
-    &:hover {
-        .image {
-            &:before {
-                animation: spinner-border 5s linear infinite !important;
-            }
-        }
-    }
     &.feature-full-bg {
         transition: all 0.5s ease;
+
         .big-icon {
             position: absolute;
             top: 50%;
@@ -155,22 +251,27 @@
             opacity: 0.015;
             font-size: 180px;
         }
+
         &:hover {
-            box-shadow: var--(shadow-lg);
+            box-shadow: var(--shadow-lg);
             color: var(--white) !important;
+
             .icon-color i,
             .badge,
             .para {
                 color: var(--white) !important;
                 opacity: 0.5;
             }
+
             .content,
             .icon-color {
                 z-index: 2;
             }
+
             .big-icon {
                 opacity: 0.05;
             }
+
             .readmore {
                 color: var(--white) !important;
             }
@@ -179,6 +280,7 @@
 
     &.course-feature {
         transition: all 0.5s ease;
+
         .full-img {
             position: absolute;
             bottom: 50%;
@@ -191,8 +293,10 @@
             transition: all 0.5s ease;
             font-size: 250px;
         }
+
         &:hover {
             transform: translateY(-10px);
+
             .full-img {
                 opacity: 0.05;
             }
@@ -201,23 +305,28 @@
 
     &.explore-feature {
         transition: all 0.5s ease;
+
         .icons {
             height: 80px;
             width: 80px;
             line-height: 80px;
             transition: all 0.5s ease;
         }
+
         &:hover {
             box-shadow: var(--shadow-lg) !important;
         }
     }
 }
+
 .features,
 .key-feature {
     .title {
         font-size: 18px !important;
     }
-    .icon {
+
+    .icon,
+    .no-icon {
         height: 45px;
         min-width: 45px;
         display: flex;

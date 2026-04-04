@@ -16,23 +16,23 @@
 {{ end }}
 
 {{/* 处理CSS */}}
-{{ $backToTopScss := resources.Get "basic/style.scss" }}
+{{ $basicCss := resources.Get "basic/style.scss" }}
 {{ $options := dict "enableSourceMap" true }}
 {{ if hugo.IsProduction}}
   {{ $options = dict "enableSourceMap" false "outputStyle" "compressed" }}
 {{ end }}
-{{ $backToTopCss := $backToTopScss | css.Sass $options | css.PostCSS }}
+{{ $style := $basicCss | css.Sass $options | css.PostCSS }}
 {{ if hugo.IsProduction }}
-  {{ $backToTopCss = $backToTopCss | minify | fingerprint "sha384" }}
+  {{ $style = $style | minify | fingerprint "sha384" }}
 {{ end }}
 
 <!-- CSS预加载：补充crossorigin（生产环境指纹需要），as=style必须正确 -->
-<link rel="preload" as="style" href="{{ $backToTopCss.RelPermalink }}" 
-  {{ if hugo.IsProduction }}integrity="{{ $backToTopCss.Data.Integrity }}" {{ end -}}
+<link rel="preload" as="style" href="{{ $style.RelPermalink }}" 
+  {{ if hugo.IsProduction }}integrity="{{ $style.Data.Integrity }}" {{ end -}}
   crossorigin
 >
-<link rel="stylesheet" href="{{ $backToTopCss.RelPermalink }}" 
-  {{ if hugo.IsProduction }}integrity="{{ $backToTopCss.Data.Integrity }}" {{ end -}}
+<link rel="stylesheet" href="{{ $style.RelPermalink }}" 
+  {{ if hugo.IsProduction }}integrity="{{ $style.Data.Integrity }}" {{ end -}}
   crossorigin
 >
 

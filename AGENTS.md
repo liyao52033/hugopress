@@ -1,5 +1,7 @@
 # AGENTS.md - HugoPress 项目开发指南
 
+请用中文回答问题
+
 ## 一、项目概述
 
 - **项目类型**: Hugo 静态网站（基于 Lotus Docs 主题）

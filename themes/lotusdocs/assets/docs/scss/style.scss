@@ -30,7 +30,7 @@ $code-block-padding-top: {{ if eq .Site.Params.docs.prism true -}}0{{ else }}1.2
 {{ end }}
 
 // Structure
-@import "custom/structure/general";
+@import "../../shared/scss/structure/general";
 @import "custom/structure/content";
 @import "custom/structure/sidebar";
 @import "custom/structure/doc-nav";
@@ -39,10 +39,10 @@ $code-block-padding-top: {{ if eq .Site.Params.docs.prism true -}}0{{ else }}1.2
 @import "custom/structure/images";
 
 // Components
-@import "custom/components/buttons";
+@import "../../shared/scss/components/buttons";
 @import "custom/components/breadcrumb";
-@import "custom/components/badge";
-@import "custom/components/backgrounds";
+@import "../../shared/scss/components/badge";
+@import "../../shared/scss/components/backgrounds";
 @import "custom/components/dropdown";
 @import "custom/components/alerts";
 @import "custom/components/card";
@@ -53,8 +53,8 @@ $code-block-padding-top: {{ if eq .Site.Params.docs.prism true -}}0{{ else }}1.2
 @import "custom/components/codeBlock";
 
 // Pages
-@import "custom/pages/features";
-@import "custom/pages/helper";
+@import "../../shared/scss/pages/features";
+@import "../../shared/scss/pages/helper";
 @import "custom/pages/custom-styles";
 @import "custom/pages/vif-style";
 

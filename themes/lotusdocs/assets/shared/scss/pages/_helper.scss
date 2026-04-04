@@ -1,8 +1,9 @@
 //
-// _helper.scss
+// _helper.scss (Shared)
 //
+
 .fw-medium {
-    font-weight: $fw-medium;
+    font-weight: var(--fw-medium);
 }
 
 .section {
@@ -20,7 +21,7 @@
 }
 
 .bg-overlay {
-    background-color: $overlay;
+    background-color: var(--overlay);
     position: absolute;
     top: 0;
     right: 0;
@@ -31,7 +32,7 @@
 }
 
 .bg-overlay-white {
-    background-color: $bg-overlay-white;
+    background-color: var(--bg-overlay-white);
 }
 
 .bg-gradient-primary {
@@ -85,8 +86,6 @@
 }
 
 .section-title {
-
-    // position: relative;
     .title {
         letter-spacing: 0.5px;
         font-size: 30px !important;
@@ -156,12 +155,12 @@
 
 // Rounded
 .rounded {
-    border-radius: 4px !important;
+    border-radius: 6px !important;
 }
 
 .rounded-top {
-    border-top-left-radius: 4px !important;
-    border-top-right-radius: 4px !important;
+    border-top-left-radius: 6px !important;
+    border-top-right-radius: 6px !important;
 }
 
 .rounded-top-1 {
@@ -288,8 +287,7 @@
 }
 
 //Border
-@each $name,
-$value in $theme-colors {
+@each $name, $value in $theme-colors {
     .border-#{$name} {
         border-color: #{$value} !important;
     }
@@ -359,13 +357,37 @@ small {
     font-size: 90%;
 }
 
+//back-to-home
+.back-to-home {
+    position: fixed;
+    top: 4%;
+    right: 2%;
+    z-index: 1;
+}
+
+//Sticky Sidebar
+.sticky-bar {
+    position: sticky;
+    top: 80px;
+}
+
+[class^=uil-],
+[class*=" uil-"] {
+    &:before {
+        margin: 0;
+    }
+}
+
+.uim-svg {
+    vertical-align: 0 !important;
+}
 
 //Social icons
 .social-icon {
     li {
         a {
-            color: $dark;
-            border: 1px solid $dark;
+            color: var(--dark);
+            border: 1px solid var(--dark);
             height: 32px;
             width: 32px;
             display: inline-flex;
@@ -381,12 +403,12 @@ small {
             }
 
             &:hover {
-                background-color: $primary;
-                border-color: $primary !important;
-                color: $foot-social-color-white !important;
+                background-color: var(--primary);
+                border-color: var(--primary) !important;
+                color: var(--foot-social-color-white) !important;
 
                 .fea-social {
-                    fill: $primary;
+                    fill: var(--primary);
                 }
             }
         }
@@ -395,8 +417,8 @@ small {
     &.social {
         li {
             a {
-                color: $foot-social-color;
-                border-color: $social-border-color;
+                color: var(--foot-social-color);
+                border-color: var(--social-border-color);
             }
         }
     }
@@ -404,14 +426,12 @@ small {
     &.foot-social-icon {
         li {
             a {
-                color: $foot-social-color;
-                border-color: lighten($footer, 5%);
+                color: var(--foot-social-color);
+                border-color: var(--footer);
             }
         }
     }
 }
-
-
 
 //position-middle-bottom
 .position-middle-bottom {
@@ -427,6 +447,10 @@ small {
     color: $text-color-white !important;
 }
 
+.bg-white-color {
+    background: var(--bg-white-color, $bg-white-color);
+}
+
 .d-flex {
     .flex-1 {
         flex: 1;
@@ -439,7 +463,6 @@ small {
     font-weight: normal;
     font-style: normal;
     font-size: 24px;
-    /* Preferred icon size */
     display: inline-block;
     line-height: 1;
     text-transform: none;
@@ -449,15 +472,9 @@ small {
     direction: ltr;
     overflow: hidden;
 
-    /* Support for all WebKit browsers. */
     -webkit-font-smoothing: antialiased;
-    /* Support for Safari and Chrome. */
     text-rendering: optimizeLegibility;
-
-    /* Support for Firefox. */
     -moz-osx-font-smoothing: grayscale;
-
-    /* Support for IE. */
     font-feature-settings: 'liga';
 }
 
@@ -503,4 +520,17 @@ span.icon-bg {
 /* NavBar menu icon spacing */
 span.menu-icon {
     margin: 0px 5px 3px -2px;
+}
+
+// Content Anchors
+.anchor {
+    visibility: hidden;
+}
+
+h1:hover a,
+h2:hover a,
+h3:hover a,
+h4:hover a {
+    visibility: visible;
+    text-decoration: none;
 }

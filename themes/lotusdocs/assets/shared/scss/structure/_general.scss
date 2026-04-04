@@ -1,14 +1,16 @@
+//
+// _general.scss (Shared)
+//
+
 html {
     scroll-padding-top: 80px;
-    background-color: var(--body-bg);
 }
 
 body {
     font-family: $font-family-secondary;
     overflow-x: hidden !important;
     font-size: $font-size-base;
-    color: var(--body-color);
-    background-color: var(--body-bg);
+    color: var(--body-color, $body-color);
 }
 
 @media (max-width: 1199px) {
@@ -70,7 +72,7 @@ h1,
     font-weight: 800;
     margin-top: 2rem;
     margin-bottom: 1.5rem;
-    color: var(--heading-1-color, var(--body-color));
+    color: var(--heading-1-color, var(--body-color, $body-color));
 }
 
 h2,
@@ -80,7 +82,7 @@ h2,
     font-weight: 700;
     margin-top: 1.75rem;
     margin-bottom: 1.25rem;
-    color: var(--heading-2-color, var(--body-color));
+    color: var(--heading-2-color, var(--body-color, $body-color));
 }
 
 h3,
@@ -120,18 +122,18 @@ h6,
 }
 
 ::selection {
-    background: var(--primary);
-    color: var(--white);
+    background: var(--primary, $primary);
+    color: var(--white, $white);
     opacity: 0.9;
 }
 
 a {
     text-decoration: none;
     transition: all 0.5s ease;
-    color: var(--primary);
+    color: var(--primary, $primary);
 
     &:hover {
-        color: var(--primary-800);
+        color: var(--primary-800, shade-color($primary, 20%));
     }
 }
 
@@ -141,4 +143,12 @@ p {
 
 img {
     height: auto;
+}
+
+.four-oh-four {
+    min-height: calc(100vh - 180px);
+
+    @media (max-width: 767px) {
+        min-height: calc(100vh - 241px);
+    }
 }

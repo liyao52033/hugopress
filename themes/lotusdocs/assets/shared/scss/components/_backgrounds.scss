@@ -1,0 +1,47 @@
+//
+// backgrounds.scss (Shared)
+//
+
+:root {
+    --bg-default: hsl(var(--primary-800-hsl, 220, 90%, 30%), 0.1);
+    --bg-default-border: hsl(var(--primary-800-hsl, 220, 90%, 30%), 0.1);
+    --bg-default-color: var(--text-default, #3C4257);
+}
+
+[data-dark-mode] {
+    --bg-default: var(--gray-800, #343a40);
+    --bg-default-border: hsl(var(--primary-200-hsl, 220, 90%, 80%), 0.1);
+    --bg-default-color: var(--text-default, #dee2e6);
+}
+
+.bg-default {
+    background-color: var(--bg-default) !important;
+    border: 1px solid var(--bg-default-border) !important;
+    color: var(--bg-default-color) !important;
+}
+
+.bg-primary {
+    background-color: var(--btn-primary-bg, var(--primary)) !important;
+    border: 1px solid var(--btn-primary-border, transparent) !important;
+    color: var(--btn-primary-color, var(--white)) !important;
+}
+
+@each $name, $value in $theme-colors {
+    .bg-#{$name} {
+        background-color: rgba($value, 0.04);
+    }
+
+    .bg-hard-#{$name} {
+        background-color: rgba($value, 1) !important;
+    }
+
+    .bg-soft-#{$name} {
+        background-color: rgba($value, 0.1) !important;
+        border: 1px solid rgba($value, 0.1) !important;
+        color: #{$value} !important;
+    }
+}
+
+.bg-white-color {
+    background-color: var(--bg-white-color, $white) !important;
+}

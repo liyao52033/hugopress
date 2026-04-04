@@ -28,7 +28,7 @@ $font-family-monospace: var(--font-family-monospace);
 {{ end }}
 
 // Structure
-@import "custom/structure/general";
+@import "../shared/scss/structure/general";
 @import "custom/structure/topbar";
 // @import "custom/structure/content";
 // @import "custom/structure/sidebar-layouts";
@@ -37,9 +37,9 @@ $font-family-monospace: var(--font-family-monospace);
 @import "custom/structure/footer";
 
 // // Components
-@import "custom/components/buttons";
-@import "custom/components/badge";
-@import "custom/components/backgrounds";
+@import "../shared/scss/components/buttons";
+@import "../shared/scss/components/badge";
+@import "../shared/scss/components/backgrounds";
 // @import "custom/components/alerts";
 // @import "custom/components/card";
 
@@ -47,8 +47,8 @@ $font-family-monospace: var(--font-family-monospace);
 // @import "custom/pages/blog";
 
 // 首页相关
-@import "custom/pages/features";
-@import "custom/pages/helper";
+@import "../shared/scss/pages/features";
+@import "../shared/scss/pages/helper";
 @import "custom/pages/hero";
 @import "custom/pages/blogger"; 
 @import "custom/pages/friend";

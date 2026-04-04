@@ -1,10 +1,12 @@
 //
-// _buttons.scss
+// _buttons.scss (Shared)
 //
 
 :root {
     --invert: invert(0%);
     --btn-modal-hover-bg: var(--gray-200);
+    --btn-border-radius: 6px;
+    --btn-sm-font-size: 12px;
 }
 
 [data-dark-mode] {
@@ -12,19 +14,34 @@
     --btn-modal-hover-bg: var(--gray-800);
 }
 
-//Buttons
+@each $name, $value in $theme-colors {
+    .btn-soft-#{$name} {
+        background-color: rgba($value, 0.05) !important;
+        border: 1px solid rgba($value, 0.05) !important;
+        color: if(lightness($value) > 60, #222, #fff) !important;
+        box-shadow: 0 2px 1px 0 rgba($value, 0.1);
+
+        &:hover,
+        &:focus,
+        &:active,
+        &.active,
+        &.focus {
+            background-color: #{$value} !important;
+            border-color: #{$value} !important;
+            color: if(lightness($value) > 60, #222, #fff) !important;
+        }
+    }
+}
+
 .btn-soft {
     background-color: var(--btn-soft-bg) !important;
     border: 1px solid var(--btn-soft-border) !important;
     color: var(--btn-soft-color) !important;
-    // box-shadow: 0 3px 5px 0 hsl(var(--primary-hsl), 0.1);
 
     &:hover,
-    // &:focus,
     &:active,
     &.active,
     &.focus {
-        // background-color: var(--primary) !important;
         background: var(--btn-soft-bg);
         border-color: var(--btn-soft-border) !important;
         color: var(--btn-soft-color) !important;
@@ -35,14 +52,11 @@
     background-color: var(--btn-primary-bg) !important;
     border: 1px solid var(--btn-primary-border) !important;
     color: var(--btn-primary-color) !important;
-    // box-shadow: 0 3px 5px 0 hsl(var(--primary-hsl), 0.1);
 
     &:hover,
-    // &:focus,
     &:active,
     &.active,
     &.focus {
-        // background-color: var(--primary) !important;
         background: var(--btn-primary-bg);
         border-color: var(--btn-primary-border) !important;
         color: var(--btn-primary-color) !important;
@@ -54,12 +68,10 @@
     color: var(--btn-default-color) !important;
 
     &:hover,
-    // &:focus,
     &:active,
     &.active,
     &.focus {
         background: var(--btn-default-bg);
-    //    border-color: var(--btn-default-border) !important;
         color: var(--btn-default-hover-color) !important;
     }
 }
@@ -106,7 +118,7 @@ body .toggle-light {
     letter-spacing: 0.5px;
     transition: all 0.3s;
     font-weight: 600;
-    border-radius: 6px;
+    border-radius: var(--btn-border-radius);
 
     &:focus {
         box-shadow: none !important;
@@ -114,7 +126,7 @@ body .toggle-light {
 
     &.btn-sm {
         padding: 7px 16px;
-        font-size: 12px;
+        font-size: var(--btn-sm-font-size);
     }
 
     &.btn-xs {
@@ -135,38 +147,37 @@ body .toggle-light {
         border-radius: 30px;
     }
 
-    // &.btn-light {
-    //     border: 1px solid darken($light, 2%);
-    // }
+    &.btn-light {
+        border: 1px solid darken($light, 2%);
+    }
 
     &.btn-outline-light {
-        border-color: var(--gray-200) !important;
+        border-color: var(--gray-200, $gray-200) !important;
     }
 
     &.btn-soft-light {
-        color: var(--gray-500) !important;
-        border-color: var(--gray-200) !important;
+        color: var(--gray-500, $gray-500) !important;
+        border-color: var(--gray-200, $gray-200) !important;
     }
 
     &.btn-soft-dark {
-
         &:hover,
         &:focus,
         &:active,
         &.active,
         &.focus {
-            color: var(--gray-400) !important;
-            border-color: var(--gray-200) !important;
+            color: var(--gray-400, $gray-400) !important;
+            border-color: var(--gray-200, $gray-200) !important;
         }
     }
 
     &.btn-dark,
     &.btn-secondary {
-        color: var(--gray-200);
+        color: var(--gray-200, $gray-200);
     }
 
     &.btn-outline-light {
-        color: var(--gray-900);
+        color: var(--gray-900, $gray-900);
     }
 
     &.btn-icon {
@@ -205,4 +216,8 @@ body .toggle-light {
 
 button:not(:disabled) {
     outline: none;
+}
+
+.btn-landing {
+    color: #3c4858;
 }

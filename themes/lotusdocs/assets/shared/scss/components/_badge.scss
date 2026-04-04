@@ -1,0 +1,23 @@
+//
+// _badge.scss (Shared)
+//
+
+:root {
+    --badge-letter-spacing: 1.1px;
+    --badge-padding: 6px 8px 7px 8px;
+    --badge-border-radius: 4px;
+}
+
+.badge {
+    letter-spacing: var(--badge-letter-spacing);
+    padding: var(--badge-padding);
+    font-weight: 600;
+    line-height: 11px;
+    border-radius: var(--badge-border-radius);
+
+    &.badge-link {
+        &:hover {
+            color: var(--white, #ffffff) !important;
+        }
+    }
+}
