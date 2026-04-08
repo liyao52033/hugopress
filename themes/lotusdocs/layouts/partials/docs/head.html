@@ -113,7 +113,4 @@
     {{ if .Params.katex }}
         {{- partialCached (printf "%s/%s" ($.Scratch.Get "pathName") "footer/katex.html") . -}}
     {{ end }}
-
-    {{ partial "plausible_head.html" . }}
-
 </head>
