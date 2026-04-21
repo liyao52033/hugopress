@@ -56,9 +56,9 @@
     bg: '#eaf6ff'
     color: '#33a474' 
   projectsimg: 'https://picsum.photos/600/400.webp?random=5'
-  Star: 1532,
-  Fork: 487,
-  View: 4289,
+  Star: 1532
+  Fork: 487
+  View: 4289
   github: 'https://xiaoying.org.cn/pages/c46d3c'
   
 - name: '有来开源组织'

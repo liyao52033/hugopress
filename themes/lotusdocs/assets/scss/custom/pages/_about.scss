@@ -353,7 +353,7 @@
 
 
 .oss-card:hover {
-  box-shadow: 0 8px 32px var(--vp-c-brand-1);
+  box-shadow: 0 8px 32px #539dfd;
   transform: scale(1.04);
 }
 
@@ -378,13 +378,17 @@
 }
 
 .oss-tag {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  padding: 0.1rem 1rem;
-  border-radius: 14px;
-  font-size: 1rem;
-  font-weight: 500;
+  // position: absolute;
+  // top: 14px;
+  // right: 14px;
+  // padding: 0.1rem 1rem;
+  // border-radius: 14px;
+  // font-size: 1rem;
+  // font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-left: 10px;
 }
 
 .oss-content {
@@ -401,15 +405,31 @@
   margin-bottom: 8px;
 }
 
+.oss-site-name{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .oss-desc {
   font-size: 0.98rem;
   color: #444;
-  margin-bottom: 18px;
-  min-height: 56px;
+  margin-bottom: 4rem;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+.oss-footer {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
 }
 
 .oss-data {
   display: flex;
+  justify-content: center;
+  align-items: center;
   gap: 18px;
   color: #888;
   font-size: 0.98rem;

@@ -1,0 +1,20 @@
+- name: "hugo博客"
+  github: "https://hugo.xiaoying.org.cn/"
+
+- name: 'teek博客'
+  github: 'https://teek.xiaoying.org.cn/'
+  
+- name: '网盘系统'
+  github: 'https://pan.xiaoying.org.cn/session'
+  
+- name: 'supabase接口'
+  github: 'https://ssl.xiaoying.org.cn/'
+  
+- name: 'BiliMind·收藏夹知识库'
+  github: 'https://bilibili.xiaoying.org.cn/'
+  
+- name: '自建不蒜子API'
+  github: 'https://busuanzi-eo.xiaoying.org.cn/'
+  
+- name: '随机图片API'
+  github: 'https://cnb.xiaoying.org.cn/'

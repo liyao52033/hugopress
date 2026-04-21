@@ -9,11 +9,10 @@
     <div class="about-desc">{{ .Site.Data.about.hero.desc }}</div>
     <div class="about-btns">
       {{ range .Site.Data.about.hero.buttons }}
-        <a href="{{ .link }}" class="btn about-btn btn-{{ .type }}" 
-          {{ if ne .type "primary" }}target="_blank" rel="noopener noreferrer"{{ end }}
-          >
-          {{ .text }}
-        </a>
+      <a href="{{ .link }}" class="btn about-btn btn-{{ .type }}" {{ if ne .type "primary" }}target="_blank"
+        rel="noopener noreferrer" {{ end }}>
+        {{ .text }}
+      </a>
       {{ end }}
     </div>
   </div>
@@ -57,8 +56,8 @@
             <!-- 技能标签 -->
             <div class="skill-bar-tags">
               {{ range .tags }}
-              <span class="skill-tag" style="--tag-bg: {{ default " #f0f0f0" .bg }}; --tag-color: {{ default "#333" .color
-                }}; background: var(--tag-bg); color: var(--tag-color);">
+              <span class="skill-tag" style="--tag-bg: {{ default " #f0f0f0" .bg }}; --tag-color: {{ default "#333"
+                .color }}; background: var(--tag-bg); color: var(--tag-color);">
                 {{ .name }}
               </span>
               {{ end }}
@@ -94,15 +93,39 @@
         <img src="{{ .projectsimg }}" class="oss-img" />
       </div>
       <div class="oss-content">
-        <div class="oss-name">{{ .name }}</div>
-        <div class="oss-desc">{{ .desc }}</div>
-        <div class="oss-data">
-          ⭐ {{ .Star }} | 🍴 {{ .Fork }} | 👁️ {{ .View }}
+        <div class="oss-name">
+          {{ .name }}
+          <span class="oss-tag" style="background-color: {{ .tag.bg }}; color: {{ .tag.color }};">
+            {{ .tag.name }}
+          </span>
         </div>
-        <a class="oss-btn" href="{{ .github }}" target="_blank">查看项目</a>
-      </div>
+        <div class="oss-desc">{{ .desc }}</div>
+        <div class="oss-footer">
+          <div class="oss-data">
+            ⭐ {{ .Star }} | 🍴 {{ .Fork }} | 👁️ {{ .View }}
+          </div>
+          <a class="oss-btn" href="{{ .github }}" target="_blank">查看项目</a>
+          </div>
+        </div>
     </div>
     {{ end }}
   </div>
 </div>
+
+<div class="oss-section">
+  <h2 class="oss-title">个人网站</h2>
+  <div class="oss-list">
+    {{ range .Site.Data.about.sites }}
+    <a class="oss-card" href="{{ .github }}" target="_blank" rel="noopener noreferrer">
+      <div class="oss-content">
+        <div class="oss-name oss-site-name">
+          {{ .name }}
+        </div>
+      </div>
+    </a>
+    {{ end }}
+  </div>
+</div>
+
+
 {{ end }}
