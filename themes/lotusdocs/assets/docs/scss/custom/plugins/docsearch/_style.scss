@@ -652,7 +652,6 @@ svg.DocSearch-Hit-Select-Icon {
   justify-content: center;
   line-height: 1.3em;
   margin: 0 8px;
-  overflow-x: hidden;
   position: relative;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1243,7 +1242,7 @@ svg.DocSearch-Hit-Select-Icon {
 }
 
 .DocSearch-Markdown-Content pre code {
-  background-color: transparent;
+  background-color: transparent !important;
   border-radius: 0;
   color: inherit;
   font-size: .8em;
