@@ -13,11 +13,15 @@
  * @param {object} options - 配置选项（如 title、date、url、weight 等）
  */
 
-// 引入依赖（需先安装 gray-matter）
+// 引入依赖（需先安装 gray-matter 和 dotenv）
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const matter = require('gray-matter');
 const { exec } = require('child_process');
+const { Readable } = require('stream');
+const { pipeline } = require('stream/promises');
+require('dotenv').config();
 
 const { getAllMdFiles } = require('./utils/md');
 const {
@@ -90,6 +94,334 @@ const createCategory = (flag = false, fileInfo, ignore = []) => {
 
   // 若没有分类，返回空数组（Hugo 中可省略，也可改为 ["uncategorized"]）
   return categories.length ? categories : [];
+};
+
+/**
+ * 获取文章前100字正文（保证段落完整）
+ * @param {string} content - Markdown 内容
+ * @param {number} maxLength - 最大长度（默认100）
+ * @returns {string} 提取的正文摘要
+ */
+const getFirstParagraph = (content, maxLength = 100) => {
+  // 移除 Markdown 格式
+  let text = content
+    .replace(/[#*`~\[\]]/g, '')      // 移除 Markdown 标记
+    .replace(/!\[.*?\]\(.*?\)/g, '') // 移除图片
+    .replace(/\[.*?\]\(.*?\)/g, '')  // 移除链接
+    .replace(/\n+/g, ' ')            // 换行转空格
+    .trim();
+
+  // 如果内容小于等于maxLength，直接返回
+  if (text.length <= maxLength) {
+    return text;
+  }
+
+  // 找到合适的截断点（优先在句子末尾截断）
+  const truncatePoints = ['.', '。', '!', '！', '?', '？', ';', '；', ':', '：', '，', ',', ' '];
+  let result = text.substring(0, maxLength);
+
+  // 从末尾向前找合适的截断点
+  for (let i = result.length - 1; i >= 0; i--) {
+    if (truncatePoints.includes(result[i])) {
+      result = result.substring(0, i + 1).trim();
+      break;
+    }
+  }
+
+  return result || text.substring(0, maxLength).trim();
+};
+
+const inferImageExtension = (contentType = '') => {
+  const normalized = contentType.toLowerCase();
+  if (normalized.includes('image/jpeg') || normalized.includes('image/jpg')) return '.jpg';
+  if (normalized.includes('image/webp')) return '.webp';
+  return '.png';
+};
+
+const writeBufferToTempImage = (buffer, ext = '.png') => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'hugopress-cover-'));
+  const filePath = path.join(tempDir, `cover${ext}`);
+  fs.writeFileSync(filePath, buffer);
+  return filePath;
+};
+
+const writeResponseToTempImage = async (response) => {
+  if (!response.body) {
+    throw new Error('AI API 响应缺少 body');
+  }
+
+  const ext = inferImageExtension(response.headers.get('content-type') || '');
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'hugopress-cover-'));
+  const filePath = path.join(tempDir, `cover${ext}`);
+
+  await pipeline(Readable.fromWeb(response.body), fs.createWriteStream(filePath));
+
+  return filePath;
+};
+
+const extractImagePayload = (data) => {
+  const firstItem = Array.isArray(data?.data) ? data.data[0] : null;
+
+  return {
+    b64_json: data?.b64_json || firstItem?.b64_json || null,
+    url: data?.url || firstItem?.url || null,
+  };
+};
+
+const cleanupTempImagePath = (filePath) => {
+  if (!filePath) return;
+
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+
+  const dirPath = path.dirname(filePath);
+  if (fs.existsSync(dirPath) && fs.readdirSync(dirPath).length === 0) {
+    fs.rmdirSync(dirPath);
+  }
+};
+
+
+/**
+ * 调用 AI 文生图 API 生成图片
+ * @param {string} prompt - 提示词
+ * @returns {Promise<string|null>} 本地临时图片路径，失败返回 null
+ */
+const generateImageByAI = async (prompt) => {
+  const apiKey = process.env.IMAGE_API_KEY;
+  if (!apiKey) {
+    console.warn('⚠️ 未配置 AI_API_KEY，跳过AI封面生成');
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${process.env.IMAGE_API_URL}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        prompt,
+        model: 'gpt-image-2',
+        n: 1,
+        size: '1024x1024',
+        quality: "medium",
+        response_format: "b64_json",
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`AI API 请求失败: ${response.status}`);
+    }
+
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.toLowerCase().includes('application/json')) {
+      const data = await response.json();
+      const { b64_json, url } = extractImagePayload(data);
+
+      if (b64_json) {
+        return writeBufferToTempImage(Buffer.from(b64_json, 'base64'));
+      }
+
+      if (url) {
+        const imageResponse = await fetch(url, { method: 'GET' });
+        if (!imageResponse.ok) {
+          throw new Error(`下载图片失败: ${imageResponse.status}`);
+        }
+        return await writeResponseToTempImage(imageResponse);
+      }
+
+      return null;
+    }
+
+    return await writeResponseToTempImage(response);
+  } catch (error) {
+    console.error(`❌ AI生成图片失败: ${error.message}`);
+    return null;
+  }
+};
+
+/**
+ * 上传图片到本地服务
+ * @param {string} url - 图片URL
+ * @returns {Promise<string|null>} 上传后的图片URL，失败返回null
+ */
+const uploadImage = async (url) => {
+  const apiKey = process.env.IMAGE_API_KEY;
+  if (!apiKey) {
+    console.warn('⚠️ 未配置 AI_API_KEY，跳过图片上传');
+    return null;
+  }
+  try {
+    const response = await fetch('http://127.0.0.1:36677/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({ list: [url] })
+    });
+
+    if (!response.ok) {
+      throw new Error(`上传接口请求失败: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data.success && Array.isArray(data.result) && data.result.length > 0) {
+      return data.result[0];
+    }
+
+    if (data.urls && data.urls.length > 0) {
+      return data.urls[0];
+    }
+
+    return null;
+  } catch (error) {
+    console.error(`❌ 图片上传失败: ${error.message}`);
+    return null;
+  }
+};
+
+/**
+ * 调用AI生成封面图（单个）
+ * @param {string} title - 文章标题
+ * @param {string} content - 文章正文摘要
+ * @returns {Promise<string|null>} 封面图URL，失败返回null
+ */
+const generateCoverImage = async (title, content) => {
+  const prompt = `根据以下文章内容生成一张适合作为博客封面的图片：
+
+标题：${title}
+
+内容摘要：${content}
+
+要求：
+1. 风格简约现代，适合技术博客
+2. 图片清晰，色彩协调
+3. 包含与内容相关的视觉元素`;
+
+  const localPath = await generateImageByAI(prompt);
+  if (!localPath) {
+    return null;
+  }
+
+  try {
+    return await uploadImage(localPath);
+  } finally {
+    cleanupTempImagePath(localPath);
+  }
+};
+
+/**
+ * 批量调用AI生成封面图（并行处理）
+ * @param {Array<{title: string, content: string, filePath: string}>} tasks - 任务列表
+ * @param {number} concurrency - 并发数（默认5）
+ * @returns {Promise<Map<string, string|null>>} 结果映射（filePath -> coverUrl）
+ */
+const generateCoverImagesBatch = async (tasks, concurrency = 5) => {
+  const results = new Map();
+  const apiKey = process.env.IMAGE_API_KEY;
+
+  if (!apiKey) {
+    console.warn('⚠️ 未配置 AI_API_KEY，跳过图片上传');
+    tasks.forEach(task => results.set(task.filePath, null));
+    return results;
+  }
+
+  // 构建所有提示词
+  const prompts = tasks.map(task => {
+    return `根据以下文章内容生成一张适合作为博客封面的图片：
+
+标题：${task.title}
+
+内容摘要：${task.content}
+
+要求：
+1. 风格简约现代，适合技术博客
+2. 图片清晰，色彩协调
+3. 包含与内容相关的视觉元素`;
+  });
+
+  console.log(`🚀 开始批量生成封面图，共 ${tasks.length} 个任务，并发数: ${concurrency}`);
+
+  // 分批处理
+  const batches = [];
+  for (let i = 0; i < tasks.length; i += concurrency) {
+    batches.push(tasks.slice(i, i + concurrency));
+  }
+
+  // 串行处理批次
+  for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+    const batch = batches[batchIndex];
+    const batchPrompts = prompts.slice(batchIndex * concurrency, (batchIndex + 1) * concurrency);
+
+    console.log(`📦 处理批次 ${batchIndex + 1}/${batches.length}，共 ${batch.length} 个任务`);
+    // 并行调用 AI 生成图片
+    const generationPromises = batchPrompts.map(async (prompt) => {
+      return await generateImageByAI(prompt);
+    });
+
+    const coverUrls = await Promise.all(generationPromises);
+
+    // 收集需要上传的图片（现在 coverUrls 里已经是本地临时文件路径）
+    const uploadTasks = [];
+    const uploadIndexMap = []; // 记录上传位置与原始任务的映射
+
+    coverUrls.forEach((localPath, index) => {
+      if (localPath) {
+        uploadTasks.push(localPath);
+        uploadIndexMap.push({ originalIndex: index, hasData: true });
+      } else {
+        uploadIndexMap.push({ originalIndex: index, hasData: false });
+      }
+    });
+
+    // 批量上传图片
+    let uploadResults = [];
+    if (uploadTasks.length > 0) {
+      try {
+        const response = await fetch('http://127.0.0.1:36677/upload', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({ list: uploadTasks })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && Array.isArray(data.result)) {
+            uploadResults = data.result;
+          } else {
+            uploadResults = data.urls || [];
+          }
+        }
+      } catch (error) {
+        console.error(`❌ 批次 ${batchIndex + 1} 上传失败: ${error.message}`);
+      } finally {
+        uploadTasks.forEach(cleanupTempImagePath);
+      }
+    }
+
+    // 将结果映射到对应的文件
+    let uploadPointer = 0;
+    uploadIndexMap.forEach(({ originalIndex, hasData }) => {
+      const task = batch[originalIndex];
+      let url = null;
+
+      if (hasData) {
+        url = uploadResults[uploadPointer] || null;
+        uploadPointer += 1;
+      }
+
+      results.set(task.filePath, url);
+      console.log(`  ${url ? '✅' : '❌'} "${task.title}" ${url ? '生成并上传成功' : '生成或上传失败，使用兜底方案'}`);
+    });
+  }
+
+  return results;
 };
 
 /**
@@ -171,9 +503,22 @@ const removeHeadingNumbers = (content) => {
  * @param {boolean} [option.categories] - 是否生成分类（默认 false）
  * @param {string[]} [option.ignore] - 需要忽略的文件/目录名（默认 []）
  * @param {Function} [option.transform] - 自定义修改 frontmatter 的回调（可选）
+ * @param {boolean} [option.enableAiCover] - 是否启用AI封面生成（默认 true）
+ * @param {number} [option.coverConcurrency] - AI封面生成并发数（默认5）
  */
-const writeFrontmatterToFile = (filePaths, option) => {
-  const { transform, permalinkPrefix, categories, ignore = [] } = option;
+const writeFrontmatterToFile = async (filePaths, option) => {
+  const {
+    transform,
+    permalinkPrefix,
+    categories,
+    ignore = [],
+    enableAiCover = true,
+    coverConcurrency = 5
+  } = option;
+
+  // 第一阶段：收集需要生成封面的任务
+  const coverTasks = [];
+  const fileDataMap = new Map();
 
   for (const filePath of filePaths) {
     if (!filePath.endsWith(".md")) continue;
@@ -186,13 +531,54 @@ const writeFrontmatterToFile = (filePaths, option) => {
     try {
       const fileContent = fs.readFileSync(filePath, "utf-8");
       const { data: existingFrontmatter, content: markdownContent } = matter(fileContent);
-
       const fileStat = fs.statSync(filePath);
       const fileInfo = getFileInfo(filePath);
+      const title = getMdFileTitle(fileName);
+
+      // 存储文件数据供后续使用
+      fileDataMap.set(filePath, {
+        fileName,
+        existingFrontmatter,
+        markdownContent,
+        fileStat,
+        fileInfo,
+        title
+      });
+
+      // 如果缺少 cover 字段且启用了AI封面生成，添加到任务列表
+      if (enableAiCover && !existingFrontmatter.cover) {
+        contentSummary = existingFrontmatter.description || getFirstParagraph(markdownContent);
+        coverTasks.push({
+          filePath,
+          title,
+          content: contentSummary
+        });
+      }
+    } catch (error) {
+      console.error(`❌ 读取文件失败：${filePath}`, error.message);
+    }
+  }
+
+  // 第二阶段：批量生成封面图（并行处理）
+  let coverResults = new Map();
+  if (coverTasks.length > 0) {
+    coverResults = await generateCoverImagesBatch(coverTasks, coverConcurrency);
+  }
+
+  // 第三阶段：写入 frontmatter（串行处理，避免文件写入冲突）
+  for (const [filePath, data] of fileDataMap) {
+    try {
+      const { fileName, existingFrontmatter, markdownContent, fileStat, fileInfo, title } = data;
+
+      // 生成兜底封面URL
+      const fallbackCover = `https://cnb.xiaoying.org.cn?random=${createPermalink(permalinkPrefix)}`;
+
+      // 获取AI生成的封面（如果有）
+      const aiCoverUrl = coverResults.get(filePath) || null;
 
       // 默认 frontmatter（只会在缺失时补充，不覆盖已有字段）
       const defaultFrontmatter = {
-        title: getMdFileTitle(fileName),
+        title: title,
         date: formatDate(fileStat.birthtime || fileStat.atime),
         url: createPermalink(permalinkPrefix),
         type: "docs",
@@ -200,7 +586,7 @@ const writeFrontmatterToFile = (filePaths, option) => {
         license: true,
         twikoo: true,
         footer: false,
-        cover: `https://cnb.xiaoying.org.cn?random=${createPermalink(permalinkPrefix)}`,
+        cover: aiCoverUrl || fallbackCover, // AI生成的封面或兜底方案
         weight: calculateWeight(filePath, {
           weightStep: option.weightStep || 10,
           defaultWeight: option.defaultWeight || 9999,
@@ -212,7 +598,6 @@ const writeFrontmatterToFile = (filePaths, option) => {
           name: "华总",
           link: "https://xiaoying.org.cn",
         },
-
       };
 
       // 先复制已有 frontmatter
@@ -401,7 +786,7 @@ const addToGitignore = (frontmatter, filePath, removeGitCached) => {
 // 自动执行逻辑（脚本运行时触发）
 // ======================================
 
-function main() {
+async function main() {
   // 1. 配置参数（可根据你的需求修改）
   const config = {
     permalinkPrefix: "pages", // permalink 前缀（如 "posts" → /posts/xxx），不需要则设为 undefined
@@ -412,11 +797,11 @@ function main() {
     defaultWeight: 9999, // 默认权重（当无法计算时使用）
     removeGitCached: true, // 是否移除加密文章的 Git 缓存
     enableDebugLog: false, // 是否启用调试日志
+    enableAiCover: true, // 是否启用AI封面生成
+    coverConcurrency: 5, // AI封面生成并发数（建议根据服务器性能调整）
     // 自定义转换 frontmatter（可选，根据需求修改）
     transform: (frontmatter, fileInfo) => {
-
       addToGitignore(frontmatter, fileInfo.filePath, config.removeGitCached);
-
     }
   };
 
@@ -433,7 +818,7 @@ function main() {
     console.log(`ℹ️ content/ 目录下没有 .md 文件`);
     return;
   }
-  writeFrontmatterToFile(mdFiles, config);
+  await writeFrontmatterToFile(mdFiles, config);
 }
 
 if (require.main === module) {
@@ -445,5 +830,11 @@ module.exports = {
   calculateWeight,
   getMdFilesWithNumbers,
   getSubDirectoriesWithNumbers,
-  hasAnyWeightedFiles
+  hasAnyWeightedFiles,
+  inferImageExtension,
+  cleanupTempImagePath,
+  generateImageByAI,
+  uploadImage,
+  generateCoverImage,
+  generateCoverImagesBatch
 };
