@@ -6,6 +6,8 @@
     --dashboard-cta: #16A34A;
     --dashboard-bg: #F0FDFA;
     --dashboard-text: #0F766E;
+    // solid muted color for AA/AAA contrast on --dashboard-bg (no opacity)
+    --dashboard-text-muted: #115E59;
     --dashboard-card-bg: #ffffff;
     --dashboard-border: #CBD5E1;
     --dashboard-hover: #E2E8F0;
@@ -1498,8 +1500,7 @@
 
                 .weather-update {
                     font-size: 0.75rem;
-                    color: var(--dashboard-text);
-                    opacity: 0.7;
+                    color: var(--dashboard-text-muted);
                 }
             }
         }
@@ -1525,8 +1526,7 @@
                 }
 
                 .detail-label {
-                    color: var(--dashboard-text);
-                    opacity: 0.7;
+                    color: var(--dashboard-text-muted);
                     font-size: 0.75rem;
                 }
 
@@ -1582,8 +1582,7 @@
 
                     .alarm-content {
                         font-size: 0.75rem;
-                        color: var(--dashboard-text);
-                        opacity: 0.8;
+                        color: var(--dashboard-text-muted);
                         line-height: 1.5;
                     }
                 }
