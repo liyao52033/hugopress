@@ -33,22 +33,6 @@
           {{ if or $showAll (in $groups .title) }}
             {{ range .list }}
             <a href="{{ .url }}" class="tk-friend-link-item" target="_blank" rel="noopener noreferrer" title="{{ .name }} - {{ .description }}">
-              <div class="tk-friend-avatar">
-                {{ $avatar := .avatar }}
-                {{/* 友链头像优化：缩小到 100x100 (2x 显示为 50x50) */}}
-                {{ if in $avatar "img.xxdevops.cn" }}
-                  {{ $baseUrl := $avatar }}
-                  {{ if in $avatar "?" }}
-                    {{ $baseUrl = index (split $avatar "?") 0 }}
-                  {{ end }}
-                  {{ $avatar = printf "%s?w=100&h=100&fit=crop&fm=webp&q=85" $baseUrl }}
-                {{ end }}
-                <img src="{{ $avatar }}"
-                     alt="{{ .name }}"
-                     width="50"
-                     height="50"
-                     loading="lazy">
-              </div>
               <div class="tk-friend-info">
                 <div class="tk-friend-name">{{ .name }}</div>
                 <div class="tk-friend-desc">{{ .description | truncate 20 "..." }}</div>

@@ -223,21 +223,5 @@
         carouselWidgets.forEach(widget => {
             new WidgetCarousel(widget);
         });
-
-        // 友链卡片图片加载错误处理
-        const friendLinkImages = document.querySelectorAll('.tk-friend-link-item img, .tk-friend-avatar img');
-        friendLinkImages.forEach(img => {
-            img.addEventListener('error', function () {
-                console.warn('[FriendLinks Card] 图片加载失败:', this.src);
-                // 使用简单的SVG占位图
-                this.src = 'data:image/svg+xml,' + encodeURIComponent(
-                    '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">' +
-                    '<rect width="80" height="80" fill="#f3f4f6"/>' +
-                    '<text x="40" y="40" font-family="Arial" font-size="12" fill="#9ca3af" text-anchor="middle" dominant-baseline="middle">加载失败</text>' +
-                    '</svg>'
-                );
-                this.onerror = null; // 防止无限循环
-            });
-        });
     });
 })();
