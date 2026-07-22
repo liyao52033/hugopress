@@ -1,25 +1,10 @@
 {{/*全局通用js,css文件*/}}
 
-{{/* 统计脚本延后到 idle，避免与首屏渲染争用主线程/网络 */}}
-<script>
-  (function () {
-    var load = function () {
-      var s1 = document.createElement('script');
-      s1.src = 'https://busuanzi-eo.xiaoying.org.cn/config.js';
-      s1.defer = true;
-      document.body.appendChild(s1);
-      var s2 = document.createElement('script');
-      s2.src = 'https://busuanzi-eo.xiaoying.org.cn/busuanzi.eo.js';
-      s2.async = true;
-      document.body.appendChild(s2);
-    };
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(load, { timeout: 4000 });
-    } else {
-      window.addEventListener('load', function () { setTimeout(load, 1500); });
-    }
-  })();
-</script>
+<!-- 不蒜子统计  -->
+<!-- 预连接：加crossorigin=anonymous 适配后续/api的跨域XHR请求，强制复用 -->
+<link rel="preconnect" href="https://busuanzi.xiaoying.org.cn" crossorigin="anonymous">
+<script src="https://busuanzi-eo.xiaoying.org.cn/config.js"></script>
+<script async src="https://busuanzi-eo.xiaoying.org.cn/busuanzi.eo.js"></script>
 
 
 {{ if site.Params.docs.backToTop | default true }}
