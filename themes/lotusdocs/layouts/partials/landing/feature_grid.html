@@ -27,7 +27,8 @@
                                     <i class="material-icons align-middle h4 mb-0">{{ .icon }}</i>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="title" style="color:#222;font-size: 35px;font-weight: 600;">{{ .title }}</p>
+                                    {{/* 字号必须与 .features .title 最终样式一致，避免异步 CSS 落地时 CLS */}}
+                                    <p class="title">{{ .title }}</p>
                                     <p class="text-muted para mb-0">{{ .description | markdownify }}</p>
                                     {{ with .ctaLink }}
                                     <div class="mt-2">

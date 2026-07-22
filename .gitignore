@@ -20,6 +20,7 @@ static/js/dist
 static/js/theme
 _vendor
 hugo_stats.json
+assets/jsconfig.json
 
 content/工具类/05.hugo开发/02.Hugo资源管道使用指南.md
 

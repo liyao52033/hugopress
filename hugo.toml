@@ -193,7 +193,7 @@ ignoreLogs = ['warning-goldmark-raw-html']
         
     [params.blogger]
       avatar = "https://img.xiaoying.org.cn/img/20250725164502996.png"
-      backgroundImage = "https://img.xxdevops.cn/blog/wallpaper/bg14.avif"  # 博主卡片背景图（可选，留空则使用纯色背景）
+      backgroundImage = "https://img.xiaoying.org.cn/img/20260722215033737.avif"  # 博主卡片背景图（可选，留空则使用纯色背景）
       circleBgImg = "https://img.xiaoying.org.cn/img/20250725164502996.png"
       circleBgMask = false
       name = "liyao"

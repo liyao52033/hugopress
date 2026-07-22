@@ -13,43 +13,103 @@
     <meta name="Version" content="v0.1.0" />
     <meta name="algolia-site-verification" content="CA4B71628D467FFC" />
 
-    {{- $bootstrapCss := resources.Get "scss/bootstrap.min.css" -}}
-    {{- $bootstrapCss = $bootstrapCss | resources.ExecuteAsTemplate "/scss/bootstrap.min.css" . | css.PostCSS }}
-    {{/*  {{- if hugo.IsProduction }}
-        {{- $bootstrapCss = $bootstrapCss | fingerprint "sha384" }}
-    {{- end }}  */}}
-    {{/*  <link href="{{$bootstrapCss.RelPermalink}}" rel="stylesheet" {{ if hugo.IsProduction
-        }}integrity="{{ $bootstrapCss.Data.Integrity }}" {{ end -}} />  */}}
-
-    <!-- 所有 CSS 均应放在 <head>，确保渲染优先 -->
     <!-- favicon -->
     {{ block "head/favicon" . }}{{ partialCached "head/favicon.html" . }}{{ end }}
     <!-- Google Fonts -->
     {{- partial "google-fonts" . }}
 
-    <!-- Custom CSS -->
+    {{/* 首屏关键 CSS：与最终样式对齐，消除异步 CSS 落地引起的 CLS */}}
+    <style>
+        html{scroll-behavior:smooth}
+        *,*::before,*::after{box-sizing:border-box}
+        body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif;font-size:1rem;line-height:1.5;color:#3c4858;background:#fff;overflow-x:hidden}
+        a{text-decoration:none;color:inherit}
+        img,svg{max-width:100%;height:auto;vertical-align:middle}
+        p{margin-top:0;margin-bottom:1rem;line-height:1.6}
+        h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:600;line-height:1.4}
+        #topnav{position:fixed;right:0;left:0;top:0;z-index:999;background:#fff;border:0}
+        #topnav .container{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:1140px;margin:0 auto;padding:0 15px;min-height:70px}
+        .logo{display:inline-flex;align-items:center;gap:.5rem;float:left;font-weight:700;font-size:24px;margin-right:15px;letter-spacing:1px;line-height:1;color:#3c4858}
+        .logo svg{height:26px;width:auto;display:block;flex-shrink:0}
+        .logo span{line-height:1;white-space:nowrap}
+        main#content{padding-top:70px}
+        .container{width:100%;max-width:1140px;margin:0 auto;padding:0 15px}
+        .row{display:flex;flex-wrap:wrap;margin-right:-15px;margin-left:-15px}
+        [class*="col-"]{position:relative;width:100%;padding-right:15px;padding-left:15px}
+        .col-12{flex:0 0 100%;max-width:100%}
+        .col-lg-12{flex:0 0 100%;max-width:100%}
+        .col-md-4,.col-md-6,.col-lg-6{flex:0 0 100%;max-width:100%}
+        @media (min-width:768px){.col-md-4{flex:0 0 33.333333%;max-width:33.333333%}.col-md-6{flex:0 0 50%;max-width:50%}}
+        @media (min-width:992px){.col-lg-6{flex:0 0 50%;max-width:50%}}
+        .hero{padding:50px 0 24px}
+        .title-heading{line-height:1.4}
+        .title-heading .heading{font-size:35px!important;letter-spacing:1px;line-height:1.25;font-weight:600;margin:.5rem 0 1rem;color:#3c4858}
+        .title-heading .para-desc,.para-desc{max-width:600px}
+        .text-muted,.para-desc,.features .para{color:#495057!important}
+        @media (min-width:769px){.title-heading .heading{font-size:65px!important}.title-heading .para-desc{font-size:18px}}
+        .badge{display:inline-block;padding:.35em .65em;font-size:.75em;font-weight:600;line-height:1;text-align:center;white-space:nowrap;vertical-align:baseline;border-radius:.25rem}
+        .bg-soft-primary{background-color:rgba(0,80,179,.05)!important;color:#0050b3}
+        .btn{display:inline-block;padding:8px 20px;font-size:16px;font-weight:600;letter-spacing:.5px;line-height:1.5;text-align:center;border-radius:5px;border:1px solid transparent;cursor:pointer;transition:none}
+        .btn-lg{padding:14px 30px;font-size:16px}
+        .btn-primary{background-color:#0050b3;border-color:#0050b3;color:#fff}
+        .btn-outline-primary{background-color:transparent;border-color:#0050b3;color:#0050b3}
+        .mt-100{margin-top:100px}
+        @media (max-width:768px){.mt-60{margin-top:60px}}
+        .features{width:100%}
+        .features .title{font-size:22px!important;font-weight:600;color:#222;margin:0 0 .5rem;line-height:1.4}
+        .features .icon,.features .no-icon{height:45px;min-width:45px;display:flex;align-items:center;justify-content:center}
+        .features.feature-primary .icon{background:rgba(0,80,179,.05)}
+        .features.feature-primary .no-icon{background:transparent}
+        .d-flex .flex-1{flex:1 1 auto;min-width:0}
+        .p-3{padding:1rem!important}
+        .me-3{margin-right:1rem!important}
+        .me-2{margin-right:.5rem!important}
+        .mb-1{margin-bottom:.25rem!important}
+        .mb-2{margin-bottom:.5rem!important}
+        .mb-3{margin-bottom:1rem!important}
+        .mb-4{margin-bottom:1.5rem!important}
+        .mt-0{margin-top:0!important}
+        .mt-2{margin-top:.5rem!important}
+        .mt-3{margin-top:1rem!important}
+        .mb-0{margin-bottom:0!important}
+        .text-center{text-align:center!important}
+        .text-primary{color:#0050b3!important}
+        .justify-content-center{justify-content:center!important}
+        .justify-content-between{justify-content:space-between!important}
+        .align-items-center{align-items:center!important}
+        .flex-wrap{flex-wrap:wrap!important}
+        .d-flex{display:flex!important}
+        .d-inline-flex{display:inline-flex!important}
+        .flex-column{flex-direction:column!important}
+        .min-vh-100{min-height:100vh!important}
+        .d-none{display:none!important}
+        .w-100{width:100%!important}
+        .overflow-hidden{overflow:hidden!important}
+        /* 首屏以下 dashboard 跳过初始渲染，降低 Style/Layout 与 CLS */
+        .dashboard-container{content-visibility:auto;contain-intrinsic-size:1000px 2400px}
+        @media (min-width:992px){.d-lg-flex{display:flex!important}.d-lg-none{display:none!important}.d-lg-block{display:block!important}}
+    </style>
+
+    <!-- Custom CSS：style.scss 已 @import bootstrap，不再二次拼接 bootstrap.min.css -->
     {{- $options := dict "enableSourceMap" true }}
     {{- if hugo.IsProduction}}
-        {{- $options := dict "enableSourceMap" false "outputStyle" "compressed" }}
+        {{- $options = dict "enableSourceMap" false "outputStyle" "compressed" }}
     {{- end }}
     {{- $style := resources.Get "scss/style.scss" }}
     {{- $style = $style | resources.ExecuteAsTemplate "/scss/style.scss" . | css.Sass $options | css.PostCSS }}
     {{- if hugo.IsProduction }}
-        {{- $style = $style | minify }}
-        {{/*  {{- $style = $style | minify | fingerprint "sha384" }}  */}}
+        {{- $style = $style | minify | fingerprint "sha384" }}
     {{- end -}}
-    {{- $bundle := (slice $bootstrapCss $style) | resources.Concat "/scss/bundle.css" }}
-    {{- if hugo.IsProduction }}
-        {{- $bundle = $bundle | fingerprint "sha384" }}
-    {{- end }}
 
-    <link rel="preload" as="style" href="{{ $bundle.RelPermalink }}" 
-    {{ if hugo.IsProduction }}integrity="{{ $bundle.Data.Integrity }}" {{ end -}}
-    crossorigin
-    >
-    <link rel="stylesheet" href="{{ $bundle.RelPermalink }}" {{ if hugo.IsProduction }}integrity="{{ $bundle.Data.Integrity }}" {{ end -}}  
-        crossorigin
-    />
+    {{/* 非关键 CSS 异步加载，消除 render-blocking 对 LCP 的 Element render delay */}}
+    <link rel="stylesheet" href="{{ $style.RelPermalink }}"
+        {{ if hugo.IsProduction }}integrity="{{ $style.Data.Integrity }}" {{ end -}}
+        crossorigin media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="{{ $style.RelPermalink }}"
+            {{ if hugo.IsProduction }}integrity="{{ $style.Data.Integrity }}" {{ end -}}
+            crossorigin>
+    </noscript>
 
 
     <!-- Custom JS -->

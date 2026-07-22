@@ -4,7 +4,8 @@
         <!-- Logo container-->
         <a class="logo" aria-label="Home" href='{{ relLangURL "" }}'>
             {{ with resources.Get "images/logos/mark.svg" }}
-                {{ .Content | safeHTML }}
+                {{/* 去掉 XML 声明，避免 HTML 内联 SVG 解析异常 */}}
+                {{ replace .Content "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" "" | safeHTML }}
             {{ end }}
             <span>组件库文档</span>
         </a>
