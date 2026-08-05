@@ -795,7 +795,7 @@ async function main() {
     // 权重计算配置
     weightStep: 10, // 权重递增步长
     defaultWeight: 9999, // 默认权重（当无法计算时使用）
-    removeGitCached: true, // 是否移除加密文章的 Git 缓存
+    removeGitCached: false, // 是否移除加密文章的 Git 缓存
     enableDebugLog: false, // 是否启用调试日志
     enableAiCover: true, // 是否启用AI封面生成
     coverConcurrency: 5, // AI封面生成并发数（建议根据服务器性能调整）

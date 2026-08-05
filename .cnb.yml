@@ -1,26 +1,24 @@
 main:
   push:
-    - docker:
+    - docker: 
         image: docker.cnb.cool/liyao52033/images/hugo-eo:latest
-        volumes:
-          - /root/.cache/yarn
-      lock: true
-      stages:
+      stages: 
         - name: pull-and-merge-private-repo
+          image: alpine/git
           imports: https://cnb.cool/liyao52033/envs/-/blob/main/private.yml
           script: |
             PRIVATE_REPO_URL="https://cnb:${PRIVATE_REPO_TOKEN}@cnb.cool/liyao52033/privatemd"
             TEMP_BRANCH="temp-private-merge"
-            git fetch --depth 1 "${PRIVATE_REPO_URL}" main:${TEMP_BRANCH}
+            git branch -D ${TEMP_BRANCH} || true
+            git fetch "${PRIVATE_REPO_URL}" main:${TEMP_BRANCH}
             CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
             git checkout ${TEMP_BRANCH} -- .
             git add .
             git commit -m "Force overwrite with private repo files" --no-edit || true
-            git branch -D ${TEMP_BRANCH} 2>/dev/null || true
         - name: install-dependencies
           script: |
             echo "Installing dependencies..."
-            yarn install --frozen-lockfile || yarn install
+            yarn
             echo "✅ 依赖安装完成"
         - name: build with hugo
           imports: https://cnb.cool/liyao52033/envs/-/blob/main/hugo-env.yml
@@ -36,19 +34,17 @@ main:
             cp edgeone.json dist/edgeone.json
             cp -r edge-functions dist/edge-functions
         - name: deploy-to-edgeone-pages
-          imports: https://cnb.cool/liyao52033/envs/-/blob/main/envs.yml
+          imports:  https://cnb.cool/liyao52033/envs/-/blob/main/envs.yml
           script: |
             echo "Deploying to EdgeOne Pages..."
             edgeone pages deploy ./dist -n vuepress-vdoing -t $EDGEONE_PAGES_API_TOKEN
         - name: prepare bg branch
-          script: |
-            git fetch --depth 1 origin main
-            # 1. 丢弃所有已跟踪文件的本地修改
-            git checkout -- .
-            # 2. 清理所有未跟踪文件/目录（包括 .gitignore 的本地新增内容）
-            git clean -fd
-            # 3. 强制切换到远端 main 分支
-            git checkout -B bg origin/main 2>/dev/null || git checkout -b bg origin/main
+          image: alpine/git
+          commands:
+            - git fetch origin main
+            - git reset --hard HEAD  
+            - git clean -fd 
+            - git checkout -b bg origin/main
         - name: sync-to-github
           image: tencentcom/git-sync
           imports: https://cnb.cool/liyao52033/envs/-/blob/main/github-env.yml
