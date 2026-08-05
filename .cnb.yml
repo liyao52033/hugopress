@@ -43,6 +43,11 @@ main:
         - name: prepare bg branch
           script: |
             git fetch --depth 1 origin main
+            # 1. 丢弃所有已跟踪文件的本地修改
+            git checkout -- .
+            # 2. 清理所有未跟踪文件/目录（包括 .gitignore 的本地新增内容）
+            git clean -fd
+            # 3. 强制切换到远端 main 分支
             git checkout -B bg origin/main 2>/dev/null || git checkout -b bg origin/main
         - name: sync-to-github
           image: tencentcom/git-sync
