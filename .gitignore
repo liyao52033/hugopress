@@ -6,3 +6,4 @@ node_modules
 hugo_stats.json
 yarn.lock
 resources
+.github
